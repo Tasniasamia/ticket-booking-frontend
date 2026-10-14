@@ -16,10 +16,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="en" suppressHydrationWarning
       className={`${jakarta.variable} dark h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-bg text-fg"><ThemeProvider>{children}</ThemeProvider></body>
+      <body suppressHydrationWarning className="flex min-h-full flex-col bg-bg text-fg"><ThemeProvider>{children}</ThemeProvider></body>
     </html>
   );
 }
