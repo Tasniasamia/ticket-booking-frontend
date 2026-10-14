@@ -64,3 +64,5 @@ export const FAQS = [
   { q: "How do I change the language or currency?", a: "Use the language and currency menus in the header. Your choice is remembered on this device." },
   { q: "How can I become an event manager?", a: "Create an account and contact us with your organisation details. After verification an admin upgrades your role." },
 ];
+
+
