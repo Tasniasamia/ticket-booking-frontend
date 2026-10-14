@@ -12,7 +12,7 @@ export function Carousel({ children, label }: { children: React.ReactNode; label
     if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
   };
   const btn =
-    "grid size-11 place-items-center rounded-full glass transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-coral";
+    "grid size-11 place-items-center rounded-full glass transition hover:bg-fg/20 focus-visible:outline-2 focus-visible:outline-coral";
 
   return (
     <div>

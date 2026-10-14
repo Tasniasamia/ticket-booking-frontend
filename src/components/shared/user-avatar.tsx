@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 /** ছবি থাকলে ছবি, না থাকলে নামের প্রথম অক্ষর gradient circle এ। */
 export function UserAvatar({ name, image, className }: { name: string; image?: string | null; className?: string }) {
-  const base = "relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-white/25";
+  const base = "relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-fg/25";
   if (image) {
     return (
       <span className={cn(base, className)}>

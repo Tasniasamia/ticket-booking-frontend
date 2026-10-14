@@ -14,17 +14,17 @@ export function Hero() {
             <br />
             <span className="text-grad">own the night.</span>
           </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/70">
+          <p className="mt-5 max-w-lg text-lg leading-relaxed text-fg/70">
             Find concerts, festivals and club nights near you. Pick a seat, pay securely and get your booking code in seconds.
           </p>
 
           <form action="/events" className="glass mt-8 flex max-w-xl items-center gap-2 rounded-full p-2 pl-5">
-            <Search className="size-5 shrink-0 text-white/55" />
+            <Search className="size-5 shrink-0 text-fg/55" />
             <input
               name="search"
               aria-label="Search events"
               placeholder="Search artist, event or city"
-              className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none placeholder:text-white/45"
+              className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none placeholder:text-fg/45"
             />
             <button className="btn-grad rounded-full px-6 py-3 text-sm font-semibold">Find events</button>
           </form>
@@ -32,12 +32,12 @@ export function Hero() {
           <div className="mt-8 flex items-center gap-4">
             <ul className="flex -space-x-3">
               {MANAGERS.slice(0, 4).map((m) => (
-                <li key={m.id} className="relative size-10 overflow-hidden rounded-full ring-2 ring-ink">
+                <li key={m.id} className="relative size-10 overflow-hidden rounded-full ring-2 ring-bg">
                   <Image src={m.image} alt="" fill sizes="40px" className="object-cover" />
                 </li>
               ))}
             </ul>
-            <p className="text-sm text-white/65">Join 45,000+ people who booked with us</p>
+            <p className="text-sm text-fg/65">Join 45,000+ people who booked with us</p>
           </div>
         </div>
 
@@ -49,9 +49,9 @@ export function Hero() {
               <Image src={IMAGES.hero} alt="Crowd cheering at a live concert" fill priority sizes="(min-width:1024px) 480px, 90vw" className="object-cover" />
               <div className="absolute inset-0 bg-linear-to-t from-ink/80 via-transparent to-transparent" />
               <span className="btn-grad absolute right-4 top-4 rounded-full px-4 py-1.5 text-sm font-bold">${EVENTS[0].price}</span>
-              <div className="glass absolute inset-x-3 bottom-3 rounded-3xl p-4">
+              <div className="glass-img absolute inset-x-3 bottom-3 rounded-3xl p-4">
                 <p className="font-bold">{EVENTS[0].title}</p>
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-white/70"><MapPin className="size-4" />{EVENTS[0].location}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-fg/70"><MapPin className="size-4" />{EVENTS[0].location}</p>
                 <Link href={`/events/${EVENTS[0].id}`} className="btn-grad mt-3 inline-block rounded-full px-5 py-2 text-sm font-semibold">Book now</Link>
               </div>
             </div>

@@ -20,7 +20,7 @@ export function SectionHeading({
     <div className={cn("mb-10 flex flex-wrap items-end justify-between gap-4", className)}>
       <div className="max-w-xl">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
-        {subtitle && <p className="mt-3 text-base leading-relaxed text-white/65">{subtitle}</p>}
+        {subtitle && <p className="mt-3 text-base leading-relaxed text-fg/65">{subtitle}</p>}
       </div>
       {href && (
         <Link href={href} className="text-sm font-semibold text-coral hover:underline focus-visible:outline-2 focus-visible:outline-coral">

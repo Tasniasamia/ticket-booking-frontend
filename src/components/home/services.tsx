@@ -17,7 +17,7 @@ export function Services() {
           <article key={title} className={`glass rounded-4xl p-6 ${i % 2 ? "lg:mt-8" : ""}`}>
             <span className={`grid size-14 place-items-center rounded-2xl bg-linear-to-br ${tone}`}><Icon className="size-6" /></span>
             <h3 className="mt-6 text-lg font-bold">{title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-white/65">{text}</p>
+            <p className="mt-2 text-sm leading-relaxed text-fg/65">{text}</p>
           </article>
         ))}
       </div>

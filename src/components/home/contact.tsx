@@ -9,7 +9,7 @@ const INFO = [
   { icon: Phone, label: "Phone", value: "+880 1700 000000" },
   { icon: MapPin, label: "Office", value: "Khulna, Bangladesh" },
 ];
-const field = "w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 outline-none transition placeholder:text-white/40 focus:border-coral";
+const field = "w-full rounded-2xl border border-fg/15 bg-fg/5 px-4 py-3 outline-none transition placeholder:text-fg/40 focus:border-coral";
 
 export function Contact() {
   const [sent, setSent] = useState(false);
@@ -22,7 +22,7 @@ export function Contact() {
             {INFO.map(({ icon: Icon, label, value }) => (
               <li key={label} className="glass flex items-center gap-4 rounded-3xl p-4">
                 <span className="btn-grad grid size-12 place-items-center rounded-2xl"><Icon className="size-5" /></span>
-                <div><p className="text-sm text-white/55">{label}</p><p className="font-semibold">{value}</p></div>
+                <div><p className="text-sm text-fg/55">{label}</p><p className="font-semibold">{value}</p></div>
               </li>
             ))}
           </ul>

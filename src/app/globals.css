@@ -139,28 +139,64 @@
   --color-ice: #4cc3f5;
 }
 
+/* Theme-aware colors: light = default, dark = .dark (next-themes) */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-panel: var(--panel);
+}
+
+:root {
+  --bg: #f8f5ff;
+  --fg: #1a1030;
+  --panel: #ffffff;
+  --glass-from: rgb(255 255 255 / 0.85);
+  --glass-to: rgb(255 255 255 / 0.5);
+  --glass-border: rgb(124 58 237 / 0.16);
+  --glow: 0.16;
+}
+.dark {
+  --bg: #0b0915;
+  --fg: #ffffff;
+  --panel: #1a0f33;
+  --glass-from: rgb(255 255 255 / 0.14);
+  --glass-to: rgb(255 255 255 / 0.04);
+  --glass-border: rgb(255 255 255 / 0.14);
+  --glow: 0.35;
+}
+
 @layer utilities {
   .glass {
-    background: linear-gradient(135deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.04));
-    border: 1px solid rgb(255 255 255 / 0.14);
+    background: linear-gradient(135deg, var(--glass-from), var(--glass-to));
+    border: 1px solid var(--glass-border);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
   }
+  /* ছবির উপরের panel: দুই theme এই dark glass + সাদা লেখা */
+  .glass-img {
+    --fg: #fff;
+    color: #fff;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.2), rgb(11 9 21 / 0.45));
+    border: 1px solid rgb(255 255 255 / 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
   .btn-grad {
+    color: #fff;
     background-image: linear-gradient(90deg, #c936b4 0%, #ff6f61 100%);
     box-shadow: 0 8px 24px -8px rgb(214 58 168 / 0.6);
   }
   .text-grad {
-    background-image: linear-gradient(90deg, #e86cd0, #ff9a6c);
+    background-image: linear-gradient(90deg, #d63aa8, #ff7a59);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .page-glow {
     background:
-      radial-gradient(60rem 40rem at 5% -5%, rgb(124 58 237 / 0.35), transparent 60%),
-      radial-gradient(50rem 40rem at 100% 25%, rgb(214 58 168 / 0.22), transparent 60%),
-      radial-gradient(50rem 40rem at 0% 75%, rgb(76 195 245 / 0.14), transparent 60%);
+      radial-gradient(60rem 40rem at 5% -5%, rgb(124 58 237 / var(--glow)), transparent 60%),
+      radial-gradient(50rem 40rem at 100% 25%, rgb(214 58 168 / calc(var(--glow) * 0.65)), transparent 60%),
+      radial-gradient(50rem 40rem at 0% 75%, rgb(76 195 245 / calc(var(--glow) * 0.4)), transparent 60%);
   }
   .no-scrollbar { scrollbar-width: none; }
   .no-scrollbar::-webkit-scrollbar { display: none; }

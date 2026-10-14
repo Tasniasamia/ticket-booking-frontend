@@ -29,7 +29,7 @@ export function About() {
 
         <div>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">We make going out simple</h2>
-          <p className="mt-4 max-w-lg leading-relaxed text-white/70">
+          <p className="mt-4 max-w-lg leading-relaxed text-fg/70">
             TicketBooking connects people with live events and the managers who run them. Browse, compare and book without queues, then message the organiser if you need help.
           </p>
           <ul className="mt-7 space-y-4">
