@@ -1,0 +1,24 @@
+import { Quote } from "lucide-react";
+import { Section, SectionHeading } from "@/components/shared/section";
+import { UserAvatar } from "@/components/shared/user-avatar";
+import { TESTIMONIALS } from "@/lib/mock-data";
+
+export function Testimonials() {
+  return (
+    <Section id="testimonials">
+      <SectionHeading title="What our guests say" />
+      <div className="grid gap-5 lg:grid-cols-3">
+        {TESTIMONIALS.map((t, i) => (
+          <figure key={t.name} className={`rounded-4xl p-7 ${i === 1 ? "btn-grad lg:-translate-y-4" : "glass"}`}>
+            <Quote className="size-8 opacity-60" />
+            <blockquote className="mt-4 leading-relaxed">{t.text}</blockquote>
+            <figcaption className="mt-6 flex items-center gap-3">
+              <UserAvatar name={t.name} />
+              <div><p className="font-semibold">{t.name}</p><p className="text-sm opacity-70">{t.role}</p></div>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </Section>
+  );
+}
