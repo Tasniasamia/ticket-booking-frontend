@@ -1,8 +1,8 @@
+import { Suspense } from "react";
 import { VerifyOtpForm } from "@/components/auth/verify-otp-form";
 import { PageHero } from "@/components/shared/page-hero";
-import React from "react";
 
-const page = () => {
+export default function Page() {
   return (
     <div>
       <PageHero
@@ -10,9 +10,9 @@ const page = () => {
         subtitle="We've sent a verification code to your email address. Enter the code below to verify your identity."
       />
 
-      <VerifyOtpForm />
+      <Suspense fallback={<p className="text-center py-10">Loading...</p>}>
+        <VerifyOtpForm />
+      </Suspense>
     </div>
   );
-};
-
-export default page;
+}

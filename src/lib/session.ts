@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { SESSION_COOKIE } from "@/lib/constants";
+import { OTP_FLOW_COOKIE, OTP_FLOW_TTL_SEC, SESSION_COOKIE, type OtpFlowReason } from "@/lib/constants";
 import { decodeJwt, isExpired } from "@/lib/jwt";
 
 const FALLBACK_TTL_MS = 24 * 60 * 60 * 1000; // backend এর defaultTokenDuration (24h)
@@ -37,4 +37,20 @@ export async function getSessionUser() {
 
 export async function clearSession() {
   (await cookies()).delete(SESSION_COOKIE);
+}
+
+/** OTP page এ ঢোকার অনুমতি। signup, unverified login আর forgot-password এর পর বসে। */
+export async function setOtpFlow(email: string, reason: OtpFlowReason) {
+  (await cookies()).set(OTP_FLOW_COOKIE, `${reason}:${email}`, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: OTP_FLOW_TTL_SEC,
+  });
+}
+
+/** Verify বা reset শেষ হলে মুছি, যাতে back button এ আবার OTP page না আসে। */
+export async function clearOtpFlow() {
+  (await cookies()).delete(OTP_FLOW_COOKIE);
 }

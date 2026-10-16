@@ -5,7 +5,7 @@ import { resendOtpAction } from "@/features/auth/actions";
 import { useCooldown } from "@/features/auth/hooks/use-cooldown";
 import type { OtpReason } from "@/features/auth/service";
 
-export function ResendOtpButton({ email, reason, initialCooldown = 30 }: { email: string; reason: OtpReason; initialCooldown?: number }) {
+export function ResendOtpButton({ email, reason, initialCooldown = 120 }: { email: string; reason: OtpReason; initialCooldown?: number }) {
   const [left, setLeft] = useCooldown(initialCooldown);
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<{ ok: boolean; text: string }>();
@@ -14,7 +14,7 @@ export function ResendOtpButton({ email, reason, initialCooldown = 30 }: { email
     start(async () => {
       const res = await resendOtpAction({ email, reason });
       setMsg({ ok: res.success, text: res.message ?? "" });
-      if (res.success) setLeft(60);
+      if (res.success) setLeft(120);
     });
 
   return (

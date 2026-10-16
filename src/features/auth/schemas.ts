@@ -24,7 +24,6 @@ export const registerSchema = z
     confirmPassword: z.string().min(1, "Confirm your password"),
     role: z.enum(REGISTER_ROLES, { error: "Choose a role" }),
     terms: z.boolean().refine((v) => v, "You must accept the terms and privacy policy"),
-    captcha: z.string().min(1, "Please confirm you are not a robot"),
   })
   .refine((d) => d.password === d.confirmPassword, { message: "Passwords do not match", path: ["confirmPassword"] });
 

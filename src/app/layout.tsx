@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+  import { ToastContainer} from 'react-toastify';
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -19,7 +20,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en" suppressHydrationWarning
       className={`${jakarta.variable} dark h-full antialiased`}
     >
-      <body suppressHydrationWarning className="flex min-h-full flex-col bg-bg text-fg"><ThemeProvider>{children}</ThemeProvider></body>
+      <body suppressHydrationWarning className="flex min-h-full flex-col bg-bg text-fg">
+        <ThemeProvider>{children}</ThemeProvider>
+        <ToastContainer />
+        </body>
     </html>
   );
 }

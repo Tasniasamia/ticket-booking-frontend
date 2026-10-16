@@ -1,6 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_PAGES, PAYMENT_COOKIE, PROTECTED_AREAS, SESSION_COOKIE, roleHome } from "./lib/constants";
+import { AUTH_PAGES, OTP_FLOW_COOKIE, PAYMENT_COOKIE, PROTECTED_AREAS, SESSION_COOKIE, parseOtpFlow, roleHome } from "./lib/constants";
 import { decodeJwt, isExpired } from "./lib/jwt";
+
+// OTP এর page গুলো: কোন flow থেকে ঢোকা যাবে, আর flow না থাকলে কোথায় ফেরত যাবে।
+// "আগের route" URL টাইপ করলে server এ জানা যায় না, তাই flow না থাকলে এই fallback এ পাঠাই।
+
+const OTP_PAGES: Record<string, { reason: "registration" | "forgot-password"; fallback: string }> = {
+  "/verify-otp": { reason: "registration", fallback: "/login" },
+  "/reset-password": { reason: "forgot-password", fallback: "/forgot-password" },
+};
 
 /**
  * Route guard (Next.js 16 এ middleware এর নাম proxy)। এই ফাইল src/proxy.ts এই থাকতে হবে।
@@ -10,32 +18,40 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const raw = req.cookies.get(SESSION_COOKIE)?.value;
   const decoded = raw ? decodeJwt(raw) : null;
-  const claims = decoded && !isExpired(decoded) ? decoded : null; // মেয়াদ শেষ হলে logged out
+  // মেয়াদ শেষ, নষ্ট, বা unverified token হলে logged out ধরি
+  const claims = decoded && !isExpired(decoded) && decoded.is_verified ? decoded : null;
   const role = claims?.role?.toLowerCase();
-  const stale = !!raw && !claims; // নষ্ট বা মেয়াদোত্তীর্ণ cookie মুছে দেব
+  const stale = !!raw && !claims; // এই cookie মুছে দেব
 
-  //logout start
   const finish = (res: NextResponse) => {
     if (stale) res.cookies.delete(SESSION_COOKIE);
     return res;
   };
   const go = (path: string) => finish(NextResponse.redirect(new URL(path, req.url)));
-  //logout end
-
-  const verifyUrl = `/verify-otp?email=${encodeURIComponent(claims?.email ?? "")}`;
 
   // 1) /admin, /manager, /user: শুধু নিজের role
   const area = Object.keys(PROTECTED_AREAS).find((p) => pathname === p || pathname.startsWith(`${p}/`));
   if (area) {
-    if (!claims) return go("/login");  //claims hole login e ashbe. 
-    if (!claims.is_verified) return go(verifyUrl);
+    if (!claims) return go("/login");
     if (role !== PROTECTED_AREAS[area]) return go(roleHome(role)); // ভুল dashboard এ গেলে নিজের টায় ফেরত
     return finish(NextResponse.next());
   }
 
-  // 2) login/register ইত্যাদি: login করা (verified) user দের দরকার নেই
+  // 2) login/register/OTP ইত্যাদি
   if (AUTH_PAGES.includes(pathname)) {
-    if (claims?.is_verified) return go(roleHome(role));
+    // login করা user দের এসব page এ দরকার নেই
+    if (claims) return go(roleHome(role));
+
+    // /verify-otp আর /reset-password: সঠিক flow cookie আর URL এ সেই email থাকতেই হবে
+    const otpPage = OTP_PAGES[pathname];
+    if (otpPage) {
+      const flow = parseOtpFlow(req.cookies.get(OTP_FLOW_COOKIE)?.value);
+      if (!flow || flow.reason !== otpPage.reason) return go(otpPage.fallback);
+      // flow ঠিক আছে কিন্তু ?email= নেই বা অন্য email, তাই flow এর email দিয়ে URL ঠিক করে দিই
+      if (req.nextUrl.searchParams.get("email") !== flow.email) {
+        return go(`${pathname}?email=${encodeURIComponent(flow.email)}`);
+      }
+    }
     return finish(NextResponse.next());
   }
 

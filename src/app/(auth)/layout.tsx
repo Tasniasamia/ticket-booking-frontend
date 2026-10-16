@@ -1,5 +1,6 @@
 import { Footer } from "@/components/shared/footer";
 import { Header, type HeaderUser } from "@/components/shared/header";
+import { ToastContainer } from "react-toastify";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   // TODO: session cookie থেকে আসল user আনো (Suspense এর ভেতরে, cacheComponents চালু আছে)।
@@ -9,7 +10,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="page-glow flex min-h-screen flex-col">
       <Header user={user} />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">{children}<ToastContainer/></main>
       <Footer />
     </div>
   );
