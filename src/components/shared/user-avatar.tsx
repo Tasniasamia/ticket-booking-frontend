@@ -2,12 +2,12 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /** ছবি থাকলে ছবি, না থাকলে নামের প্রথম অক্ষর gradient circle এ। */
-export function UserAvatar({ name, image, className }: { name: string; image?: string | null; className?: string }) {
+export function UserAvatar({ name, image, className, sizes = "48px" }: { name: string; image?: string | null; className?: string; sizes?: string }) {
   const base = "relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-fg/25";
   if (image) {
     return (
       <span className={cn(base, className)}>
-        <Image src={image} alt={name} fill sizes="48px" className="object-cover" />
+        <Image src={image} alt={name} fill sizes={sizes} unoptimized className="object-cover" />
       </span>
     );
   }

@@ -9,9 +9,11 @@ import { FormInput, FormPassword, SubmitButton } from "@/components/common/form"
 import { loginAction } from "@/features/auth/actions";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
 import { startOtpCooldown } from "@/features/auth/hooks/use-cooldown";
+import { useUser } from "@/providers/user-provider";
 
 export function LoginForm() {
   const router = useRouter();
+  const { refresh } = useUser();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
@@ -29,6 +31,7 @@ export function LoginForm() {
       return;
     }
     else if (res.success && res.user?.is_verified) {
+      await refresh(); // cookie বসে গেছে, এবার /auth/me দিয়ে profile এনে header এ দেখাই
       toast.success(res.message ?? "Logged in successfully!");
       form.reset();
       router.push(res.redirectTo ?? "/");

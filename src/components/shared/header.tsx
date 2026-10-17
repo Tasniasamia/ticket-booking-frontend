@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { LayoutDashboard, LogOut, Menu, Ticket, User, X } from "lucide-react";
 import { CurrencySwitcher, LanguageSwitcher } from "./header-switchers";
 import { Dropdown } from "./dropdown";
+import { logoutAction } from "@/features/auth/actions";
+// import type { Profile } from "@/features/user/profile";
 import { UserAvatar } from "./user-avatar";
+// import { useUser } from "./user-provider";
 import { ThemeToggle } from "./theme-toggle";
 import { NavLink } from "./nav-link";
 import { Container } from "./section";
-
-export type HeaderUser = { name: string; image?: string | null; role: "user" | "manager" | "admin" } | null;
+import { useUser } from "@/providers/user-provider";
+import { Profile } from "@/features/user/type";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -22,8 +25,9 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function Header({ user }: { user: HeaderUser }) {
+export function Header() {
   const [open, setOpen] = useState(false);
+  const { user, status } = useUser();
 
   return (
     <header className="sticky top-0 z-40 border-b border-fg/10 bg-bg/70 backdrop-blur-xl">
@@ -53,7 +57,10 @@ export function Header({ user }: { user: HeaderUser }) {
           </div>
           <ThemeToggle />
 
-          {user ? <UserMenu user={user} /> : (
+          {status === "loading" ? (
+            // /auth/me এর উত্তর আসা পর্যন্ত Log in / Sign up না দেখিয়ে placeholder
+            <div aria-hidden className="h-10 w-10 animate-pulse rounded-full bg-fg/10 md:w-44" />
+          ) : user ? <UserMenu user={user} /> : (
             <div className="hidden items-center gap-2 md:flex">
               <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold hover:bg-fg/10">Log in</Link>
               <Link href="/register" className="btn-grad rounded-full px-5 py-2.5 text-sm font-semibold">Sign up</Link>
@@ -89,7 +96,7 @@ export function Header({ user }: { user: HeaderUser }) {
               ))}
             </nav>
             <div className="flex flex-wrap gap-2.5 sm:hidden"><LanguageSwitcher /><CurrencySwitcher /></div>
-            {!user && (
+            {status === "unauthenticated" && (
               <div className="grid grid-cols-2 gap-3">
                 <Link href="/login" className="glass rounded-full py-3 text-center font-semibold">Log in</Link>
                 <Link href="/register" className="btn-grad rounded-full py-3 text-center font-semibold">Sign up</Link>
@@ -102,7 +109,9 @@ export function Header({ user }: { user: HeaderUser }) {
   );
 }
 
-function UserMenu({ user }: { user: NonNullable<HeaderUser> }) {
+function UserMenu({ user }: { user: Profile }) {
+  const { clear } = useUser();
+  const [pending, startTransition] = useTransition();
   const base = `/${user.role}`;
   const row = "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-fg/10";
   return (
@@ -118,9 +127,15 @@ function UserMenu({ user }: { user: NonNullable<HeaderUser> }) {
             <div className="min-w-0"><p className="truncate text-sm font-semibold">{user.name}</p><p className="text-xs capitalize text-fg/50">{user.role}</p></div>
           </div>
           <Link role="menuitem" href={base} onClick={close} className={row}><LayoutDashboard className="size-4" />Dashboard</Link>
-          <Link role="menuitem" href={`${base}/profile`} onClick={close} className={row}><User className="size-4" />Profile</Link>
-          {/* TODO: logout Server Action এ বদলাও */}
-          <button role="menuitem" className={`${row} text-coral`}><LogOut className="size-4" />Log out</button>
+          <Link role="menuitem" href="/profile" onClick={close} className={row}><User className="size-4" />Profile</Link>
+          <button
+            role="menuitem"
+            disabled={pending}
+            onClick={() => startTransition(async () => { clear(); await logoutAction(); })}
+            className={`${row} text-coral disabled:opacity-60`}
+          >
+            <LogOut className="size-4" />Log out
+          </button>
         </>
       )}
     </Dropdown>
