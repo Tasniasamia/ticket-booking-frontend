@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { FormInput, FormPassword, SubmitButton } from "@/components/common/form";
 import { loginAction } from "@/features/auth/actions";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
+import { startOtpCooldown } from "@/features/auth/hooks/use-cooldown";
 
 export function LoginForm() {
   const router = useRouter();
@@ -19,14 +20,24 @@ export function LoginForm() {
 
   const onSubmit = async (values: LoginInput) => {
     const res = await loginAction(values);
-    if (res.success) {
+    console.log("response of login ", res);
+
+    if (res.success && !res.user?.is_verified) {
+      startOtpCooldown(values.email, "register", 120, true);
+      form.reset();
+      router.push(res.redirectTo ?? "/");
+      return;
+    }
+    else if (res.success && res.user?.is_verified) {
       toast.success(res.message ?? "Logged in successfully!");
       form.reset();
       router.push(res.redirectTo ?? "/");
-      router.refresh();
+      form.reset();
       return;
     }
-    toast.error(res.message ?? "Login failed. Please try again.");
+
+    toast.error(res.message);
+    
     Object.entries(res.fieldErrors ?? {}).forEach(([k, v]) => {
       if (v?.[0]) form.setError(k as keyof LoginInput, { message: v[0] });
     });

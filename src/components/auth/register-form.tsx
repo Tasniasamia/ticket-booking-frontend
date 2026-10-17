@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { FormCheckbox, FormInput, FormPassword, FormRadio, SubmitButton } from "@/components/common/form";
 import { registerAction } from "@/features/auth/actions";
 import { registerSchema, type RegisterInput } from "@/features/auth/schemas";
+import { startOtpCooldown } from "@/features/auth/hooks/use-cooldown";
 import { CalendarCheck, Ticket } from "lucide-react";
 const ROLES = [
   { value: "user", title: "User", text: "Browse events and book tickets", icon: Ticket },
@@ -26,6 +27,7 @@ export function RegisterForm() {
     const res = await registerAction(values);
     if (res.success) {
       toast.success(res.message ?? "Account created! Please verify your email.");
+      startOtpCooldown(values.email, "register");
       form.reset();
       router.push(res.redirectTo ?? "/verify-otp");
       return;

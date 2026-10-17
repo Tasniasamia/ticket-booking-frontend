@@ -13,9 +13,9 @@ export type LoginData = {
 
 export async function loginRequest(data: { email: string; password: string }) {
   const res = await publicApi.post<ApiSuccess<LoginData>>("/auth/login", data);
-  const d = res.data.data;
+  const d = res.data;
   // backend "Bearer " সহ পাঠালেও সমস্যা নেই, header বসানোর সময় আমরা নিজে "Bearer " যোগ করি।
-  return { ...d, token: String(d.token ?? "").replace(/^Bearer\s+/i, "") };
+  return { ...d, token: String(d.data.token ?? "").replace(/^Bearer\s+/i, "") };
 }
 
 export const registerRequest = (data: Pick<RegisterInput, "name" | "email" | "password" | "role">) =>

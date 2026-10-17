@@ -10,13 +10,22 @@ import {
 } from "./schemas";
 import {
   forgotPasswordRequest, getErrorMessage, loginRequest, registerRequest, resendOtpRequest, resetPasswordRequest, verifyOtpRequest,
+  type LoginData,
 } from "./service";
 
+export type LoginUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  is_verified: boolean;
+};
 export type ActionResult = {
   success: boolean;
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
   redirectTo?: string;
+  user?: LoginUser;
 };
 
 const invalid = (error: z.ZodError): ActionResult => ({
@@ -24,22 +33,26 @@ const invalid = (error: z.ZodError): ActionResult => ({
 });
 const verifyUrl = (email: string) => `/verify-otp?email=${encodeURIComponent(email)}`;
 
+// token কে client এ পাঠানো যাবে না, তাই শুধু দরকারি field গুলো নিই।
+const toLoginUser = (d: LoginData): LoginUser => ({
+  id: d.id, name: d.name, email: d.email, role: d.role, is_verified: d.is_verified,
+});
 
 export async function loginAction(input: LoginInput): Promise<ActionResult> {
   const parsed = loginSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   try {
-    const user = await loginRequest(parsed.data);
-    if (!user.token) return { success: false, message: "Token doesn't exist into login response" };
+    const res = await loginRequest(parsed.data);
+    if (!res.data.token) return { success: false, message: "Token doesn't exist into login response" };
     // Backend unverified user কেও token দেয়। আমরা session না বসিয়ে আগে OTP verify করাই।
-    if (!user.is_verified) {
+    if (!res.data.is_verified) {
       // নতুন OTP পাঠাই (আগেরটা এখনো চালু থাকলে backend আটকাবে, সেটা ignore করছি)
-      await resendOtpRequest({ email: user.email, reason: "register" }).catch(() => {});
-      await setOtpFlow(user.email, "registration");
-      return { success: true, redirectTo: verifyUrl(user.email) };
+      await resendOtpRequest({ email: res.data.email, reason: "register" }).catch(() => {});
+      await setOtpFlow(res.data.email, "registration");
+      return { success: true, redirectTo: verifyUrl(res.data.email), user: toLoginUser(res.data) };
     }
-    await setSession(user.token);
-    return { success: true, redirectTo: roleHome(user.role) };
+    await setSession(res.data.token);
+    return { success: true, redirectTo: roleHome(res.data.role), user: toLoginUser(res.data) };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
   }
@@ -48,7 +61,7 @@ export async function loginAction(input: LoginInput): Promise<ActionResult> {
 export async function registerAction(input: RegisterInput): Promise<ActionResult> {
   const parsed = registerSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
-  
+
   try {
     const { name, email, password, role } = parsed.data;
     await registerRequest({ name, email, password, role });

@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { FormOtp, FormPassword, SubmitButton } from "@/components/common/form";
 import { resetPasswordAction } from "@/features/auth/actions";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/features/auth/schemas";
+import { clearOtpCooldown } from "@/features/auth/hooks/use-cooldown";
 import { ResendOtpButton } from "./resend-otp-button";
 
 export function ResetPasswordForm() {
@@ -23,6 +24,7 @@ export function ResetPasswordForm() {
   const onSubmit = async (values: ResetPasswordInput) => {
     const res = await resetPasswordAction(values);
     if (res.success) {
+      clearOtpCooldown(values.email, "reset_password");
       toast.success(res.message ?? "Password updated. Please log in.");
       router.push(res.redirectTo ?? "/login");
       return;

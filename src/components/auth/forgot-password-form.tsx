@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { FormInput, SubmitButton } from "@/components/common/form";
 import { forgotPasswordAction } from "@/features/auth/actions";
 import { forgotPasswordSchema, type ForgotPasswordInput } from "@/features/auth/schemas";
+import { startOtpCooldown } from "@/features/auth/hooks/use-cooldown";
 
 export function ForgotPasswordForm() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export function ForgotPasswordForm() {
   const onSubmit = async (values: ForgotPasswordInput) => {
     const res = await forgotPasswordAction(values);
     if (res.success) {
+      startOtpCooldown(values.email, "reset_password");
       toast.success(res.message ?? "We sent a code to your email.");
       router.push(res.redirectTo ?? "/reset-password");
       return;
