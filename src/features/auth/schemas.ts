@@ -32,7 +32,7 @@ export const forgotPasswordSchema = z.object({ email });
 export const resendOtpSchema = z.object({ email, reason: z.enum(["register", "reset_password"]) });
 
 export const resetPasswordSchema = z
-  .object({ email, otp, newPassword: password, confirmPassword: z.string().min(1, "Confirm your password") })
+  .object({otp: otp, newPassword: password, confirmPassword: z.string().min(1, "Confirm your password") })
   .refine((d) => d.newPassword === d.confirmPassword, { message: "Passwords do not match", path: ["confirmPassword"] });
 
 export type LoginInput = z.infer<typeof loginSchema>;

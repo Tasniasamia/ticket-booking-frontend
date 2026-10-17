@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { OTP_FLOW_COOKIE, OTP_FLOW_TTL_SEC, SESSION_COOKIE, type OtpFlowReason } from "@/lib/constants";
+import { OTP_FLOW_COOKIE, OTP_FLOW_TTL_SEC, SESSION_COOKIE, parseOtpFlow, type OtpFlowReason } from "@/lib/constants";
 import { decodeJwt, isExpired } from "@/lib/jwt";
 
 const FALLBACK_TTL_MS = 24 * 60 * 60 * 1000; // backend এর defaultTokenDuration (24h)
@@ -53,4 +53,9 @@ export async function setOtpFlow(email: string, reason: OtpFlowReason) {
 /** Verify বা reset শেষ হলে মুছি, যাতে back button এ আবার OTP page না আসে। */
 export async function clearOtpFlow() {
   (await cookies()).delete(OTP_FLOW_COOKIE);
+}
+
+/** Server action এ বর্তমান OTP flow পড়ার জন্য (reason আর email client এর কথায় বিশ্বাস না করে cookie থেকে নিই)। */
+export async function getOtpFlow() {
+  return parseOtpFlow((await cookies()).get(OTP_FLOW_COOKIE)?.value);
 }

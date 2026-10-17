@@ -1,8 +1,8 @@
+import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { PageHero } from "@/components/shared/page-hero";
-import React from "react";
 
-const page = () => {
+export default function Page() {
   return (
     <div>
       <PageHero
@@ -10,9 +10,10 @@ const page = () => {
         subtitle="Choose a strong new password to secure your account and get back to discovering amazing events."
       />
 
-      <ResetPasswordForm />
+      {/* ResetPasswordForm এ useSearchParams আছে, তাই Suspense লাগে (verify-otp এর মতো) */}
+      <Suspense fallback={<p className="text-center py-10">Loading...</p>}>
+        <ResetPasswordForm />
+      </Suspense>
     </div>
   );
-};
-
-export default page;
+}

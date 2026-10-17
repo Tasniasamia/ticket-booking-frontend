@@ -23,7 +23,7 @@ export function ForgotPasswordForm() {
     if (res.success) {
       startOtpCooldown(values.email, "reset_password");
       toast.success(res.message ?? "We sent a code to your email.");
-      router.push(res.redirectTo ?? "/reset-password");
+      router.push(res.redirectTo ?? `/verify-otp?email=${values?.email}&reason=${"reset_password"}`);
       return;
     }
     toast.error(res.message ?? "Something went wrong. Please try again.");

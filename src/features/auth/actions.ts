@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { roleHome } from "@/lib/constants";
-import { clearOtpFlow, clearSession, setOtpFlow, setSession } from "@/lib/session";
+import { clearOtpFlow, clearSession, getOtpFlow, setOtpFlow, setSession } from "@/lib/session";
 import {
   forgotPasswordSchema, loginSchema, registerSchema, resendOtpSchema, resetPasswordSchema, verifyOtpSchema,
   type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResendOtpInput, type ResetPasswordInput, type VerifyOtpInput,
@@ -31,7 +31,9 @@ export type ActionResult = {
 const invalid = (error: z.ZodError): ActionResult => ({
   success: false, message: "Please check the form.", fieldErrors: z.flattenError(error).fieldErrors,
 });
-const verifyUrl = (email: string) => `/verify-otp?email=${encodeURIComponent(email)}`;
+const verifyUrl = (email: string, reason: "register" | "reset_password" = "register") =>
+  `/verify-otp?email=${encodeURIComponent(email)}&reason=${reason}`;
+const SESSION_EXPIRED = "Your session expired. Please start again.";
 
 // token কে client এ পাঠানো যাবে না, তাই শুধু দরকারি field গুলো নিই।
 const toLoginUser = (d: LoginData): LoginUser => ({
@@ -75,9 +77,18 @@ export async function registerAction(input: RegisterInput): Promise<ActionResult
 export async function verifyOtpAction(input: VerifyOtpInput): Promise<ActionResult> {
   const parsed = verifyOtpSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
+  const flow = await getOtpFlow();
+  if (!flow || flow.reason === "reset-password" || flow.email.toLowerCase() !== parsed.data.email.toLowerCase()) {
+    return { success: false, message: SESSION_EXPIRED };
+  }
+  const isReset = flow.reason === "forgot-password";
   try {
-    await verifyOtpRequest({ ...parsed.data, reason: "register" });
-    // পুরনো token এ is_verified=false লেখা আছে, তাই মুছে নতুন করে login করাই।
+    await verifyOtpRequest({ ...parsed.data, reason: isReset ? "reset_password" : "register" });
+    if (isReset) {
+      // OTP ঠিক, তাই flow কে পরের ধাপে (reset-password) তুলি। OTP টা URL এ করে reset page এ যায়।
+      await setOtpFlow(flow.email, "reset-password");
+      return { success: true, message: "Code verified. Choose a new password.", redirectTo: `/reset-password?email=${encodeURIComponent(flow.email)}&otp=${encodeURIComponent(parsed.data.otp)}` };
+    }
     await clearSession();
     await clearOtpFlow();
     return { success: true, message: "Email verified. Please log in.", redirectTo: "/login" };
@@ -103,7 +114,7 @@ export async function forgotPasswordAction(input: ForgotPasswordInput): Promise<
   try {
     await forgotPasswordRequest(parsed.data.email);
     await setOtpFlow(parsed.data.email, "forgot-password");
-    return { success: true, redirectTo: `/reset-password?email=${encodeURIComponent(parsed.data.email)}` };
+    return { success: true, redirectTo: verifyUrl(parsed.data.email, "reset_password") };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
   }
@@ -112,9 +123,11 @@ export async function forgotPasswordAction(input: ForgotPasswordInput): Promise<
 export async function resetPasswordAction(input: ResetPasswordInput): Promise<ActionResult> {
   const parsed = resetPasswordSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
+  // email নিই cookie থেকে (client এর কথায় নয়), OTP আসে form থেকে।
+  const flow = await getOtpFlow();
+  if (!flow || flow.reason !== "reset-password") return { success: false, message: SESSION_EXPIRED };
   try {
-    const { email, otp, newPassword } = parsed.data;
-    await resetPasswordRequest({ email, otp, new_password: newPassword });
+    await resetPasswordRequest({ email: flow.email, otp: parsed.data.otp, new_password: parsed.data.newPassword });
     await clearOtpFlow();
     return { success: true, message: "Password updated. Please log in.", redirectTo: "/login" };
   } catch (err) {

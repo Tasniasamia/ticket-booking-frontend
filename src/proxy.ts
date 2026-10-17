@@ -1,13 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_PAGES, OTP_FLOW_COOKIE, PAYMENT_COOKIE, PROTECTED_AREAS, SESSION_COOKIE, parseOtpFlow, roleHome } from "./lib/constants";
+import { AUTH_PAGES, OTP_FLOW_COOKIE, PAYMENT_COOKIE, PROTECTED_AREAS, SESSION_COOKIE, parseOtpFlow, roleHome, type OtpFlowReason } from "./lib/constants";
 import { decodeJwt, isExpired } from "./lib/jwt";
 
 // OTP এর page গুলো: কোন flow থেকে ঢোকা যাবে, আর flow না থাকলে কোথায় ফেরত যাবে।
 // "আগের route" URL টাইপ করলে server এ জানা যায় না, তাই flow না থাকলে এই fallback এ পাঠাই।
 
-const OTP_PAGES: Record<string, { reason: "registration" | "forgot-password"; fallback: string }> = {
-  "/verify-otp": { reason: "registration", fallback: "/login" },
-  "/reset-password": { reason: "forgot-password", fallback: "/forgot-password" },
+// /verify-otp এ ঢুকতে পারবে signup আর forgot-password দুই flow ই। /reset-password এ শুধু OTP verify হওয়ার পর।
+const OTP_PAGES: Record<string, { reasons: OtpFlowReason[]; fallback: string }> = {
+  "/verify-otp": { reasons: ["registration", "forgot-password"], fallback: "/login" },
+  "/reset-password": { reasons: ["reset-password"], fallback: "/forgot-password" },
 };
 
 /**
@@ -46,10 +47,12 @@ export function proxy(req: NextRequest) {
     const otpPage = OTP_PAGES[pathname];
     if (otpPage) {
       const flow = parseOtpFlow(req.cookies.get(OTP_FLOW_COOKIE)?.value);
-      if (!flow || flow.reason !== otpPage.reason) return go(otpPage.fallback);
-      // flow ঠিক আছে কিন্তু ?email= নেই বা অন্য email, তাই flow এর email দিয়ে URL ঠিক করে দিই
+      if (!flow || !otpPage.reasons.includes(flow.reason)) return go(otpPage.fallback);
+      // flow ঠিক আছে কিন্তু ?email= নেই বা অন্য email, তাই flow এর email বসিয়ে দিই (বাকি query, যেমন reason, থাকে)
       if (req.nextUrl.searchParams.get("email") !== flow.email) {
-        return go(`${pathname}?email=${encodeURIComponent(flow.email)}`);
+        const url = req.nextUrl.clone();
+        url.searchParams.set("email", flow.email);
+        return finish(NextResponse.redirect(url));
       }
     }
     return finish(NextResponse.next());
