@@ -9,3 +9,4 @@ export { FormSelect, type SelectOption } from "./form-select";
 export { PasswordInput } from "./password-input";
 export { SubmitButton } from "./submit-button";
 export { inputClass } from "./styles";
+export { FormImageUploader as ImageUploader } from "./form-image-uploader";

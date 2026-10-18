@@ -9,10 +9,11 @@ export type Profile = {
   email: string;
   role: Role;
   address: string;
-  phone: string;
+  phone_number: string;
   country: string;
   designation: string; // শুধু manager এর থাকে
-  image: string | null;
+  profile_image_id:number | null;
+  profile_image:string | null;
   createdAt: string;
 };
 
@@ -31,10 +32,11 @@ export function toProfile(d: Raw): Profile {
     email: str(d, "email"),
     role: role === "admin" || role === "manager" ? role : "user",
     address: str(d, "address"),
-    phone: str(d, "phone_number", "phoneNumber"),
+    phone_number: str(d, "phone_number", "phoneNumber"),
     country: str(d, "country"),
     designation: str(d, "designation"),
-    image: str(d, "profile_image", "profileImage") || null,
+    profile_image_id: d.profile_image_id as number || 0,
+    profile_image: str(d, "profile_image", "profileImage") || null,
     createdAt: str(d, "created_at", "createdAt"),
   };
 }

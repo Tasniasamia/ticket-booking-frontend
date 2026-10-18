@@ -3,18 +3,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getMeAction } from "@/features/user/actions";
 import { Profile } from "@/features/user/type";
-// import type { Profile } from "@/features/user/profile";
 
 type Status = "loading" | "authenticated" | "unauthenticated";
 
 type UserContext = {
   user: Profile | null;
   status: Status;
-  /** /auth/me আবার ডাকে। login এর পর call করো। */
   refresh: () => Promise<Profile | null>;
-  /** Profile update এর পর নতুন data বসাতে। */
   setUser: (user: Profile) => void;
-  /** Logout এর সময়। */
   clear: () => void;
 };
 
@@ -29,7 +25,6 @@ async function fetchMe(): Promise<Profile | null> {
   }
 }
 
-/** পুরো app কে wrap করে। Page খুললে একবার /auth/me ডেকে logged-in user কে সবার জন্য ধরে রাখে। */
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<{ user: Profile | null; status: Status }>({ user: null, status: "loading" });
 
@@ -39,7 +34,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return user;
   }, []);
 
-  // Page খুললে একবার। setState টা fetch এর callback এ, তাই effect এর ভেতরে সরাসরি নয়।
   useEffect(() => {
     let alive = true;
     fetchMe().then((user) => {

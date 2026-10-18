@@ -5,5 +5,5 @@ type ApiSuccess<T> = { success: boolean; statusCode: number; message: string; da
 
 export const getMeRequest = () => api.get<ApiSuccess<Record<string, unknown>>>("/auth/me");
 
-export const updateMeRequest = (data: Record<string, string>) =>
+export const updateMeRequest = (data: Record<string, unknown>) =>
   api.patch<ApiSuccess<Record<string, unknown>>>("/auth/me", data);
