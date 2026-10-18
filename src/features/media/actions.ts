@@ -1,5 +1,4 @@
 "use server";
-
 import { getToken } from "@/lib/session";
 import { uploadMediaRequest, deleteMediaRequest } from "./service";
 import type { MediaModelName, MediaResponse } from "./types";
@@ -48,8 +47,6 @@ export async function uploadMediaAction(
       folder,
     });
     const media = res.data?.data?.media;
-    console.log("res?.data?.data ",res?.data?.data);
-    console.log("res?.data ",res?.data);
 
     if (!media) {
       return { success: false, message: res.data?.message || "Upload failed" };

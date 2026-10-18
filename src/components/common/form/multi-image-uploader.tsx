@@ -11,45 +11,37 @@ export type GalleryImage = { id: number; url: string };
 
 export type MultiImageUploaderProps = {
   /** বর্তমান ছবির list (controlled) */
-  value: GalleryImage[];
-  onChange: (value: GalleryImage[]) => void;
+  value: GalleryImage[];  //array of image object
+  onChange: (value: GalleryImage[]) => void;  //array of image object void
 
   /* ---------- default upload/delete এর জন্য ---------- */
-  modelName?: MediaModelName;
-  modelId?: number;
-  folder?: string;
-
-  /* ---------- নিজের upload/delete দিতে চাইলে (default override) ---------- */
-  /** একটা ফাইল upload করে { id, url } ফেরত দেবে। throw করলে error ধরা হবে */
-  upload?: (file: File) => Promise<GalleryImage>;
+  modelName?: MediaModelName; //props for backend
+  modelId?: number;//props for backend
+  folder?: string;//props for backend
+  upload?: (file: File) => Promise<GalleryImage>; // real work file niye array object return korbe
   /** server থেকে মোছার কাজ। true ফেরত দিলে list থেকে বাদ যাবে */
-  remove?: (image: GalleryImage) => Promise<boolean>;
+  remove?: (image: GalleryImage) => Promise<boolean>;  //image object nibe cloudinary theke remove hoice kina ta return korbe.
   /** false দিলে X চাপলে server থেকে মুছবে না, শুধু list থেকে বাদ যাবে */
-  deleteOnRemove?: boolean;
-
-  /* ---------- নিয়ম ---------- */
-  maxFiles?: number;
+  deleteOnRemove?: boolean; //no idea
+  maxFiles?: number; 
   maxSizeMB?: number;
-  accept?: string;
-  disabled?: boolean;
+  accept?: string;    //no idea
+  disabled?: boolean;  //muliimage component k disable korbe
 
   /* ---------- চেহারা ---------- */
-  columns?: 2 | 3 | 4 | 5 | 6;
-  aspect?: string; // যেমন "1/1", "16/9"
-  rounded?: "md" | "lg" | "xl" | "2xl";
-  addLabel?: string;
-  emptyIcon?: ReactNode;
-  hideCounter?: boolean;
+  columns?: 2 | 3 | 4 | 5 | 6;   
+  aspect?: string; // যেমন "1/1", "16/9"  // width:height
+  rounded?: "md" | "lg" | "xl" | "2xl";  
+  addLabel?: string;   // label name
+  emptyIcon?: ReactNode;  //icon ashbe
+  hideCounter?: boolean;   
   className?: string;
-
-  /* ---------- callback ---------- */
   onUploaded?: (images: GalleryImage[]) => void;
   onRemoved?: (image: GalleryImage) => void;
 
   error?: string;
 };
 
-const DEFAULT_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 
 const colsMap = {
   2: "grid-cols-2",
@@ -77,7 +69,6 @@ export function MultiImageUploader({
   deleteOnRemove = true,
   maxFiles = 10,
   maxSizeMB = 5,
-  accept = DEFAULT_ACCEPT,
   disabled = false,
   columns = 4,
   aspect = "1/1",
@@ -192,7 +183,6 @@ export function MultiImageUploader({
         ref={inputRef}
         type="file"
         multiple={maxFiles > 1}
-        accept={accept}
         className="sr-only"
         disabled={!canAdd}
         onChange={(e) => {

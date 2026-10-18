@@ -14,7 +14,6 @@ import { deleteMediaAction, uploadMediaAction } from "@/features/media/actions";
 import type { MediaModelName, MediaResponse } from "@/features/media/types";
 import { toast } from "react-toastify";
 
-const DEFAULT_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 const DEFAULT_MAX_MB = 5;
 
 export type ImageUploaderValue = MediaResponse | null;
@@ -108,7 +107,6 @@ export function ImageUploader({
   folder,
   upload,
   defaultPreviewUrl = null,
-  accept = DEFAULT_ACCEPT,
   maxSizeMB = DEFAULT_MAX_MB,
   disabled = false,
   aspect = "16/9",
@@ -248,7 +246,6 @@ export function ImageUploader({
         id={inputId}
         name={name}
         type="file"
-        accept={accept}
         className="sr-only"
         disabled={disabled || uploading}
         onChange={(e) => {

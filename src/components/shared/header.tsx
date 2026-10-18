@@ -118,16 +118,16 @@ function UserMenu({ user }: { user: Profile }) {
     <Dropdown
       label="Account menu"
       className="flex items-center gap-2 rounded-full glass py-1 pl-1 pr-3"
-      trigger={<><UserAvatar name={user.name} image={user.image} className="size-8 text-sm" /><span className="hidden max-w-24 truncate text-sm font-medium md:block">{user.name.split(" ")[0]}</span></>}
+      trigger={<><UserAvatar name={user.name} image={user.profile_image} className="size-8 text-sm" /><span className="hidden max-w-24 truncate text-sm font-medium md:block">{user.name.split(" ")[0]}</span></>}
     >
       {(close) => (
         <>
           <div className="mb-1 flex items-center gap-3 border-b border-fg/10 px-3 pb-3 pt-2">
-            <UserAvatar name={user.name} image={user.image} />
+            <UserAvatar name={user.name} image={user.profile_image} />
             <div className="min-w-0"><p className="truncate text-sm font-semibold">{user.name}</p><p className="text-xs capitalize text-fg/50">{user.role}</p></div>
           </div>
           <Link role="menuitem" href={base} onClick={close} className={row}><LayoutDashboard className="size-4" />Dashboard</Link>
-          <Link role="menuitem" href="/profile" onClick={close} className={row}><User className="size-4" />Profile</Link>
+          <Link role="menuitem" href="/user/profile" onClick={close} className={row}><User className="size-4" />Profile</Link>
           <button
             role="menuitem"
             disabled={pending}

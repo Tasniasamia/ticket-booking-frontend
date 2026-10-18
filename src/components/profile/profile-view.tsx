@@ -89,40 +89,38 @@ export function ProfileView() {
   );
 }
 
+type Row = {
+  label: string;
+  value: string | null | undefined;
+  wide?: boolean;
+  render?: (value: string) => React.ReactNode; // value থাকলে কীভাবে দেখাবে
+};
+
 function Details({ profile }: { profile: Profile }) {
-  const rows: {
-    label: string;
-    value: string | null | undefined;
-    wide?: boolean;
-  }[] = [
+  const rows: Row[] = [
     { label: "Name", value: profile.name },
     { label: "Email", value: profile.email },
     { label: "Phone", value: profile.phone_number },
     { label: "Country", value: profile.country },
 
     ...(profile.role === "manager"
-      ? [
-          {
-            label: "Designation",
-            value: profile.designation,
-          },
-        ]
+      ? [{ label: "Designation", value: profile.designation }]
       : []),
 
-    {
-      label: "Address",
-      value: profile.address,
-      wide: true,
-    },
+    { label: "Address", value: profile.address, wide: true },
+
     {
       label: "Profile Image",
       value: profile.profile_image,
       wide: true,
-    },
-    {
-      label: "Profile Image ID",
-      value: profile.profile_image_id?.toString() ?? null,
-      wide: true,
+      render: (url) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt="Profile"
+          className="size-28 rounded-xl border border-border object-cover"
+        />
+      ),
     },
   ];
 
@@ -133,7 +131,9 @@ function Details({ profile }: { profile: Profile }) {
           <dt className="text-sm text-fg/55">{row.label}</dt>
 
           <dd className="mt-1 break-words font-medium">
-            {row.value || (
+            {row.value ? (
+              row.render ? row.render(row.value) : row.value
+            ) : (
               <span className="font-normal text-fg/40">Not added yet</span>
             )}
           </dd>
@@ -142,6 +142,7 @@ function Details({ profile }: { profile: Profile }) {
     </dl>
   );
 }
+
 
 function EditForm({
   profile,
