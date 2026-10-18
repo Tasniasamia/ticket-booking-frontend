@@ -8,7 +8,7 @@ export function BookingPanel({ price }: { price: number }) {
   const [qty, setQty] = useState(1);
   const step = "glass grid size-10 place-items-center rounded-full hover:bg-fg/10 disabled:opacity-40";
   return (
-    <aside className="glass sticky top-28 rounded-4xl p-6">
+    <aside className="glass  rounded-4xl p-6">
       <p className="text-sm text-fg/60">Price per ticket</p>
       <p className="text-grad text-4xl font-extrabold">${price}</p>
       <div className="mt-6 flex items-center justify-between">

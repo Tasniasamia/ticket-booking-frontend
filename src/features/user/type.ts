@@ -40,3 +40,15 @@ export function toProfile(d: Raw): Profile {
     createdAt: str(d, "created_at", "createdAt"),
   };
 }
+
+
+export function memberSince(iso: string) {
+  const date = new Date(iso.replace(" ", "T"));
+
+  return Number.isNaN(date.getTime())
+    ? ""
+    : new Intl.DateTimeFormat("en", {
+        month: "long",
+        year: "numeric",
+      }).format(date);
+}

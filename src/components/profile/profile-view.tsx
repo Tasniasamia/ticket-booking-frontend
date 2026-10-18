@@ -7,14 +7,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 
 import { FormInput, SubmitButton } from "@/components/common/form";
-import { UserAvatar } from "@/components/shared/user-avatar";
 import { updateProfileAction } from "@/features/user/actions";
 import { profileSchema, type ProfileInput } from "@/features/user/schemas";
 import { useUser } from "@/providers/user-provider";
 import type { Profile } from "@/features/user/type";
 import { FormImageUploader } from "../common/form/form-image-uploader";
+import Sidebar from "../dashboard/shared/sidebar";
+import { ProfileSkeleton } from "../skeleton/profileSkeleton";
 
-const card = "rounded-3xl border border-fg/15 bg-panel/60 p-6 sm:p-8";
 
 export function ProfileView() {
   const router = useRouter();
@@ -32,35 +32,10 @@ export function ProfileView() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[20rem_1fr]">
-      <aside className={`${card} flex flex-col items-center text-center`}>
-        <UserAvatar
-          name={user.name}
-          image={user.profile_image}
-          sizes="112px"
-          className="size-28 text-5xl"
-        />
-
-        <h2 className="mt-5 max-w-full truncate text-xl font-bold">
-          {user.name}
-        </h2>
-
-        <p className="mt-1 max-w-full truncate text-sm text-fg/65">
-          {user.email}
-        </p>
-
-        <span className="mt-4 rounded-full bg-fg/10 px-3 py-1 text-xs font-semibold capitalize">
-          {user.role}
-        </span>
-
-        {user.createdAt && (
-          <p className="mt-4 text-xs text-fg/50">
-            Member since {memberSince(user.createdAt)}
-          </p>
-        )}
-      </aside>
-
-      <section className={card}>
+    <div >
+  
+     {/* <Sidebar user={user} /> */}
+      {/* <section > */}
         <div className="mb-6 flex items-center justify-between gap-4">
           <h2 className="text-xl font-bold">Personal details</h2>
 
@@ -84,7 +59,7 @@ export function ProfileView() {
         ) : (
           <Details profile={user} />
         )}
-      </section>
+      {/* </section> */}
     </div>
   );
 }
@@ -288,26 +263,6 @@ function EditForm({
   );
 }
 
-function ProfileSkeleton() {
-  return (
-    <div
-      className="grid gap-6 lg:grid-cols-[20rem_1fr]"
-      aria-busy="true"
-      aria-label="Loading profile"
-    >
-      <div className="h-80 animate-pulse rounded-3xl bg-fg/10" />
-      <div className="h-80 animate-pulse rounded-3xl bg-fg/10" />
-    </div>
-  );
-}
 
-function memberSince(iso: string) {
-  const date = new Date(iso.replace(" ", "T"));
 
-  return Number.isNaN(date.getTime())
-    ? ""
-    : new Intl.DateTimeFormat("en", {
-        month: "long",
-        year: "numeric",
-      }).format(date);
-}
+

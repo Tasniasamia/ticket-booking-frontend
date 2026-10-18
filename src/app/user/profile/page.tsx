@@ -8,7 +8,6 @@ export const metadata: Metadata = { title: "My profile | TicketBooking" };
 export default function ProfilePage() {
   return (
     <>
-      <PageHero title="My profile" subtitle="Your account details. Keep them up to date so bookings and messages reach you." />
       <Section className="pt-8 sm:pt-10"><ProfileView /></Section>
     </>
   );
