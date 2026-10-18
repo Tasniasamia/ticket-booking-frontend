@@ -236,15 +236,15 @@ function EditForm({
 
           <div className="sm:col-span-2">
             <FormImageUploader
-              name="profile_image"
-              label="Profile Image"
-              modelName="user"
-              modelId={profile.id}
-              mediaId={form.watch("profile_image_id")}
-              defaultPreviewUrl={profileImageURL || null}
+              name="profile_image" //backend
+              label="Profile Image"//frontend
+              modelName="user"  //backend
+              modelId={profile.id} //backend
+              mediaId={form.watch("profile_image_id")}//backend
+              defaultPreviewUrl={profileImageURL || null} //backend
               aspect="1/1"
               size="md"
-              onUploadSuccess={(media) => {
+              onUploadSuccess={(media) => {  //main work after upload into media
                 form.setValue("profile_image_id", media.id, {
                   shouldDirty: true,
                   shouldValidate: true,
@@ -256,10 +256,10 @@ function EditForm({
                 setProfileImageURL(media.public_url);
                 form.clearErrors(["profile_image", "profile_image_id"]);
               }}
-              onUploadError={(message: string) => {
+              onUploadError={(message: string) => {  //get error upload time
                 toast.error(message || "Failed to upload profile image.");
               }}
-              onRemove={() => {
+              onRemove={() => {  //main work after remove image
                 form.setValue("profile_image_id", null, { shouldDirty: true });
                 form.setValue("profile_image", null, { shouldDirty: true });
                 setProfileImageURL(null);
