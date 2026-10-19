@@ -27,12 +27,14 @@ async function fetchMe(): Promise<Profile | null> {
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<{ user: Profile | null; status: Status }>({ user: null, status: "loading" });
-
+   //component rende
   const refresh = useCallback(async () => {
     const user = await fetchMe();
     setState({ user, status: user ? "authenticated" : "unauthenticated" });
     return user;
   }, []);
+
+  //race condition atkate ami alive use koreci
 
   useEffect(() => {
     let alive = true;

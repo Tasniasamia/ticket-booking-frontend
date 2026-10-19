@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import { MOCK_PRICE_CURRENCY } from "@/lib/constants";
+import { Price } from "@/components/shared/price";
 
 // TODO: Book tickets এ Server Action (features/bookings/actions.ts) যুক্ত করো, তারপর Stripe URL এ redirect।
 export function BookingPanel({ price }: { price: number }) {
@@ -10,7 +12,7 @@ export function BookingPanel({ price }: { price: number }) {
   return (
     <aside className="glass  rounded-4xl p-6">
       <p className="text-sm text-fg/60">Price per ticket</p>
-      <p className="text-grad text-4xl font-extrabold">${price}</p>
+      <p className="text-grad text-4xl font-extrabold"><Price amount={price} from={MOCK_PRICE_CURRENCY} /></p>
       <div className="mt-6 flex items-center justify-between">
         <span className="font-medium">Tickets</span>
         <div className="flex items-center gap-3">
@@ -20,7 +22,7 @@ export function BookingPanel({ price }: { price: number }) {
         </div>
       </div>
       <div className="mt-6 flex items-center justify-between border-t border-fg/15 pt-5">
-        <span className="text-fg/65">Total</span><span className="text-xl font-bold">${price * qty}</span>
+        <span className="text-fg/65">Total</span><span className="text-xl font-bold"><Price amount={price * qty} from={MOCK_PRICE_CURRENCY} /></span>
       </div>
       <button className="btn-grad mt-6 w-full rounded-full py-3.5 font-semibold cursor-pointer">Book tickets</button>
     </aside>

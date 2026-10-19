@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Users } from "lucide-react";
 import { MANAGERS, type EventItem } from "@/lib/mock-data";
+import { MOCK_PRICE_CURRENCY } from "@/lib/constants";
+import { Price } from "@/components/shared/price";
 
 export function EventCard({ event }: { event: EventItem }) {
   return (
@@ -13,7 +15,7 @@ export function EventCard({ event }: { event: EventItem }) {
           <p className="text-lg font-extrabold">{event.day}</p>
           <p className="text-xs text-fg/75">{event.month}</p>
         </div>
-        <span className="btn-grad absolute right-3 top-3 rounded-full px-3.5 py-1.5 text-sm font-bold">${event.price}</span>
+        <Price amount={event.price} from={MOCK_PRICE_CURRENCY} className="btn-grad absolute right-3 top-3 rounded-full px-3.5 py-1.5 text-sm font-bold" />
         <span className="glass absolute bottom-3 left-3 rounded-full px-3 py-1 text-xs font-medium">{event.category}</span>
       </div>
       <div className="px-2 pb-2 pt-4">
