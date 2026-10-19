@@ -86,7 +86,7 @@ export function FormSelect({ name, label, options, placeholder = "Select an opti
           onClick={() => (open ? setOpen(false) : openList())}
           onKeyDown={onKeyDown}
           onBlur={onBlur}
-          className={cn(inputClass, "flex items-center justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60")}
+          className={cn(inputClass, "flex items-center cursor-pointer justify-between gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60")}
         >
           <span className={cn("truncate", !selected && "text-fg/40")}>{selected?.label ?? placeholder}</span>
           <ChevronDown className={cn("size-4.5 shrink-0 text-fg/60 transition", open && "rotate-180")} />

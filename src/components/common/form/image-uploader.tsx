@@ -287,7 +287,7 @@ export function ImageUploader({
                 type="button"
                 onClick={openPicker}
                 title="Replace image"
-                className="inline-flex size-8 items-center justify-center rounded-lg border border-border bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-muted"
+                className="cursor-pointer inline-flex size-8 items-center justify-center rounded-lg border border-border bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-muted"
               >
                 <Replace className="size-3.5" />
               </button>
@@ -295,7 +295,7 @@ export function ImageUploader({
                 type="button"
                 onClick={() => void remove()}
                 title="Remove image"
-                className="inline-flex size-8 items-center justify-center rounded-lg border border-border bg-background/90 text-destructive shadow-sm backdrop-blur hover:bg-destructive/10"
+                className="cursor-pointer inline-flex size-8 items-center justify-center rounded-lg border border-border bg-background/90 text-destructive shadow-sm backdrop-blur hover:bg-destructive/10"
               >
                 <X className="size-3.5" />
               </button>
@@ -321,7 +321,7 @@ export function ImageUploader({
             if (file) void handleFile(file);
           }}
           className={cn(
-            "flex w-full flex-col items-center justify-center gap-3 border-2 border-dashed px-4 text-center transition-colors outline-none",
+            "flex w-full flex-col cursor-pointer  items-center justify-center gap-3 border-2 border-dashed px-4 text-center transition-colors outline-none",
             roundedCls,
             "border-border bg-muted/20 hover:border-primary/50 hover:bg-muted/40",
             "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",

@@ -28,7 +28,7 @@ export function EventsExplorer() {
         <div className="flex flex-wrap gap-2" role="group" aria-label="Category">
           {["All", ...CATEGORIES].map((c) => (
             <button key={c} type="button" aria-pressed={category === c} onClick={() => setCategory(c)}
-              className={cn("rounded-full px-5 py-2.5 text-sm font-semibold transition", category === c ? "btn-grad" : "glass hover:bg-fg/10")}>
+              className={cn("rounded-full px-5 py-2.5 text-sm font-semibold transition cursor-pointer", category === c ? "btn-grad" : "glass hover:bg-fg/10")}>
               {c}
             </button>
           ))}
@@ -43,7 +43,7 @@ export function EventsExplorer() {
         <div className="glass rounded-4xl p-12 text-center">
           <p className="text-lg font-semibold">No events match your search</p>
           <p className="mt-2 text-fg/60">Try a different name or choose another category.</p>
-          <button onClick={() => { setQuery(""); setCategory("All"); }} className="btn-grad mt-6 rounded-full px-6 py-2.5 font-semibold">Clear filters</button>
+          <button onClick={() => { setQuery(""); setCategory("All"); }} className="btn-grad cursor-pointer mt-6 rounded-full px-6 py-2.5 font-semibold">Clear filters</button>
         </div>
       )}
     </div>

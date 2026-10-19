@@ -11,7 +11,7 @@ export const profileSchema = z.object({
   country: z.string().trim().max(80, "Country is too long"),
   designation: z.string().trim().max(80, "Designation is too long"),
   profile_image_id: z.number().nullable(),
-  profile_image: z.string().url().nullable(),
+  profile_image: z.string().url().nullable()
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;

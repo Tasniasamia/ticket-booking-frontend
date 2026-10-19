@@ -36,7 +36,7 @@ export function Contact() {
           </div>
           <input required aria-label="Subject" placeholder="Subject" className={field} />
           <textarea required rows={5} aria-label="Message" placeholder="How can we help?" className={field} />
-          <button className="btn-grad w-full rounded-full py-3.5 font-semibold sm:w-auto sm:px-10">Send message</button>
+          <button className="btn-grad cursor-pointer w-full rounded-full py-3.5 font-semibold sm:w-auto sm:px-10">Send message</button>
           {sent && <p role="status" className="text-sm text-coral">Message sent. We will reply by email.</p>}
         </form>
       </div>

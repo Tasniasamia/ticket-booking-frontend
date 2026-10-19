@@ -6,7 +6,7 @@ import { Minus, Plus } from "lucide-react";
 // TODO: Book tickets এ Server Action (features/bookings/actions.ts) যুক্ত করো, তারপর Stripe URL এ redirect।
 export function BookingPanel({ price }: { price: number }) {
   const [qty, setQty] = useState(1);
-  const step = "glass grid size-10 place-items-center rounded-full hover:bg-fg/10 disabled:opacity-40";
+  const step = " cursor-pointer glass grid size-10 place-items-center rounded-full hover:bg-fg/10 disabled:opacity-40";
   return (
     <aside className="glass  rounded-4xl p-6">
       <p className="text-sm text-fg/60">Price per ticket</p>
@@ -22,7 +22,7 @@ export function BookingPanel({ price }: { price: number }) {
       <div className="mt-6 flex items-center justify-between border-t border-fg/15 pt-5">
         <span className="text-fg/65">Total</span><span className="text-xl font-bold">${price * qty}</span>
       </div>
-      <button className="btn-grad mt-6 w-full rounded-full py-3.5 font-semibold">Book tickets</button>
+      <button className="btn-grad mt-6 w-full rounded-full py-3.5 font-semibold cursor-pointer">Book tickets</button>
     </aside>
   );
 }

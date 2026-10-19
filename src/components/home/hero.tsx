@@ -26,7 +26,7 @@ export function Hero() {
               placeholder="Search artist, event or city"
               className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none placeholder:text-fg/45"
             />
-            <button className="btn-grad rounded-full px-6 py-3 text-sm font-semibold">Find events</button>
+            <button className="btn-grad rounded-full px-6 py-3 text-sm font-semibold cursor-pointer">Find events</button>
           </form>
 
           <div className="mt-8 flex items-center gap-4">

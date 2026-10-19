@@ -69,7 +69,7 @@ export function Header() {
 
           <button
             type="button"
-            className="glass grid size-10 place-items-center rounded-full xl:hidden"
+            className="glass cursor-pointer grid size-10 place-items-center rounded-full xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
@@ -88,8 +88,8 @@ export function Header() {
                   key={n.href}
                   href={n.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl border-l-4 border-transparent px-3 py-3 font-medium text-fg/75 hover:bg-fg/10 hover:text-fg"
-                  activeClassName="border-coral bg-fg/10 font-semibold text-fg"
+                  className="rounded-xl border-l-0 borer-transparent px-3 py-3 font-medium text-fg/75 hover:bg-fg/10 hover:text-fg"
+                  activeClassName="border-[#c936b4] border-l-4 bg-fg/10 font-semibold text-fg"
                 >
                   {n.label}
                 </NavLink>
@@ -132,7 +132,7 @@ function UserMenu({ user }: { user: Profile }) {
             role="menuitem"
             disabled={pending}
             onClick={() => startTransition(async () => { clear(); await logoutAction(); })}
-            className={`${row} text-coral disabled:opacity-60`}
+            className={`${row} text-coral cursor-pointer disabled:opacity-60`}
           >
             <LogOut className="size-4" />Log out
           </button>

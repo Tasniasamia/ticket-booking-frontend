@@ -15,6 +15,8 @@ export type Profile = {
   profile_image_id:number | null;
   profile_image:string | null;
   createdAt: string;
+  is_verified: boolean;
+  status:string;
 };
 
 type Raw = Record<string, unknown>;
@@ -38,6 +40,8 @@ export function toProfile(d: Raw): Profile {
     profile_image_id: d.profile_image_id as number || 0,
     profile_image: str(d, "profile_image", "profileImage") || null,
     createdAt: str(d, "created_at", "createdAt"),
+    is_verified: Boolean(d.is_verified),
+    status: str(d, "status")
   };
 }
 

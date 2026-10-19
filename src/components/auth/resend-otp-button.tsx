@@ -23,7 +23,7 @@ export function ResendOtpButton({ email, reason }: { email: string; reason: OtpR
   return (
     <div className="text-center text-sm">
       <button type="button" onClick={resend} disabled={waiting || unknown || pending || !email}
-        className="font-semibold text-coral hover:underline disabled:cursor-not-allowed disabled:text-fg/40 disabled:no-underline">
+        className="cursor-pointerfont-semibold text-coral hover:underline disabled:cursor-not-allowed disabled:text-fg/40 disabled:no-underline">
         {pending ? "Sending..." : waiting ? `Resend code in ${left}s` : "Resend code"}
       </button>
       {msg && <p role="status" className={`mt-2 ${msg.ok ? "text-fg/70" : "text-red-500"}`}>{msg.text}</p>}

@@ -38,7 +38,7 @@ export default async function ManagerDetailsPage({ params }: Props) {
             <span>{m.events} events hosted</span>
           </p>
           <p className="mt-4 max-w-xl leading-relaxed text-fg/70">Runs live music and nightlife events and answers messages within a day. Ask about seating, entry times or group bookings.</p>
-          <button className="btn-grad mt-6 rounded-full px-8 py-3 font-semibold">Message {m.name.split(" ")[0]}</button>
+          <button className="cursor-pointer btn-grad mt-6 rounded-full px-8 py-3 font-semibold">Message {m.name.split(" ")[0]}</button>
         </div>
       </div>
 

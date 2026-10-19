@@ -28,7 +28,7 @@ export function Footer() {
           <form className="glass  mt-6  flex items-center gap-2 rounded-full p-1 sm:p-1.5 sm:pl-4">
             <Mail className="size-4 shrink-0 text-fg/50" />
             <input type="email" required aria-label="Email address" placeholder="Your email" className="min-w-0 sm:flex-1 bg-transparent text-sm outline-none placeholder:text-fg/40" />
-            <button className="btn-grad rounded-full px-4 py-2 text-sm font-semibold">Subscribe</button>
+            <button className="cursor-pointer btn-grad rounded-full px-4 py-2 text-sm font-semibold">Subscribe</button>
           </form>
         </div>
 

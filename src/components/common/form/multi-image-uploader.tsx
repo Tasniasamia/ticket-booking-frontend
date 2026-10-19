@@ -207,7 +207,7 @@ export function MultiImageUploader({
                   onClick={() => void removeOne(img)}
                   disabled={busy}
                   title="Remove image"
-                  className="absolute right-1.5 top-1.5 inline-flex size-7 items-center justify-center rounded-lg border border-border bg-background/90 text-destructive shadow-sm hover:bg-destructive/10 disabled:opacity-50"
+                  className="cursor-pointer absolute right-1.5 top-1.5 inline-flex size-7 items-center justify-center rounded-lg border border-border bg-background/90 text-destructive shadow-sm hover:bg-destructive/10 disabled:opacity-50"
                 >
                   <X className="size-3.5" />
                 </button>
@@ -233,7 +233,7 @@ export function MultiImageUploader({
             onClick={() => inputRef.current?.click()}
             style={{ aspectRatio: aspect }}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 border-2 border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground transition-colors",
+              "flex flex-col cursor-pointer  items-center justify-center gap-1 border-2 border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground transition-colors",
               "hover:border-primary/50 hover:bg-muted/40 disabled:pointer-events-none disabled:opacity-50",
               roundedCls,
               error && "border-destructive",

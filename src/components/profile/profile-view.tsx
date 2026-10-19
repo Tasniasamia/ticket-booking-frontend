@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-
 import { FormInput, SubmitButton } from "@/components/common/form";
 import { updateProfileAction } from "@/features/user/actions";
 import { profileSchema, type ProfileInput } from "@/features/user/schemas";
 import { useUser } from "@/providers/user-provider";
 import type { Profile } from "@/features/user/type";
 import { FormImageUploader } from "../common/form/form-image-uploader";
-import Sidebar from "../dashboard/shared/sidebar";
 import { ProfileSkeleton } from "../skeleton/profileSkeleton";
+import { StatusBadge } from "../common/badge/status-badge";
 
 
 export function ProfileView() {
@@ -37,13 +36,13 @@ export function ProfileView() {
      {/* <Sidebar user={user} /> */}
       {/* <section > */}
         <div className="mb-6 flex items-center justify-between gap-4">
-          <h2 className="text-xl font-bold">Personal details</h2>
+          <h2 className="md:text-3xl text-xl font-bold">Personal details</h2>
 
           {!editing && (
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="glass rounded-full px-5 py-2 text-sm font-semibold hover:bg-fg/20"
+              className="cursor-pointer glass rounded-full px-5 py-2 text-sm font-semibold hover:bg-fg/20"
             >
               Edit profile
             </button>
@@ -73,34 +72,54 @@ type Row = {
 
 function Details({ profile }: { profile: Profile }) {
   const rows: Row[] = [
-    { label: "Name", value: profile.name },
-    { label: "Email", value: profile.email },
-    { label: "Phone", value: profile.phone_number },
-    { label: "Country", value: profile.country },
-
-    ...(profile.role === "manager"
-      ? [{ label: "Designation", value: profile.designation }]
-      : []),
-
-    { label: "Address", value: profile.address, wide: true },
-
-    {
+     {
       label: "Profile Image",
       value: profile.profile_image,
       wide: true,
-      render: (url) => (
+      render: (value) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={url}
+          src={value}
           alt="Profile"
           className="size-28 rounded-xl border border-border object-cover"
         />
       ),
     },
+    { label: "Name", value: profile.name },
+    { label: "Email", value: profile.email },
+    { label: "Phone", value: profile.phone_number },
+    { label: "Country", value: profile.country },
+    
+    ...(profile.role === "manager"
+      ? [{ label: "Designation", value: profile.designation }]
+      : []),
+
+    { label: "Address", value: profile.address},
+   {
+  label: "Verification Status",
+  value: profile.is_verified ? "Verified" : "Not verified",
+  
+  render: (value) => (
+    <StatusBadge
+      label={value}
+      tone={profile.is_verified  ? "success" : "warning"}
+    />
+  ),
+},
+{
+  label: "Account Status",
+  value: profile.status,
+  render: (value) => (
+    <StatusBadge
+      label={value}
+      tone={value.toLowerCase() === "active" ? "success" : "danger"}
+    />
+  ),
+},
   ];
 
   return (
-    <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+    <dl className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
       {rows.map((row) => (
         <div key={row.label} className={row.wide ? "sm:col-span-2" : undefined}>
           <dt className="text-sm text-fg/55">{row.label}</dt>
@@ -155,6 +174,7 @@ function EditForm({
 
     try {
       const res = await updateProfileAction(payload);
+      console.log("after sending profile upadate request ", res);
       console.log("res of update profile", res);
 
       if (res.success && res.user) {
@@ -178,11 +198,14 @@ function EditForm({
 
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        noValidate
-        className="space-y-5"
-      >
+    <form
+  onSubmit={form.handleSubmit(onSubmit, (errors) => {
+    console.log("validation errors:", errors);
+    toast.error("Please fix the form errors.");
+  })}
+  noValidate
+  className="space-y-5"
+>
         <div className="grid gap-5 sm:grid-cols-2">
           <FormInput name="name" label="Name" autoComplete="name" />
 
@@ -253,7 +276,7 @@ function EditForm({
           <button
             type="button"
             onClick={onDone}
-            className="glass rounded-full px-8 py-3.5 font-semibold hover:bg-fg/20"
+            className="cursor-pointer glass rounded-full px-8 py-3.5 font-semibold hover:bg-fg/20"
           >
             Cancel
           </button>

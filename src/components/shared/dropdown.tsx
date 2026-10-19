@@ -36,7 +36,7 @@ export function Dropdown({
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((o) => !o)}
-        className={cn("focus-visible:outline-2 focus-visible:outline-coral", className)}
+        className={cn("focus-visible:outline-2 focus-visible:outline-coral cursor-pointer", className)}
       >
         {trigger}
       </button>
