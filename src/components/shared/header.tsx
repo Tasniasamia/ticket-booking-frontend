@@ -127,7 +127,7 @@ function UserMenu({ user }: { user: Profile }) {
             <div className="min-w-0"><p className="truncate text-sm font-semibold">{user.name}</p><p className="text-xs capitalize text-fg/50">{user.role}</p></div>
           </div>
           <Link role="menuitem" href={base} onClick={close} className={row}><LayoutDashboard className="size-4" />Dashboard</Link>
-          <Link role="menuitem" href="/user/profile" onClick={close} className={row}><User className="size-4" />Profile</Link>
+          <Link role="menuitem" href={`${base}/profile`} onClick={close} className={row}><User className="size-4" />Profile</Link>
           <button
             role="menuitem"
             disabled={pending}

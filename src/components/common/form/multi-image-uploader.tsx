@@ -5,9 +5,13 @@ import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { deleteMediaAction, uploadMediaAction } from "@/features/media/actions";
 import type { MediaModelName } from "@/features/media/types";
+import { ImagePreviewButton } from "./image-preview-modal";
 
 /** Backend এ যে shape এ পাঠাবে */
 export type GalleryImage = { id: number; url: string };
+
+/** upload চলাকালীন local preview (blob URL) */
+type PendingImage = { key: string; url: string };
 
 export type MultiImageUploaderProps = {
   /** বর্তমান ছবির list (controlled) */
@@ -82,7 +86,8 @@ export function MultiImageUploader({
   error,
 }: MultiImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploadingCount, setUploadingCount] = useState(0);
+  const [uploading, setUploading] = useState<PendingImage[]>([]);
+  const uploadingCount = uploading.length;
   const [removingId, setRemovingId] = useState<number | null>(null);
 
   const busy = uploadingCount > 0 || removingId !== null;
@@ -144,7 +149,12 @@ export function MultiImageUploader({
     });
     if (valid.length === 0) return;
 
-    setUploadingCount(valid.length);
+    // file select করার সাথে সাথেই local preview বানাও
+    const pending: PendingImage[] = valid.map((f, i) => ({
+      key: `${Date.now()}-${i}`,
+      url: URL.createObjectURL(f),
+    }));
+    setUploading(pending);
     try {
       const results = await Promise.all(valid.map(uploadOne));
       const uploaded = results.filter((r): r is GalleryImage => r !== null);
@@ -153,7 +163,8 @@ export function MultiImageUploader({
         onUploaded?.(uploaded);
       }
     } finally {
-      setUploadingCount(0);
+      pending.forEach((p) => URL.revokeObjectURL(p.url));
+      setUploading([]);
       if (inputRef.current) inputRef.current.value = "";
     }
   };
@@ -201,28 +212,36 @@ export function MultiImageUploader({
                 <Loader2 className="size-6 animate-spin text-primary" />
               </div>
             ) : (
-              !disabled && (
-                <button
-                  type="button"
-                  onClick={() => void removeOne(img)}
-                  disabled={busy}
-                  title="Remove image"
-                  className="cursor-pointer absolute right-1.5 top-1.5 inline-flex size-7 items-center justify-center rounded-lg border border-border bg-background/90 text-destructive shadow-sm hover:bg-destructive/10 disabled:opacity-50"
-                >
-                  <X className="size-3.5" />
-                </button>
-              )
+              <div className="absolute right-1.5 top-1.5 flex gap-1">
+                <ImagePreviewButton
+                  src={img.url}
+                  alt="Image preview"
+                  title="View image"
+                  className="cursor-pointer inline-flex size-7 items-center justify-center rounded-lg border border-border bg-background/90 text-foreground shadow-sm hover:bg-muted"
+                />
+                {!disabled && (
+                  <button
+                    type="button"
+                    onClick={() => void removeOne(img)}
+                    disabled={busy}
+                    title="Remove image"
+                    className="cursor-pointer inline-flex size-7 items-center justify-center rounded-lg border border-border bg-background/90 text-destructive shadow-sm hover:bg-destructive/10 disabled:opacity-50"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                )}
+              </div>
             )}
           </div>
         ))}
 
-        {Array.from({ length: uploadingCount }).map((_, i) => (
-          <div
-            key={`uploading-${i}`}
-            className={cn(tileCls, "flex items-center justify-center")}
-            style={{ aspectRatio: aspect }}
-          >
-            <Loader2 className="size-6 animate-spin text-primary" />
+        {uploading.map((p) => (
+          <div key={p.key} className={tileCls} style={{ aspectRatio: aspect }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.url} alt="" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
+              <Loader2 className="size-6 animate-spin text-primary" />
+            </div>
           </div>
         ))}
 
