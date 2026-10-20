@@ -29,8 +29,6 @@ export function LanguageSwitcher() {
         languages.map((l) => (
           <button
             key={l.code}
-            role="menuitemradio"
-            aria-checked={l.code === language}
             disabled={pending}
             className={item(l.code === language)}
             onClick={() => { close(); startTransition(() => setLanguage(l.code)); }}
@@ -60,8 +58,7 @@ export function CurrencySwitcher() {
         currencies.map((c) => (
           <button
             key={c.code}
-            role="menuitemradio"
-            aria-checked={c.code === currency}
+         
             disabled={pending}
             className={item(c.code === currency)}
             onClick={() => { close(); startTransition(() => setCurrency(c.code)); }}

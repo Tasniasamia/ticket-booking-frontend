@@ -85,6 +85,18 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
       },
     ],
   },
+   {
+    label: "Settings",
+    items: [
+      {
+        label: "Currency",
+        href: "/admin/currency",
+        icon: Wallet,
+        title: "Currency",
+        subtitle: "Manage the default currency for your platform.",
+      },
+    ],
+  },
   {
     label: "Account",
     items: [

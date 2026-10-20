@@ -3,7 +3,11 @@
 import { getErrorMessage } from "@/features/auth/service";
 import { setCurrencyCookie } from "@/lib/preferences";
 import { toCurrency, type Currency } from "./types";
-import { convertRequest, getCurrenciesRequest } from "./service";
+import { toApiParams, type PaginationMeta, type TableParams } from "@/components/common/table/table-params";
+import type { ActionResult } from "@/components/common/table/data-table";
+import { z } from "zod";
+import { currencySchema, type CurrencyInput } from "./schemas";
+import { convertRequest, createCurrencyRequest, deleteCurrencyRequest, updateCurrencyRequest, getCurrenciesRequest, listCurrenciesRequest } from "./service";
 
 export type CurrencyResult = {
   success: boolean;
@@ -48,6 +52,66 @@ export async function convertAction(input: { amount: number; from: string; to: s
   try {
     const res = await convertRequest({ amount: input.amount, from_code: input.from, to_code: input.to });
     return { success: true, result: res.data.data.result };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+export type CurrencyTableResult = {
+  success: boolean;
+  message?: string;
+  currencies?: Currency[];
+  meta?: PaginationMeta;
+};
+
+/** Admin table এর জন্য: disabled সহ সব currency, backend এর pagination/search/filter/sort সহ। */
+export async function getCurrencyTableAction(params: TableParams): Promise<CurrencyTableResult> {
+  try {
+    const res = await listCurrenciesRequest(toApiParams(params));
+    const { docs, ...meta } = res.data.data;
+    return { success: true, currencies: docs.map(toCurrency), meta };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+/** Table এর delete button এ বসে। DataTable এই ActionResult নিয়েই toast দেখায়। */
+export async function deleteCurrencyAction(id: string | number): Promise<ActionResult> {
+  try {
+    await deleteCurrencyRequest(id);
+    return { success: true, message: "Currency deleted." };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+export type CurrencyFormResult = ActionResult & { fieldErrors?: Record<string, string[] | undefined> };
+
+const invalid = (error: z.ZodError): CurrencyFormResult => ({
+  success: false,
+  message: "Please check the form.",
+  fieldErrors: z.flattenError(error).fieldErrors,
+});
+
+export async function createCurrencyAction(input: CurrencyInput): Promise<CurrencyFormResult> {
+  const parsed = currencySchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { code, name, symbol, rateToBDT, status, isDefault } = parsed.data;
+  try {
+    await createCurrencyRequest({ code: code.toUpperCase(), name, symbol, rate_to_bdt: rateToBDT, status, is_default: isDefault });
+    return { success: true, message: "Currency created." };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+export async function updateCurrencyAction(id: string | number, input: CurrencyInput): Promise<CurrencyFormResult> {
+  const parsed = currencySchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const { name, symbol, rateToBDT, status } = parsed.data;
+  try {
+    await updateCurrencyRequest(id, { name, symbol, rate_to_bdt: rateToBDT, status });
+    return { success: true, message: "Currency updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
   }
