@@ -5,10 +5,10 @@ import { useTransition } from "react";
 import { ChevronDown, ChevronRight, ExternalLink, LogOut, Menu, UserRound } from "lucide-react";
 import { Dropdown } from "@/components/shared/dropdown";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { UserAvatar } from "@/components/shared/user-avatar";
 import { logoutAction } from "@/features/auth/actions";
 import type { Profile } from "@/features/user/type";
 import { useUser } from "@/providers/user-provider";
+import { UserAvatar } from "@/components/shared/use-avatar";
 
 type AdminHeaderProps = {
   pageLabel: string;

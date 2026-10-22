@@ -9,19 +9,25 @@ import { setCurrencyAction } from "@/features/currency/actions";
 import { convertAmount, formatFallback, formatMoney } from "@/features/currency/utils";
 import type { Language } from "@/features/language/types";
 import type { Currency } from "@/features/currency/types";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { translate, type TranslateValues, type TranslationDict } from "@/lib/i18n/translate";
 
 type Status = "loading" | "ready" | "error";
-type State = { languages: Language[]; currencies: Currency[]; language: string; currency: string; status: Status };
+type State = {
+  languages: Language[]; currencies: Currency[]; language: string; currency: string; translations: TranslationDict; status: Status;
+};
 
 type PreferencesContext = State & {
   setLanguage: (code: string) => Promise<void>;
   setCurrency: (code: string) => Promise<void>;
   /** amount কে `from` currency থেকে user এর select করা currency তে বদলে সাজিয়ে দেয়। from না দিলে BDT ধরে। */
   formatPrice: (amount: number, from?: string) => string;
+  /** key এর লেখা user এর ভাষায়। না পেলে default ভাষা → en → code এর English default। `{name}` এ values বসে। */
+  t: (key: MessageKey, values?: TranslateValues) => string;
 };
 
 const Ctx = createContext<PreferencesContext | null>(null);
-const initial: State = { languages: [], currencies: [], language: FALLBACK_LANGUAGE, currency: "", status: "loading" };
+const initial: State = { languages: [], currencies: [], language: FALLBACK_LANGUAGE, currency: "", translations: {}, status: "loading" };
 
 export function PreferencesProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<State>(initial);
@@ -32,7 +38,10 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     getPreferencesAction()
       .then((p) => {
         if (!alive) return;
-        setState({ languages: p.languages, currencies: p.currencies, language: p.language, currency: p.currency, status: p.success ? "ready" : "error" });
+        setState({
+          languages: p.languages, currencies: p.currencies, language: p.language, currency: p.currency,
+          translations: p.translations, status: p.success ? "ready" : "error",
+        });
       })
       .catch(() => alive && setState((s) => ({ ...s, status: "error" })));
     return () => {
@@ -73,8 +82,24 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     [currencies, currency, language],
   );
 
-  const value = useMemo<PreferencesContext>(() => ({ ...state, setLanguage, setCurrency, formatPrice }), [state, setLanguage, setCurrency, formatPrice]);
+  // site এর default ভাষা (admin যেটা set-default করেছে)। user এর ভাষায় লেখা না থাকলে এটায় যাই।
+  const { translations, languages } = state;
+  const defaultLanguage = languages.find((l) => l.isDefault)?.code;
+  const t = useCallback(
+    (key: MessageKey, values?: TranslateValues) => translate(translations, key, language, defaultLanguage, values),
+    [translations, language, defaultLanguage],
+  );
+
+  const value = useMemo<PreferencesContext>(
+    () => ({ ...state, setLanguage, setCurrency, formatPrice, t }),
+    [state, setLanguage, setCurrency, formatPrice, t],
+  );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+/** শুধু অনুবাদ লাগলে: const t = useT(); t("Home") */
+export function useT() {
+  return usePreferences().t;
 }
 
 export function usePreferences() {

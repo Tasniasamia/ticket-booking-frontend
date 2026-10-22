@@ -10,3 +10,4 @@ export { PasswordInput } from "./password-input";
 export { SubmitButton } from "./submit-button";
 export { inputClass } from "./styles";
 export { FormImageUploader as ImageUploader } from "./form-image-uploader";
+export { FormTextarea } from "./form-textarea";

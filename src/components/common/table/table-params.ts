@@ -16,7 +16,7 @@ type Raw = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 /** Page এর searchParams → TableParams। filterKeys হলো whitelist, অন্য কিছু backend এ যাবে না। */
-export function parseTableParams(raw: Raw, filterKeys: string[] = [], limit = 5): TableParams {
+export function parseTableParams(raw: Raw, filterKeys: string[] = [], limit = 10): TableParams {
   const filters: Record<string, string> = {};
   for (const k of filterKeys) {
     const v = first(raw[k]);

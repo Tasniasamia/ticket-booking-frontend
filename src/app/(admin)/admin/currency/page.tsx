@@ -6,7 +6,6 @@ import { CurrencyTable } from "@/components/dashboard/admin/currency/currency-ta
 import { EmptyState } from "@/components/dashboard/shared/empty-state";
 import { PageHeader } from "@/components/dashboard/shared/page-header";
 import { getCurrencyTableAction } from "@/features/currency/actions";
-import { CURRENCY_FILTER_KEYS } from "@/features/currency/table-config";
 
 export const metadata: Metadata = { title: "Currency" };
 
@@ -15,7 +14,7 @@ export default async function AdminCurrencyPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = parseTableParams(await searchParams, CURRENCY_FILTER_KEYS);
+  const params = parseTableParams(await searchParams, ["is_default"],3);
   const res = await getCurrencyTableAction(params);
 
   return (

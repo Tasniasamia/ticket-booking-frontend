@@ -1,10 +1,7 @@
-// GET /languages এর response (language/dto.Response) কে frontend এর Language এ বদলায়।
-// Backend এর json tag বদলালে শুধু এই ফাইলের toLanguage ঠিক করলেই হবে।
-
 export type Language = {
   id: number;
-  name: string; // "English", "বাংলা"
-  code: string; // "en", "bn"
+  name: string;
+  code: string;
   rtl: boolean;
   isActive: boolean;
   isDefault: boolean;

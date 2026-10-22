@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
+import { T } from "@/components/shared/t";
 import { BLOGS } from "@/lib/mock-data";
 
 export const metadata: Metadata = { title: "Blog | TicketBooking" };
@@ -11,7 +12,7 @@ export default function BlogPage() {
   const [first, ...rest] = BLOGS;
   return (
     <>
-      <PageHero title="Stories and guides" subtitle="Tips for getting the most out of every night out." />
+      <PageHero title={<T k="Stories and guides" />} subtitle={<T k="Tips for getting the most out of every night out." />} />
       <Section className="pt-10 sm:pt-12">
         <Link href={`/blog/${first.slug}`} className="glass group grid overflow-hidden rounded-4xl p-3 md:grid-cols-2">
           <div className="relative aspect-video overflow-hidden rounded-3xl md:aspect-auto md:min-h-80">

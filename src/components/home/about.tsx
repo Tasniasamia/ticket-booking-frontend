@@ -2,13 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { Section } from "@/components/shared/section";
+import { T } from "@/components/shared/t";
 import { IMAGES } from "@/lib/mock-data";
+import type { MessageKey } from "@/lib/i18n/messages";
 
-const POINTS = [
-  "Verified organisers and managers only",
-  "One booking code per ticket, checked at the gate",
-  "Prices in your own currency and language",
-];
+const POINTS: MessageKey[] = ["Verified organisers and managers only", "One booking code per ticket, checked at the gate", "Prices in your own currency and language"];
 
 export function About() {
   return (
@@ -28,19 +26,19 @@ export function About() {
         </div>
 
         <div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">We make going out simple</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl"><T k="We make going out simple" /></h2>
           <p className="mt-4 max-w-lg leading-relaxed text-fg/70">
-            TicketBooking connects people with live events and the managers who run them. Browse, compare and book without queues, then message the organiser if you need help.
+            <T k="TicketBooking connects people with live events and the managers who run them. Browse, compare and book without queues, then message the organiser if you need help." />
           </p>
           <ul className="mt-7 space-y-4">
             {POINTS.map((p) => (
               <li key={p} className="flex items-center gap-3">
                 <span className="btn-grad grid size-7 shrink-0 place-items-center rounded-full"><Check className="size-4" /></span>
-                {p}
+                <T k={p} />
               </li>
             ))}
           </ul>
-          <Link href="/events" className="btn-grad mt-9 inline-block rounded-full px-8 py-3.5 font-semibold">Browse events</Link>
+          <Link href="/events" className="btn-grad mt-9 inline-block rounded-full px-8 py-3.5 font-semibold"><T k="Browse events" /></Link>
         </div>
       </div>
     </Section>

@@ -1,11 +1,12 @@
 "use client";
-
 import { Wallet } from "lucide-react";
 import { DataTable, type Column, type FilterConfig } from "@/components/common/table/data-table";
 import type { PaginationMeta } from "@/components/common/table/table-params";
 import { StatusBadge } from "@/components/common/badge/status-badge";
 import { deleteCurrencyAction } from "@/features/currency/actions";
 import type { Currency } from "@/features/currency/types";
+import { CurrencyForm } from "./currency-form";
+import { useRouter } from "next/navigation";
 
 const FILTERS: FilterConfig[] = [
   { key: "is_default", label: "All currencies", options: [{ value: "true", label: "Default only" }, { value: "false", label: "Not default" }] },
@@ -22,6 +23,7 @@ const COLUMNS: Column<Currency>[] = [
 
 /** Function (column, action) Server Component থেকে পাঠানো যায় না, তাই এই client wrapper। */
 export function CurrencyTable({ currencies, meta }: { currencies: Currency[]; meta: PaginationMeta }) {
+  const router=useRouter();
   return (
     <DataTable
       columns={COLUMNS}
@@ -44,7 +46,13 @@ export function CurrencyTable({ currencies, meta }: { currencies: Currency[]; me
           },
         },
         // অন্য page এ নিতে চাইলে href; dialog চাইলে উপরের মতো dialog: {...}
-        edit: { href: (c) => `/admin/currency/${c.id}/edit` },
+         edit: {
+          dialog: {
+            title: (c) => `${c.name} (${c.code})`,
+    content: (c, close) => (
+              <CurrencyForm currency={c} onSuccess={close} />
+            ),          },
+        },  
         delete: deleteCurrencyAction,
       }}
     />

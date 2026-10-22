@@ -7,15 +7,17 @@ import { CurrencySwitcher, LanguageSwitcher } from "./header-switchers";
 import { Dropdown } from "./dropdown";
 import { logoutAction } from "@/features/auth/actions";
 // import type { Profile } from "@/features/user/profile";
-import { UserAvatar } from "./user-avatar";
 // import { useUser } from "./user-provider";
 import { ThemeToggle } from "./theme-toggle";
 import { NavLink } from "./nav-link";
 import { Container } from "./section";
 import { useUser } from "@/providers/user-provider";
 import { Profile } from "@/features/user/type";
+import { useT } from "@/providers/preferences-provider";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { UserAvatar } from "./use-avatar";
 
-const NAV = [
+const NAV: { href: string; label: MessageKey }[] = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/events", label: "Events" },
@@ -28,6 +30,7 @@ const NAV = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const { user, status } = useUser();
+  const t = useT();
 
   return (
     <header className="sticky top-0 z-40 border-b border-fg/10 bg-bg/70 backdrop-blur-xl">
@@ -45,7 +48,7 @@ export function Header() {
               className="relative rounded-full px-4 py-2 text-sm font-medium text-fg/70 transition hover:bg-fg/10 hover:text-fg"
               activeClassName="bg-fg/10 font-semibold text-fg  after:rounded-full "
             >
-              {n.label}
+              {t(n.label)}
             </NavLink>
           ))}
         </nav>
@@ -62,15 +65,15 @@ export function Header() {
             <div aria-hidden className="h-10 w-10 animate-pulse rounded-full bg-fg/10 md:w-44" />
           ) : user ? <UserMenu user={user} /> : (
             <div className="hidden items-center gap-2 md:flex">
-              <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold hover:bg-fg/10">Log in</Link>
-              <Link href="/register" className="btn-grad rounded-full px-5 py-2.5 text-sm font-semibold">Sign up</Link>
+              <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold hover:bg-fg/10">{t("Log in")}</Link>
+              <Link href="/register" className="btn-grad rounded-full px-5 py-2.5 text-sm font-semibold">{t("Sign up")}</Link>
             </div>
           )}
 
           <button
             type="button"
             className="glass cursor-pointer grid size-10 place-items-center rounded-full xl:hidden"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t("Close menu") : t("Open menu")}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
           >
@@ -91,15 +94,15 @@ export function Header() {
                   className="rounded-xl border-l-0 borer-transparent px-3 py-3 font-medium text-fg/75 hover:bg-fg/10 hover:text-fg"
                   activeClassName="border-[#c936b4] border-l-4 bg-fg/10 font-semibold text-fg"
                 >
-                  {n.label}
+                  {t(n.label)}
                 </NavLink>
               ))}
             </nav>
             <div className="flex flex-wrap gap-2.5 sm:hidden"><LanguageSwitcher /><CurrencySwitcher /></div>
             {status === "unauthenticated" && (
               <div className="grid grid-cols-2 gap-3">
-                <Link href="/login" className="glass rounded-full py-3 text-center font-semibold">Log in</Link>
-                <Link href="/register" className="btn-grad rounded-full py-3 text-center font-semibold">Sign up</Link>
+                <Link href="/login" className="glass rounded-full py-3 text-center font-semibold">{t("Log in")}</Link>
+                <Link href="/register" className="btn-grad rounded-full py-3 text-center font-semibold">{t("Sign up")}</Link>
               </div>
             )}
           </Container>
@@ -111,12 +114,13 @@ export function Header() {
 
 function UserMenu({ user }: { user: Profile }) {
   const { clear } = useUser();
+  const t = useT();
   const [pending, startTransition] = useTransition();
   const base = `/${user.role}`;
   const row = "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-fg/10";
   return (
     <Dropdown
-      label="Account menu"
+      label={t("Account menu")}
       className="flex items-center gap-2 rounded-full glass py-1 pl-1 pr-3"
       trigger={<><UserAvatar name={user.name} image={user.profile_image} className="size-8 text-sm" /><span className="hidden max-w-24 truncate text-sm font-medium md:block">{user.name.split(" ")[0]}</span></>}
     >
@@ -126,15 +130,15 @@ function UserMenu({ user }: { user: Profile }) {
             <UserAvatar name={user.name} image={user.profile_image} />
             <div className="min-w-0"><p className="truncate text-sm font-semibold">{user.name}</p><p className="text-xs capitalize text-fg/50">{user.role}</p></div>
           </div>
-          <Link role="menuitem" href={base} onClick={close} className={row}><LayoutDashboard className="size-4" />Dashboard</Link>
-          <Link role="menuitem" href={`${base}/profile`} onClick={close} className={row}><User className="size-4" />Profile</Link>
+          <Link role="menuitem" href={base} onClick={close} className={row}><LayoutDashboard className="size-4" />{t("Dashboard")}</Link>
+          <Link role="menuitem" href={`${base}/profile`} onClick={close} className={row}><User className="size-4" />{t("Profile")}</Link>
           <button
             role="menuitem"
             disabled={pending}
             onClick={() => startTransition(async () => { clear(); await logoutAction(); })}
             className={`${row} text-coral cursor-pointer disabled:opacity-60`}
           >
-            <LogOut className="size-4" />Log out
+            <LogOut className="size-4" />{t("Log out")}
           </button>
         </>
       )}

@@ -1,6 +1,6 @@
 import { Container } from "./section";
 
-export function PageHero({ title, subtitle }: { title: string; subtitle?: string }) {
+export function PageHero({ title, subtitle }: { title: React.ReactNode; subtitle?: React.ReactNode }) {
   return (
     <section className="pb-6 pt-14 sm:pt-20">
       <Container>

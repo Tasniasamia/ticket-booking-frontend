@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
+import { T } from "@/components/shared/t";
 import { FAQS } from "@/lib/mock-data";
 
 export const metadata: Metadata = { title: "FAQ | TicketBooking" };
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: "FAQ | TicketBooking" };
 export default function FaqPage() {
   return (
     <>
-      <PageHero title="Frequently asked questions" subtitle="Quick answers about booking, payments and your account." />
+      <PageHero title={<T k="Frequently asked questions" />} subtitle={<T k="Quick answers about booking, payments and your account." />} />
       <Section className="pt-10 sm:pt-12">
         <div className="mx-auto max-w-3xl space-y-4">
           {FAQS.map((f) => (
@@ -23,7 +24,7 @@ export default function FaqPage() {
             </details>
           ))}
           <p className="pt-6 text-center text-fg/65">
-            Still need help? <Link href="/contact" className="font-semibold text-coral hover:underline">Contact us</Link>
+            <T k="Still need help?" /> <Link href="/contact" className="font-semibold text-coral hover:underline"><T k="Contact us" /></Link>
           </p>
         </div>
       </Section>

@@ -4,6 +4,7 @@ import { MapPin, Users } from "lucide-react";
 import { MANAGERS, type EventItem } from "@/lib/mock-data";
 import { MOCK_PRICE_CURRENCY } from "@/lib/constants";
 import { Price } from "@/components/shared/price";
+import { T } from "@/components/shared/t";
 
 export function EventCard({ event }: { event: EventItem }) {
   return (
@@ -30,7 +31,7 @@ export function EventCard({ event }: { event: EventItem }) {
             </ul>
             <span className="flex items-center gap-1 text-xs text-fg/60"><Users className="size-3.5" />{event.going.toLocaleString("en-US")}</span>
           </div>
-          <Link href={`/events/${event.id}`} className="btn-grad rounded-full px-5 py-2 text-sm font-semibold">Book now</Link>
+          <Link href={`/events/${event.id}`} className="btn-grad rounded-full px-5 py-2 text-sm font-semibold"><T k="common.book_now" /></Link>
         </div>
       </div>
     </article>

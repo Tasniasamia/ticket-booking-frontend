@@ -14,14 +14,14 @@ const item = (active: boolean) =>
 const Placeholder = () => <div aria-hidden className="h-10 w-20 animate-pulse rounded-full bg-fg/10" />;
 
 export function LanguageSwitcher() {
-  const { languages, language, status, setLanguage } = usePreferences();
+  const { languages, language, status, setLanguage, t } = usePreferences();
   const [pending, startTransition] = useTransition();
   if (status === "loading") return <Placeholder />;
   if (languages.length === 0) return null;
 
   return (
     <Dropdown
-      label="Change language"
+      label={t("Change language")}
       className={cn(pill, pending && "opacity-60")}
       trigger={<><Globe className="size-4" />{language.toUpperCase()}<ChevronDown className="size-3.5 opacity-70" /></>}
     >
@@ -42,7 +42,7 @@ export function LanguageSwitcher() {
 }
 
 export function CurrencySwitcher() {
-  const { currencies, currency, status, setCurrency } = usePreferences();
+  const { currencies, currency, status, setCurrency, t } = usePreferences();
   const [pending, startTransition] = useTransition();
   if (status === "loading") return <Placeholder />;
   const current = currencies.find((c) => c.code === currency);
@@ -50,7 +50,7 @@ export function CurrencySwitcher() {
 
   return (
     <Dropdown
-      label="Change currency"
+      label={t("Change currency")}
       className={cn(pill, pending && "opacity-60")}
       trigger={<><span className="font-semibold text-coral">{current.symbol}</span>{current.code}<ChevronDown className="size-3.5 opacity-70" /></>}
     >

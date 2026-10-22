@@ -1,5 +1,7 @@
 import {
   CalendarDays,
+  Globe,
+  Languages,
   LayoutDashboard,
   Newspaper,
   Ticket,
@@ -94,6 +96,20 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
         icon: Wallet,
         title: "Currency",
         subtitle: "Manage the default currency for your platform.",
+      },
+      {
+        label: "Languages",
+        href: "/admin/languages",
+        icon: Globe,
+        title: "Languages",
+        subtitle: "Add languages and choose the site default.",
+      },
+      {
+        label: "Translations",
+        href: "/admin/translations",
+        icon: Languages,
+        title: "Translations",
+        subtitle: "Edit every text on the site for each language.",
       },
     ],
   },
