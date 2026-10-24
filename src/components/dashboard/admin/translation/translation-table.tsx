@@ -12,19 +12,48 @@ import { TranslationForm } from "./translation-form";
 /** Function (column, action) Server Component থেকে পাঠানো যায় না, তাই এই client wrapper। */
 export function TranslationTable({ translations, languages, meta }: { translations: Translation[]; languages: Language[]; meta: PaginationMeta }) {
   // key + প্রতিটা active ভাষার জন্য একটা করে column। অনুবাদ না থাকলে "—" (সেখানে fallback ভাষা দেখায়)।
+  // const columns: Column<Translation>[] = [
+  //   { key: "key", header: "English text", cell: (t) => <span className="max-w-xs text-sm font-medium">{t.key}</span> },
+  //   ...languages.map<Column<Translation>>((l) => ({
+  //     key: `lang-${l.code}`,
+  //     header: `${l.name} (${l.code})`,
+  //     cell: (t) =>
+  //       t.values[l.code]?.trim() ? (
+  //         <span dir={l.rtl ? "rtl" : "ltr"} className="line-clamp-2 max-w-64 text-sm">{t.values[l.code]}</span>
+  //       ) : (
+  //         <span className="text-fg/30">—</span>
+  //       ),
+  //   })),
+  // ];
+
   const columns: Column<Translation>[] = [
-    { key: "key", header: "English text", cell: (t) => <span className="max-w-xs text-sm font-medium">{t.key}</span> },
-    ...languages.map<Column<Translation>>((l) => ({
-      key: `lang-${l.code}`,
-      header: `${l.name} (${l.code})`,
-      cell: (t) =>
-        t.values[l.code]?.trim() ? (
-          <span dir={l.rtl ? "rtl" : "ltr"} className="line-clamp-2 max-w-64 text-sm">{t.values[l.code]}</span>
-        ) : (
-          <span className="text-fg/30">—</span>
-        ),
-    })),
-  ];
+  {
+    key: "key",
+    header: "English text",
+    cell: (t) => (
+      <span title={t.key} className="block max-w-xs truncate text-sm font-medium">
+        {t.key}
+      </span>
+    ),
+  },
+  ...languages.map<Column<Translation>>((l) => ({
+    key: `lang-${l.code}`,
+    header: `${l.name} (${l.code})`,
+    cell: (t) =>
+      t.values[l.code]?.trim() ? (
+        <span
+          dir={l.rtl ? "rtl" : "ltr"}
+          title={t.values[l.code]}
+          className="block max-w-64 truncate text-sm"
+        >
+          {t.values[l.code]}
+        </span>
+      ) : (
+        <span className="text-fg/30">—</span>
+      ),
+  })),
+];
+
 
   return (
     <DataTable

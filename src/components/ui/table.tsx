@@ -6,8 +6,8 @@ import { cn } from "cn"
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
-      data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+  data-slot="table-container"
+  className="pretty-scroll relative w-full overflow-x-auto"
     >
       <table
         data-slot="table"

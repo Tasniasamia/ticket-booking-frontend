@@ -131,7 +131,7 @@ export function DataTable<T>({ columns, data, meta, rowKey, actions, filters = [
       </div>
 
       <div className={tableTheme.card}>
-        <Table>
+        <Table >
           <TableHeader>
             <TableRow className={tableTheme.headRow}>
               {columns.map((c) => <TableHead key={c.key} className={cn(tableTheme.head, c.className)}>{c.header}</TableHead>)}
