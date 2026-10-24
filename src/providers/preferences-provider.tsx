@@ -47,7 +47,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     return () => {
       alive = false;
     };
-  }, []);
+  }, []);  
 
   // <html lang dir> বদলায়। rtl আসে backend এর language.rtl থেকে।
   useEffect(() => {
@@ -55,7 +55,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     const lang = state.languages.find((l) => l.code === state.language);
     document.documentElement.lang = state.language;
     document.documentElement.dir = lang?.rtl ? "rtl" : "ltr";
-  }, [state.status, state.language, state.languages]);
+  }, [state.status, state.language, state.languages]); 
 
   const setLanguage = useCallback(async (code: string) => {
     const res = await setLanguageAction(code);
@@ -71,6 +71,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     else toast.error(res.message ?? "Could not change currency.");
   }, []);
 
+  
   const { currencies, currency, language } = state;
   const formatPrice = useCallback(
     (amount: number, from: string = BASE_CURRENCY) => {

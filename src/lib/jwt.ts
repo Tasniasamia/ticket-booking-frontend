@@ -26,5 +26,6 @@ export function decodeJwt(token: string): JwtClaims | null {
 }
 
 export function isExpired(claims: Pick<JwtClaims, "exp">) {
+  
   return claims.exp * 1000 <= Date.now();
 }

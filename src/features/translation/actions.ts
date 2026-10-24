@@ -112,3 +112,33 @@ export async function syncDefaultTranslationsAction(): Promise<ActionResult & { 
     return { success: false, message: getErrorMessage(err) };
   }
 }
+
+const bulkSchema = z
+  .array(
+    z.object({
+      key: z.string().trim().min(1, "Key is required").max(255, "Text is too long"),
+      values: z.record(z.string(), z.string()),
+    }),
+  )
+  .min(1, "Nothing to save.")
+  .max(200, "Too many rows at once (max 200).");
+
+export type BulkTranslationItem = z.infer<typeof bulkSchema>[number];
+
+/**
+ * একসাথে অনেকগুলো key সেভ করে (backend: PUT /translations/bulk)।
+ * key থাকলে শুধু পাঠানো ভাষাগুলো merge হয়, না থাকলে নতুন key তৈরি হয়।
+ */
+export async function bulkSaveTranslationsAction(
+  items: BulkTranslationItem[],
+): Promise<ActionResult & { saved?: number }> {
+  const parsed = bulkSchema.safeParse(items);
+  if (!parsed.success) return { success: false, message: parsed.error.issues[0]?.message ?? "Invalid data." };
+  try {
+    await bulkUpdateTranslationsRequest(parsed.data);
+    const n = parsed.data.length;
+    return { success: true, saved: n, message: `Saved ${n} text${n === 1 ? "" : "s"}.` };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
