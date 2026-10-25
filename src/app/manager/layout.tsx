@@ -22,8 +22,16 @@ const userMenu: MenuItem[] = [
     title: "Dashboard",
     subtitle: "Dashboard Here",
   },
-  {
+   {
     key: 2,
+    label: "Events",
+    link: "/manager/events",
+    icon: <LayoutDashboard size={16} />,
+    title: "Events",
+    subtitle: "Manage your events",
+  },
+  {
+    key: 3,
     label: "Profile",
     link: "/manager/profile",
     icon: <User size={16} />,

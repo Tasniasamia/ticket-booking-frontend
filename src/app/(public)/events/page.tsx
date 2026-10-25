@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { EventsExplorer } from "@/components/events/events-explorer";
+import { EventsExplorer } from "@/components/dashboard/events/events-explorer";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
 import { T } from "@/components/shared/t";

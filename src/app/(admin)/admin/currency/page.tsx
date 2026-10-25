@@ -1,3 +1,4 @@
+export const instant = false
 import type { Metadata } from "next";
 import { AlertTriangle } from "lucide-react";
 import { parseTableParams } from "@/components/common/table/table-params";

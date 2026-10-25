@@ -10,7 +10,7 @@ import type { Language } from "@/features/language/types";
 import { LanguageForm } from "./language-form";
 
 const FILTERS: FilterConfig[] = [
-  { key: "is_active", label: "All statuses", options: [{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }] },
+  { key: "is_active", label: "All Status", options: [{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }] },
   { key: "is_default", label: "All languages", options: [{ value: "true", label: "Default only" }, { value: "false", label: "Not default" }] },
 ];
 

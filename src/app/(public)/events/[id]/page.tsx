@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, Users } from "lucide-react";
-import { BookingPanel } from "@/components/events/booking-panel";
+import { BookingPanel } from "@/components/dashboard/events/booking-panel";
 import { Section } from "@/components/shared/section";
 import { EVENTS, MANAGERS } from "@/lib/mock-data";
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Star } from "lucide-react";
-import { EventCard } from "@/components/events/event-card";
+import { EventCard } from "@/components/dashboard/events/event-card";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { EVENTS, MANAGERS } from "@/lib/mock-data";
 
