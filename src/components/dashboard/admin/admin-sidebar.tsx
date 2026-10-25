@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
+  ChevronDown,
   ExternalLink,
   PanelLeftClose,
   PanelLeftOpen,
@@ -28,7 +30,6 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   return (
     <>
-      {/* মোবাইলে drawer খুললে পেছনের অন্ধকার পর্দা */}
       <div
         aria-hidden
         onClick={onCloseMobile}
@@ -50,7 +51,6 @@ export function AdminSidebar({
           collapsed ? "lg:w-20" : "lg:w-72",
         )}
       >
-        {/* Brand */}
         <div
           className={cn(
             "flex h-16 shrink-0 items-center justify-between gap-2 border-b border-fg/10 px-4",
@@ -83,7 +83,6 @@ export function AdminSidebar({
           </button>
         </div>
 
-        {/* Menu */}
         <nav aria-label="Admin" className="flex-1 overflow-y-auto px-3 py-4">
           {ADMIN_MENU.map((group, gi) => (
             <div
@@ -104,22 +103,32 @@ export function AdminSidebar({
                 </p>
               )}
               <ul className="space-y-1">
-                {group.items.map((item) => (
-                  <li key={item.href}>
-                    <NavItem
-                      item={item}
-                      active={item.href === activeHref}
-                      collapsed={collapsed}
-                      onNavigate={onCloseMobile}
-                    />
-                  </li>
-                ))}
+                {group.items.map((item) =>
+                  item.children?.length ? (
+                    <li key={item.href}>
+                      <NavGroup
+                        item={item}
+                        activeHref={activeHref}
+                        collapsed={collapsed}
+                        onNavigate={onCloseMobile}
+                      />
+                    </li>
+                  ) : (
+                    <li key={item.href}>
+                      <NavItem
+                        item={item}
+                        active={item.href === activeHref}
+                        collapsed={collapsed}
+                        onNavigate={onCloseMobile}
+                      />
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           ))}
         </nav>
 
-        {/* Footer */}
         <div className="shrink-0 space-y-1 border-t border-fg/10 p-3">
           <Link
             href="/"
@@ -153,6 +162,93 @@ export function AdminSidebar({
         </div>
       </aside>
     </>
+  );
+}
+
+function NavGroup({
+  item,
+  activeHref,
+  collapsed,
+  onNavigate,
+}: {
+  item: AdminMenuItem;
+  activeHref: string;
+  collapsed: boolean;
+  onNavigate: () => void;
+}) {
+  const hasActiveChild = item.children!.some(
+    (c) => c.href === activeHref || activeHref.startsWith(`${c.href}/`),
+  );
+  const [open, setOpen] = useState(hasActiveChild);
+  const Icon = item.icon;
+
+  if (collapsed) {
+    return (
+      <Link
+        href={item.children![0].href}
+        onClick={onNavigate}
+        title={item.label}
+        className={cn(
+          "relative flex items-center justify-center rounded-xl py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-coral",
+          hasActiveChild
+            ? "bg-fg/10 text-fg"
+            : "text-fg/65 hover:bg-fg/5 hover:text-fg",
+        )}
+      >
+        {hasActiveChild && (
+          <span
+            aria-hidden
+            className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-linear-to-b from-magenta to-coral"
+          />
+        )}
+        <Icon className={cn("size-5 shrink-0", hasActiveChild && "text-coral")} />
+      </Link>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-coral",
+          hasActiveChild
+            ? "bg-fg/10 text-fg"
+            : "text-fg/65 hover:bg-fg/5 hover:text-fg",
+        )}
+      >
+        {hasActiveChild && (
+          <span
+            aria-hidden
+            className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-linear-to-b from-magenta to-coral"
+          />
+        )}
+        <Icon className={cn("size-5 shrink-0", hasActiveChild && "text-coral")} />
+        <span className="flex-1 text-left">{item.label}</span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-fg/40 transition-transform",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+
+      {open && (
+        <ul className="mt-1 ml-5 space-y-0.5 border-l border-fg/10 pl-2">
+          {item.children!.map((child) => (
+            <li key={child.href}>
+              <NavItem
+                item={child}
+                active={child.href === activeHref}
+                collapsed={false}
+                onNavigate={onNavigate}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

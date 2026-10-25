@@ -184,7 +184,7 @@
   .btn-grad {
     color: #fff;
     background-image: linear-gradient(90deg, #c936b4 0%, #ff6f61 100%);
-    box-shadow: 0 8px 24px -8px rgb(214 58 168 / 0.6);
+     /* box-shadow: 0 8px 24px -8px rgb(214 58 168 / 0.6); */
   }
   .text-grad {
     background-image: linear-gradient(90deg, #d63aa8, #ff7a59);
@@ -223,4 +223,4 @@
       scrollbar-width: thin;
       scrollbar-color: color-mix(in srgb, var(--fg) 30%, transparent) transparent;
     }
-  }
+  } 

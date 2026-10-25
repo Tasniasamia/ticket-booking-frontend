@@ -27,6 +27,7 @@ export type RowAction<T> = {
   dialog?: {
     title: string | ((row: T) => string);
     content: (row: T, close: () => void) => ReactNode;
+    customWidth?: string;
   };
 };
 
@@ -176,7 +177,7 @@ export function DataTable<T>({ columns, data, meta, rowKey, actions, filters = [
         {meta.totalDocs > 0 && <TablePagination meta={meta} onPage={(page) => update({ page })} />}
       </div>
 
-      <Modal open={!!open} onClose={() => setOpen(null)} title={title}>
+      <Modal open={!!open} onClose={() => setOpen(null)} customWidth={open?.action.dialog?.customWidth} title={title}>
         {open?.action.dialog?.content(open.row, close)}
       </Modal>
     </div>

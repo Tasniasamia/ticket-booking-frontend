@@ -20,6 +20,6 @@ export const tableTheme = {
   actionView: "hover:bg-fg/10 hover:text-fg",
   actionEdit: "hover:bg-coral/15 hover:text-coral",
   actionDelete: "hover:bg-red-500/15 hover:text-red-500",
-  dialog: "cursor-default rounded-3xl bg-panel p-6 ring-fg/15 sm:max-w-md",
+  dialog: "cursor-default rounded-3xl bg-panel p-6 ring-fg/15 pretty-scroll ",
   accent: "text-coral",
 } as const;
