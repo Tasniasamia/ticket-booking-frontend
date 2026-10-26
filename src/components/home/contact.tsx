@@ -4,23 +4,32 @@ import { useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { useT } from "@/providers/preferences-provider";
+import { useSiteSettings } from "@/providers/site-settings-provider";
+import { useL } from "@/components/shared/localized-text";
+import { section } from "@/features/settings/localized";
+import type { PageContent } from "@/features/settings/types";
 import type { MessageKey } from "@/lib/i18n/messages";
 
-const INFO: { icon: typeof Mail; label: MessageKey; value: string }[] = [
-  { icon: Mail, label: "Email", value: "support@ticketbooking.com" },
-  { icon: Phone, label: "Phone", value: "+880 1700 000000" },
-  { icon: MapPin, label: "Office", value: "Khulna, Bangladesh" },
-];
+// Site settings এ না থাকলে এই default গুলো দেখায়
+const DEFAULTS = { email: "support@ticketbooking.com", phone: "+880 1700 000000", address: "Khulna, Bangladesh" };
 const field = "w-full rounded-2xl border border-fg/15 bg-fg/5 px-4 py-3 outline-none transition placeholder:text-fg/40 focus:border-coral";
 
-export function Contact() {
+export function Contact({ content }: { content?: PageContent }) {
   const [sent, setSent] = useState(false);
   const t = useT();
+  const l = useL();
+  const site = useSiteSettings();
+  const c = section(content, "contact");
+  const INFO: { icon: typeof Mail; label: MessageKey; value: string }[] = [
+    { icon: Mail, label: "Email", value: site.site_email || DEFAULTS.email },
+    { icon: Phone, label: "Phone", value: site.site_phone || DEFAULTS.phone },
+    { icon: MapPin, label: "Office", value: site.site_address || DEFAULTS.address },
+  ];
   return (
     <Section id="contact">
       <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
         <div>
-          <SectionHeading title={t("Questions? Talk to us")} subtitle={t("We reply within one working day.")} className="mb-8" />
+          <SectionHeading title={l(c.title, "Questions? Talk to us")} subtitle={l(c.subtitle, "We reply within one working day.")} className="mb-8" />
           <ul className="space-y-4">
             {INFO.map(({ icon: Icon, label, value }) => (
               <li key={label} className="glass flex items-center gap-4 rounded-3xl p-4">

@@ -262,11 +262,25 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
       
       {
         label: "Payments",
-        href: "/admin/payments",
+        href: "/admin/payment-methods",
         icon: Wallet,
         title: "Payments",
         subtitle: "Payments, refunds and payouts to managers.",
-      }
+      },
+       {
+        label: "Page Settings",
+        href: "/admin/page-settings",
+        icon: Globe,
+        title: "Page Settings",
+        subtitle: "Manage the settings for your platform's pages.",
+      },
+       {
+        label: "Site Settings",
+        href: "/admin/site-settings",
+        icon: Globe,
+        title: "Site Settings",
+        subtitle: "Manage the settings for your platform's site.",
+      },
     ],
   },
   // ...

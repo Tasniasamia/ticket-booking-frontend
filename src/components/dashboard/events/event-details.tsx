@@ -1,4 +1,4 @@
-import { textOf } from "@/lib/localized";
+import { textOf } from "@/features/event-category/localized";
 import type { EventItem } from "@/features/event/types";
 import { EventStatusBadge } from "./event-status-badge";
 import { LocalTime } from "./local-time";

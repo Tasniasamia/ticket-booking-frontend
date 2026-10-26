@@ -6,20 +6,25 @@ import { EVENTS, IMAGES, MANAGERS } from "@/lib/mock-data";
 import { MOCK_PRICE_CURRENCY } from "@/lib/constants";
 import { Price } from "@/components/shared/price";
 import { T } from "@/components/shared/t";
+import { LText } from "@/components/shared/localized-text";
+import { imageUrl, section } from "@/features/settings/localized";
+import type { PageContent } from "@/features/settings/types";
 import { HeroSearch } from "./hero-search";
 
-export function Hero() {
+export function Hero({ content }: { content?: PageContent }) {
+  const c = section(content, "hero");
+  const heroImage = imageUrl(c, "image") || IMAGES.hero;
   return (
     <section className="relative pb-16 pt-10 sm:pb-24 sm:pt-16">
       <Container className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-            <T k="Enjoy the music," />
+            <LText value={c.title} fallback="Enjoy the music," />
             <br />
-            <span className="text-grad"><T k="own the night." /></span>
+            <span className="text-grad"><LText value={c.highlight} fallback="own the night." /></span>
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-fg/70">
-            <T k="Find concerts, festivals and club nights near you. Pick a seat, pay securely and get your booking code in seconds." />
+            <LText value={c.subtitle} fallback="Find concerts, festivals and club nights near you. Pick a seat, pay securely and get your booking code in seconds." />
           </p>
 
           <HeroSearch />
@@ -41,7 +46,7 @@ export function Hero() {
           <div aria-hidden className="absolute -inset-6 rounded-[3rem] bg-linear-to-br from-violet/50 via-magenta/30 to-coral/30 blur-3xl" />
           <div className="glass relative rotate-2 rounded-[2.5rem] p-3">
             <div className="relative aspect-4/5 overflow-hidden rounded-[2rem]">
-              <Image src={IMAGES.hero} alt="Crowd cheering at a live concert" fill priority sizes="(min-width:1024px) 480px, 90vw" className="object-cover" />
+              <Image src={heroImage} alt="Crowd cheering at a live concert" fill priority sizes="(min-width:1024px) 480px, 90vw" className="object-cover" />
               <div className="absolute inset-0 bg-linear-to-t from-ink/80 via-transparent to-transparent" />
               <Price amount={EVENTS[0].price} from={MOCK_PRICE_CURRENCY} className="btn-grad absolute right-4 top-4 rounded-full px-4 py-1.5 text-sm font-bold" />
               <div className="glass-img absolute inset-x-3 bottom-3 rounded-3xl p-4">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { LayoutDashboard, LogOut, Menu, Ticket, User, X } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, User, X } from "lucide-react";
 import { CurrencySwitcher, LanguageSwitcher } from "./header-switchers";
 import { Dropdown } from "./dropdown";
 import { logoutAction } from "@/features/auth/actions";
@@ -16,6 +16,7 @@ import { Profile } from "@/features/user/type";
 import { useT } from "@/providers/preferences-provider";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { UserAvatar } from "./use-avatar";
+import { SiteLogo } from "./site-logo";
 
 const NAV: { href: string; label: MessageKey }[] = [
   { href: "/", label: "Home" },
@@ -36,8 +37,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-fg/10 bg-bg/70 backdrop-blur-xl">
       <Container className="flex h-18 items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
-          <span className="btn-grad grid size-9 place-items-center rounded-xl"><Ticket className="size-5 -rotate-12" /></span>
-          TicketBooking
+          <SiteLogo />
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-1 xl:flex">

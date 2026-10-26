@@ -1,13 +1,16 @@
 import { Quote } from "lucide-react";
 import { Section, SectionHeading } from "@/components/shared/section";
-import { T } from "@/components/shared/t";
+import { LText } from "@/components/shared/localized-text";
+import { section } from "@/features/settings/localized";
+import type { PageContent } from "@/features/settings/types";
 import { TESTIMONIALS } from "@/lib/mock-data";
 import { UserAvatar } from "../shared/use-avatar";
 
-export function Testimonials() {
+export function Testimonials({ content }: { content?: PageContent }) {
+  const c = section(content, "testimonials");
   return (
     <Section id="testimonials">
-      <SectionHeading title={<T k="What our guests say" />} />
+      <SectionHeading title={<LText value={c.title} fallback="What our guests say" />} subtitle={c.subtitle ? <LText value={c.subtitle} /> : undefined} />
       <div className="grid gap-5 lg:grid-cols-3">
         {TESTIMONIALS.map((t, i) => (
           <figure key={t.name} className={`rounded-4xl p-7 ${i === 1 ? "btn-grad lg:-translate-y-4" : "glass"}`}>

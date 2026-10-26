@@ -1,5 +1,5 @@
-import { Footer } from "@/components/shared/footer";
-import { Header } from "@/components/shared/header";
+import { Footer } from "@/components/shared/footer2";
+import { Header } from "@/components/shared/header2";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
