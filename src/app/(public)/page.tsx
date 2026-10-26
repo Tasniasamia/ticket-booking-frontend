@@ -1,21 +1,30 @@
-import { About } from "@/components/home/about";
-import { Contact } from "@/components/home/contact";
-import { EventsSlider } from "@/components/home/events-slider";
+import { Suspense } from "react";
 import { Hero } from "@/components/home/hero";
-import { ManagersSlider } from "@/components/home/managers-slider";
-import { Services } from "@/components/home/services";
-import { Testimonials } from "@/components/home/testimonials";
+import { getPageContent } from "@/features/settings/server";
+import { getLanguagesAction } from "@/features/language/actions";
+import { pickLanguage} from "@/lib/localized";
+import { getLanguageCookie } from "@/lib/preferences";
+import { getUpcomingEventsAction } from "@/features/event/actions";
 
-export default function HomePage() {
+async function HomeHero({ content}: { content: Awaited<ReturnType<typeof getPageContent>>}) {
+  const [langRes, saved] = await Promise.all([getLanguagesAction(), getLanguageCookie()]);
+  const lang = pickLanguage(langRes.languages ?? [], saved);
+
+ const res = await getUpcomingEventsAction(1); // hero তে ১টা
+const event = res.events?.data?.docs[0];
+
+
+
+  return <Hero content={content} lang={lang} event={event} />;
+}
+
+export default async function HomePage() {
+  const content = await getPageContent("home"); // cached — Suspense বাইরে OK
+ 
+
   return (
-    <>
-      <Hero />
-      <About />
-      <Services />
-      <EventsSlider />
-      <ManagersSlider />
-      <Testimonials />
-      <Contact />
-    </>
+    <Suspense fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}>
+      <HomeHero content={content}  />
+    </Suspense>
   );
 }

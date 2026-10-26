@@ -1,4 +1,4 @@
-import { api } from "@/lib/api-client";
+import { api, publicApi } from "@/lib/api-client";
 import type { PaginationMeta } from "@/components/common/table/table-params";
 
 type ApiSuccess<T> = { success: boolean; statusCode: number; message: string; data: T };
@@ -40,3 +40,7 @@ export const deleteEventRequest = (id: string | number) => api.delete<ApiSuccess
 
 export const updateEventStatusRequest = (eventId: number, status: string) =>
   api.patch<ApiSuccess<unknown>>("/events/updateStatus", { eventId, status });
+
+
+export const listUpcomingEventsRequest = (limit = 10) =>
+  publicApi.get("/events/upcoming", { params: { limit } });

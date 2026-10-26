@@ -9,8 +9,7 @@ import { getCurrenciesAction } from "@/features/currency/actions";
 import { getEventCategoriesAction } from "@/features/event-category/actions";
 import { getMyEventsAction } from "@/features/event/actions";
 import { getLanguagesAction } from "@/features/language/actions";
-import { textOf } from "@/lib/localized";
-import { pickLanguage } from "@/lib/pick-language";
+import { pickLanguage, textOf } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
 
 export const metadata: Metadata = { title: "My events" };

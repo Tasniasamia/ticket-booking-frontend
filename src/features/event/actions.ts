@@ -11,6 +11,7 @@ import {
   deleteEventRequest,
   listAdminEventsRequest,
   listMyEventsRequest,
+  listUpcomingEventsRequest,
   updateEventRequest,
   updateEventStatusRequest,
   type EventPayload,
@@ -113,6 +114,15 @@ export async function updateEventStatusAction(eventId: number, status: EventStat
   try {
     await updateEventStatusRequest(eventId, status);
     return { success: true, message: `Event ${status}.` };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+export async function getUpcomingEventsAction(limit = 10) {
+  try {
+    const res = await listUpcomingEventsRequest(limit);
+    return { success: true, events: res.data };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
   }
