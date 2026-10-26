@@ -5,8 +5,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { useT } from "@/providers/preferences-provider";
 import { useSiteSettings } from "@/providers/site-settings-provider";
-import { useL } from "@/components/shared/localized-text";
-import { section } from "@/lib/localized";
+import { section, textOf } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import type { MessageKey } from "@/lib/i18n/messages";
 
@@ -14,10 +13,9 @@ import type { MessageKey } from "@/lib/i18n/messages";
 const DEFAULTS = { email: "support@ticketbooking.com", phone: "+880 1700 000000", address: "Khulna, Bangladesh" };
 const field = "w-full rounded-2xl border border-fg/15 bg-fg/5 px-4 py-3 outline-none transition placeholder:text-fg/40 focus:border-coral";
 
-export function Contact({ content }: { content?: PageContent }) {
+export function Contact({ content, lang }: { content?: PageContent; lang: string }) {
   const [sent, setSent] = useState(false);
   const t = useT();
-  const l = useL();
   const site = useSiteSettings();
   const c = section(content, "contact");
   const INFO: { icon: typeof Mail; label: MessageKey; value: string }[] = [
@@ -29,7 +27,7 @@ export function Contact({ content }: { content?: PageContent }) {
     <Section id="contact">
       <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
         <div>
-          <SectionHeading title={l(c.title, "Questions? Talk to us")} subtitle={l(c.subtitle, "We reply within one working day.")} className="mb-8" />
+          <SectionHeading title={textOf(c.title, lang)} subtitle={textOf(c.subtitle, lang)} className="mb-8" />
           <ul className="space-y-4">
             {INFO.map(({ icon: Icon, label, value }) => (
               <li key={label} className="glass flex items-center gap-4 rounded-3xl p-4">

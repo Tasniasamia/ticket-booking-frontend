@@ -2,7 +2,7 @@ import { CreditCard, Globe, MessagesSquare, Ticket } from "lucide-react";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { LText } from "@/components/shared/localized-text";
 import { T } from "@/components/shared/t";
-import { section } from "@/lib/localized";
+import { section, textOf } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import type { MessageKey } from "@/lib/i18n/messages";
 
@@ -13,11 +13,11 @@ const SERVICES: { icon: typeof Ticket; title: MessageKey; text: MessageKey; tone
   { icon: Globe, title: "Your language and currency", text: "Switch between languages and see prices in your currency.", tone: "from-coral to-magenta" },
 ];
 
-export function Services({ content }: { content?: PageContent }) {
+export function Services({ content,lang }: { content?: PageContent; lang: string }) {
   const c = section(content, "services");
   return (
     <Section id="services">
-      <SectionHeading title={<LText value={c.title} fallback="Everything you need for the night" />} subtitle={<LText value={c.subtitle} fallback="From the first search to the front door, each step is handled in one place." />} />
+      <SectionHeading title={textOf(c.title,lang)} subtitle={textOf(c.subtitle,lang)} />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {SERVICES.map(({ icon: Icon, title, text, tone }, i) => (
           <article key={title} className={`glass rounded-4xl p-6 ${i % 2 ? "lg:mt-8" : ""}`}>
