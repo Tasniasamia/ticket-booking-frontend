@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { Section } from "@/components/shared/section";
 import { IMAGES } from "@/lib/mock-data";
 import { LText } from "@/components/shared/localized-text";
-import { imageUrl, listOf, section } from "@/features/settings/localized";
+import { imageUrl, listOf, section } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import type { MessageKey } from "@/lib/i18n/messages";
 

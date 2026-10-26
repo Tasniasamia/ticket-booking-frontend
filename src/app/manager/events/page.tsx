@@ -9,7 +9,7 @@ import { getCurrenciesAction } from "@/features/currency/actions";
 import { getEventCategoriesAction } from "@/features/event-category/actions";
 import { getMyEventsAction } from "@/features/event/actions";
 import { getLanguagesAction } from "@/features/language/actions";
-import { textOf } from "@/features/event-category/localized";
+import { textOf } from "@/lib/localized";
 import { pickLanguage } from "@/lib/pick-language";
 import { getLanguageCookie } from "@/lib/preferences";
 

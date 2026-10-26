@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { usePreferences } from "@/providers/preferences-provider";
-import { pickLocalized } from "@/features/settings/localized";
+import { pickLocalized } from "@/lib/localized";
 import type { MessageKey } from "@/lib/i18n/messages";
 
 /**

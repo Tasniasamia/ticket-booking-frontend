@@ -1,7 +1,7 @@
 import { Quote } from "lucide-react";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { LText } from "@/components/shared/localized-text";
-import { section } from "@/features/settings/localized";
+import { section } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import { TESTIMONIALS } from "@/lib/mock-data";
 import { UserAvatar } from "../shared/use-avatar";

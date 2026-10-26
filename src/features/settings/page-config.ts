@@ -1,7 +1,3 @@
-// কোন page এ কোন কোন section আর field আছে, এক জায়গায়।
-// Admin form এই config থেকেই বানানো হয়, public page ও একই key দিয়ে data পড়ে।
-// নতুন field লাগলে শুধু এখানে একটা লাইন যোগ করলেই admin form এ চলে আসে।
-
 export const PAGE_SLUGS = ["home", "about", "contact", "events", "managers", "blog", "faq"] as const;
 export type PageSlug = (typeof PAGE_SLUGS)[number];
 

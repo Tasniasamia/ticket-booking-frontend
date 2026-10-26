@@ -6,7 +6,7 @@ import { Section, SectionHeading } from "@/components/shared/section";
 import { useT } from "@/providers/preferences-provider";
 import { useSiteSettings } from "@/providers/site-settings-provider";
 import { useL } from "@/components/shared/localized-text";
-import { section } from "@/features/settings/localized";
+import { section } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import type { MessageKey } from "@/lib/i18n/messages";
 

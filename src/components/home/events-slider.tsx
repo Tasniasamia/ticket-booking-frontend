@@ -1,7 +1,7 @@
 import { Carousel, CarouselItem } from "@/components/shared/carousel";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { LText } from "@/components/shared/localized-text";
-import { section } from "@/features/settings/localized";
+import { section } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import { EventCard } from "@/components/dashboard/events/event-card";
 import { EVENTS } from "@/lib/mock-data";

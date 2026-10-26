@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/dashboard/shared/empty-state";
 import { PageHeader } from "@/components/dashboard/shared/page-header";
 import { getAdminEventsAction } from "@/features/event/actions";
 import { getLanguagesAction } from "@/features/language/actions";
-import { pickLanguage } from "@/lib/pick-language";
+import { pickLanguage } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
 
 export const metadata: Metadata = { title: "Events" };

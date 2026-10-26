@@ -7,7 +7,7 @@ import { MOCK_PRICE_CURRENCY } from "@/lib/constants";
 import { Price } from "@/components/shared/price";
 import { T } from "@/components/shared/t";
 import { LText } from "@/components/shared/localized-text";
-import { imageUrl, section } from "@/features/settings/localized";
+import { imageUrl, section } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import { HeroSearch } from "./hero-search";
 

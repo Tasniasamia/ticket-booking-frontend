@@ -3,7 +3,7 @@
 import { CalendarDays } from "lucide-react";
 import { DataTable, type Column, type FilterConfig } from "@/components/common/table/data-table";
 import type { PaginationMeta } from "@/components/common/table/table-params";
-import { textOf } from "@/features/event-category/localized";
+import { textOf } from "@/lib/localized";
 import type { EventItem } from "@/features/event/types";
 import { EventDetails } from "@/components/dashboard/events/event-details";
 import { EventStatusSelect } from "@/components/dashboard/events/event-status-select";
