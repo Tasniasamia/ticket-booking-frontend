@@ -1,5 +1,5 @@
-import { Footer } from "@/components/shared/footer2";
-import { Header } from "@/components/shared/header2";
+import { Footer } from "@/components/shared/footer";
+import { Header } from "@/components/shared/header";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (

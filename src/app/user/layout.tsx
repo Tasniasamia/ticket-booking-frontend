@@ -5,9 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, User } from "lucide-react";
 
 import Sidebar, { type MenuItem } from "@/components/dashboard/shared/sidebar";
-import { Footer } from "@/components/shared/footer2";
-import { Header } from "@/components/shared/header2";
-import { PageHero } from "@/components/shared/page-hero";
+import { Footer } from "@/components/shared/footer";
+import { Header } from "@/components/shared/header";
+import { PageHero } from "@/components/dashboard/shared/page-hero";
 import { Container } from "@/components/shared/section";
 import { ProfileSkeleton } from "@/components/skeleton/profileSkeleton";
 import { useUser } from "@/providers/user-provider";
