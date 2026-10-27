@@ -1,5 +1,5 @@
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
-import { PageHero } from "@/components/shared/page-hero";
+import { PageHero } from "@/components/shared/page-hero2";
 import React from "react";
 
 const page = () => {

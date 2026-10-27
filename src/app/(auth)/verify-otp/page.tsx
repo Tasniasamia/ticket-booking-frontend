@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { VerifyOtpForm } from "@/components/auth/verify-otp-form";
-import { PageHero } from "@/components/shared/page-hero";
+import { PageHero } from "@/components/shared/page-hero2";
 
 export default function Page() {
   return (

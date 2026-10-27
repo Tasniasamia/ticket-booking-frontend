@@ -7,7 +7,7 @@ import { LayoutDashboard, User } from "lucide-react";
 import Sidebar, { type MenuItem } from "@/components/dashboard/shared/sidebar";
 import { Footer } from "@/components/shared/footer";
 import { Header } from "@/components/shared/header";
-import { PageHero } from "@/components/dashboard/shared/page-hero";
+import { PageHero } from "@/components/shared/page-hero2";
 import { Container } from "@/components/shared/section";
 import { ProfileSkeleton } from "@/components/skeleton/profileSkeleton";
 import { useUser } from "@/providers/user-provider";

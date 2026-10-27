@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
-import { PageHero } from "@/components/shared/page-hero";
+import { PageHero } from "@/components/shared/page-hero2";
 
 export default function Page() {
   return (
