@@ -3,7 +3,7 @@ import { getPageContent } from "@/features/settings/server";
 import { getLanguagesAction } from "@/features/language/actions";
 import { pickLanguage } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
-import { getUpcomingEventsAction } from "@/features/event/actions";
+import { getTrendingEventsAction } from "@/features/event/actions";
 import { About } from "@/components/home/about";
 import { Contact } from "@/components/home/contact";
 import { EventsSlider } from "@/components/home/events-slider";
@@ -23,15 +23,15 @@ async function HomeHero({
   ]);
   const lang = pickLanguage(langRes.languages ?? [], saved);
 
-  const res = await getUpcomingEventsAction(1); // hero তে ১টা
-  const event = res.events?.data?.docs[0];
+  // trending একবারই আনি: প্রথমটা Hero তে, পুরো list slider এ
+  const { events } = await getTrendingEventsAction(8);
 
   return (
     <>
-      <Hero content={content} lang={lang} event={event} />;
+      <Hero content={content} lang={lang} event={events[0]} />
       <About content={content} lang={lang} />
             <Services content={content} lang={lang}/>
-                <EventsSlider content={content} lang={lang} />
+                <EventsSlider content={content} lang={lang} events={events} />
       <ManagersSlider content={content} lang={lang}/>
       <Testimonials content={content} lang={lang}/>
       <Contact content={content} lang={lang} />

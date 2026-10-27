@@ -152,19 +152,32 @@ export function proxy(req: NextRequest) {
   }
 
   // 3) /payment/*: শুধু backend থেকে redirect হয়ে আসলে ঢোকা যাবে
-  if (pathname.startsWith("/payment/")) {
-    if (!claims) return go("/login");
-    const site = req.headers.get("sec-fetch-site"); // none = URL টাইপ/bookmark, same-origin = আমাদের নিজের site থেকে
-    const hasPass = req.cookies.has(PAYMENT_COOKIE);
-    if (!hasPass && (site === "none" || site === "same-origin")) return go("/");
-    const res = finish(NextResponse.next());
-    if (!hasPass) {
-      // reload করলে যেন আটকে না যায়, তাই ১০ মিনিটের pass
-      res.cookies.set(PAYMENT_COOKIE, "1", { httpOnly: true, sameSite: "lax", path: "/payment", maxAge: 600 });
-    }
-    return res;
+  // if (pathname.startsWith("/payment/")) {
+  //   if (!claims) return go("/login");
+  //   const site = req.headers.get("sec-fetch-site"); // none = URL টাইপ/bookmark, same-origin = আমাদের নিজের site থেকে
+  //   const hasPass = req.cookies.has(PAYMENT_COOKIE);
+  //   if (!hasPass && (site === "none" || site === "same-origin")) return go("/");
+  //   const res = finish(NextResponse.next());
+  //   if (!hasPass) {
+  //     // reload করলে যেন আটকে না যায়, তাই ১০ মিনিটের pass
+  //     res.cookies.set(PAYMENT_COOKIE, "1", { httpOnly: true, sameSite: "lax", path: "/payment", maxAge: 600 });
+  //   }
+  //   return res;
+  // }
+if (pathname.startsWith("/payment/")) {
+  // SSLCommerz POST pathay, kintu Next page shudhu GET dhore. 303 diye GET e ferot pathai (query thake).
+  if (req.method === "POST") {
+    return NextResponse.redirect(new URL(`${pathname}${req.nextUrl.search}`, req.url), 303);
   }
-
+  const site = req.headers.get("sec-fetch-site");
+  const hasPass = req.cookies.has(PAYMENT_COOKIE);
+  if (!hasPass && (site === "none" || site === "same-origin")) return go("/");
+  const res = finish(NextResponse.next());
+  if (!hasPass) {
+    res.cookies.set(PAYMENT_COOKIE, "1", { httpOnly: true, sameSite: "lax", path: "/payment", maxAge: 600 });
+  }
+  return res;
+}
   return finish(NextResponse.next());
 }
 

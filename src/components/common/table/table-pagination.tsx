@@ -4,18 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PaginationMeta } from "./table-params";
 import { tableTheme } from "./table-theme";
-
-/** 1 … 4 [5] 6 … 20 */
-function pages(current: number, total: number) {
-  const set = new Set([1, total, current - 1, current, current + 1]);
-  const list = [...set].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
-  const out: (number | string)[] = [];
-  list.forEach((p, i) => {
-    if (i > 0 && p - list[i - 1] > 1) out.push(`gap-${p}`);
-    out.push(p);
-  });
-  return out;
-}
+import { getPageList } from "@/components/common/pagination/page-list";
 
 export function TablePagination({ meta, onPage }: { meta: PaginationMeta; onPage: (page: number) => void }) {
   const { page, limit, totalDocs, totalPages, hasPrevPage, hasNextPage } = meta;
@@ -33,7 +22,7 @@ export function TablePagination({ meta, onPage }: { meta: PaginationMeta; onPage
           <button type="button" aria-label="Previous page" disabled={!hasPrevPage} onClick={() => onPage(page - 1)} className={tableTheme.pageBtn}>
             <ChevronLeft className="size-4" />
           </button>
-          {pages(page, totalPages).map((p) =>
+          {getPageList(page, totalPages).map((p) =>
             typeof p === "string" ? (
               <span key={p} className="px-1 text-fg/40">…</span>
             ) : (

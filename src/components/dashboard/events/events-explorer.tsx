@@ -1,51 +1,43 @@
-"use client";
-
-import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import Link from "next/link";
+import { SearchFilterBar } from "@/components/common/filters/search-filter-bar";
+import { Pager } from "@/components/common/pagination/pager";
+import type { PaginationMeta } from "@/components/common/table/table-params";
+import { T } from "@/components/shared/t";
+import type { EventItem } from "@/features/event/types";
 import { EventCard } from "./event-card";
-import { CATEGORIES, EVENTS } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
-import { useT } from "@/providers/preferences-provider";
 
-// Backend ready হলে: filter গুলো URL query তে নিয়ে Server Component এ fetch করো।
-export function EventsExplorer() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
-  const t = useT();
+type Props = {
+  events: EventItem[];
+  meta: PaginationMeta;
+  categories: { id: number; name: string }[];
+  lang: string;
+};
 
-  const list = useMemo(
-    () => EVENTS.filter((e) =>
-      (category === "All" || e.category === category) &&
-      `${e.title} ${e.location}`.toLowerCase().includes(query.trim().toLowerCase())),
-    [query, category],
-  );
-
+/**
+ * /events এর পুরো list অংশ। Data page থেকে আসে (backend search + category + pagination),
+ * এখানে শুধু সাজানো: SearchFilterBar → grid → Pager। তিনটাই reusable, URL ই state।
+ */
+export function EventsExplorer({ events, meta, categories, lang }: Props) {
   return (
     <div>
-      <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <label className="glass flex max-w-md flex-1 items-center gap-3 rounded-full px-5 py-3">
-          <Search className="size-5 shrink-0 text-fg/55" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("explorer.search_placeholder")} aria-label={t("common.search_events")} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-fg/45" />
-        </label>
-        <div className="flex flex-wrap gap-2" role="group" aria-label={t("explorer.category_label")}>
-          {["All", ...CATEGORIES].map((c) => (
-            <button key={c} type="button" aria-pressed={category === c} onClick={() => setCategory(c)}
-              className={cn("rounded-full px-5 py-2.5 text-sm font-semibold transition cursor-pointer", category === c ? "btn-grad" : "glass hover:bg-fg/10")}>
-              {c === "All" ? t("explorer.all") : c}
-            </button>
-          ))}
-        </div>
-      </div>
+      <SearchFilterBar
+        className="mb-10"
+        placeholder="Search by name or city"
+        filters={[{ key: "category_id", label: "Category", options: categories.map((c) => ({ value: String(c.id), label: c.name })) }]}
+      />
 
-      {list.length ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((e) => <EventCard key={e.id} event={e} />)}
-        </div>
+      {events.length ? (
+        <>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((e) => <EventCard key={e.id} event={e} lang={lang} />)}
+          </div>
+          <Pager meta={meta} />
+        </>
       ) : (
         <div className="glass rounded-4xl p-12 text-center">
-          <p className="text-lg font-semibold">{t("explorer.empty_title")}</p>
-          <p className="mt-2 text-fg/60">{t("explorer.empty_text")}</p>
-          <button onClick={() => { setQuery(""); setCategory("All"); }} className="btn-grad cursor-pointer mt-6 rounded-full px-6 py-2.5 font-semibold">{t("explorer.clear")}</button>
+          <p className="text-lg font-semibold"><T k="No events match your search" /></p>
+          <p className="mt-2 text-fg/60"><T k="Try a different name or choose another category." /></p>
+          <Link href="/events" className="btn-grad mt-6 inline-block rounded-full px-6 py-2.5 font-semibold"><T k="Clear filters" /></Link>
         </div>
       )}
     </div>
