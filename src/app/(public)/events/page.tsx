@@ -8,6 +8,7 @@ import { PageContent } from "@/features/settings/types";
 import { getLanguagesAction } from "@/features/language/actions";
 import { getLanguageCookie } from "@/lib/preferences";
 import { pickLanguage } from "@/lib/localized";
+import { EventsSkeleton } from "@/components/skeleton/events-skeleton";
 
 export const metadata: Metadata = { title: "Events | TicketBooking" };
 
@@ -32,7 +33,7 @@ export default async function EventsPage() {
 
   return (
       <Suspense
-          fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+          fallback={<EventsSkeleton />}
         > 
             <EventsContent content={content} />
 

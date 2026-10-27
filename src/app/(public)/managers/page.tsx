@@ -9,6 +9,7 @@ import { getLanguagesAction } from "@/features/language/actions";
 import { getLanguageCookie } from "@/lib/preferences";
 import { pickLanguage } from "@/lib/localized";
 import { Suspense } from "react";
+import { EventsSkeleton } from "@/components/skeleton/events-skeleton";
 
 export const metadata: Metadata = { title: "Event managers | TicketBooking" };
 
@@ -36,7 +37,7 @@ export default async function ManagersPage() {
 
   return (
       <Suspense
-          fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+          fallback={<EventsSkeleton />}
         > 
             <ManagerContent content={content} />
 

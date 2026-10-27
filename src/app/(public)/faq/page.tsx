@@ -11,6 +11,7 @@ import { getPageContent } from "@/features/settings/server";
 import { PageContent } from "@/features/settings/types";
 import { getLanguagesAction } from "@/features/language/actions";
 import { pickLanguage } from "@/lib/localized";
+import { FaqSkeleton } from "@/components/skeleton/faq-skeleton";
 
 export const metadata: Metadata = { title: "FAQ | TicketBooking" };
 
@@ -52,7 +53,7 @@ export default async function FaqPage() {
 
   return (
       <Suspense
-          fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+          fallback={<FaqSkeleton />}
         > 
             <FaqContent content={content} />
 

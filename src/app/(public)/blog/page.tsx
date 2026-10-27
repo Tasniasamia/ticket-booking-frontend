@@ -9,6 +9,8 @@ import { getPageContent } from "@/features/settings/server";
 import { PageContent } from "@/features/settings/types";
 import { getLanguagesAction } from "@/features/language/actions";
 import { getLanguageCookie } from "@/lib/preferences";
+import { Suspense } from "react";
+import { BlogSkeleton } from "@/components/skeleton/blog-skeleton";
 
 export const metadata: Metadata = { title: "Blog | TicketBooking" };
 
@@ -61,7 +63,9 @@ export default async function BlogPage() {
   const content = await getPageContent("blog");
 
   return (
-    <BlogContent content={content} />
+    <Suspense fallback={<BlogSkeleton />}>
+      <BlogContent content={content} />
+    </Suspense>
   )
   
 }

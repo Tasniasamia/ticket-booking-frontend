@@ -56,6 +56,7 @@ import { ManagersSlider } from "@/components/home/managers-slider";
 import { Services } from "@/components/home/services";
 import { Testimonials } from "@/components/home/testimonials";
 import { PageHero } from "@/components/shared/page-hero";
+import { AboutSkeleton } from "@/components/skeleton/about-skeleton";
 async function AboutContent({
   aboutContent,
   homeContent,
@@ -91,7 +92,7 @@ export default async function AboutPage() {
 
   return (
     <Suspense
-      fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+      fallback={<AboutSkeleton />}
     >
       <AboutContent aboutContent={aboutContent} homeContent={homeContent} />
     </Suspense>

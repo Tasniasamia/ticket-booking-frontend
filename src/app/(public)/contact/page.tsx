@@ -8,6 +8,7 @@ import { PageContent } from "@/features/settings/types";
 import { getLanguagesAction } from "@/features/language/actions";
 import { getLanguageCookie } from "@/lib/preferences";
 import { pickLanguage } from "@/lib/localized";
+import { ContactSkeleton } from "@/components/skeleton/contact-skeleton";
 
 export const metadata: Metadata = { title: "Contact | TicketBooking" };
 
@@ -33,7 +34,7 @@ export default async function ContactPage() {
 
   return (
       <Suspense
-          fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+          fallback={<ContactSkeleton/>}
         > 
             <ContactContent content={content} />
 

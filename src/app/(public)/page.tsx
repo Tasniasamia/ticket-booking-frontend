@@ -11,6 +11,7 @@ import { Hero } from "@/components/home/hero";
 import { ManagersSlider } from "@/components/home/managers-slider";
 import { Services } from "@/components/home/services";
 import { Testimonials } from "@/components/home/testimonials";
+import { HomeSkeleton } from "@/components/skeleton/home-skeleton";
 async function HomeHero({
   content,
 }: {
@@ -44,7 +45,7 @@ export default async function HomePage() {
 
   return (
     <Suspense
-      fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+      fallback={<HomeSkeleton/>}
     >
       <HomeHero content={content} />
     </Suspense>
