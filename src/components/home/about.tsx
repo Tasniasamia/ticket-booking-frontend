@@ -25,12 +25,12 @@ export function About({ content ,lang}: { content?: PageContent ,lang:string}) {
         <div className="relative mx-auto h-105 w-full max-w-lg sm:h-120">
           <div className="glass absolute left-0 top-0 h-[78%] w-[68%] -rotate-3 rounded-4xl p-2.5">
             <div className="relative size-full overflow-hidden rounded-3xl">
-              <Image src={String(c.image1_url)} alt="Singer performing on stage" fill sizes="340px" className="object-cover" />
+              <Image src={String(c.image1_url) || c.image1_url as string} alt="Singer performing on stage" fill sizes="340px" className="object-cover" />
             </div>
           </div>
           <div className="glass absolute bottom-0 right-0 h-[58%] w-[52%] rotate-3 rounded-4xl p-2.5">
             <div className="relative size-full overflow-hidden rounded-3xl">
-              <Image src={String(c.image2_url)} alt="Lights over a festival crowd" fill sizes="280px" className="object-cover" />
+              <Image src={String(c.image2_url) || c.image2_url as string} alt="Lights over a festival crowd" fill sizes="280px" className="object-cover" />
             </div>
           </div>
         </div>

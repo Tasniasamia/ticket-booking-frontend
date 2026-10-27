@@ -18,8 +18,6 @@ import { EventItem } from "@/features/event/types";
 export function Hero({content,lang,event}: { content?: PageContent, lang:string, event?: EventItem }) {
   console.log("event ", event);
   const c = section(content, "hero");
-  console.log("home pages ",c)
-  // const heroImage = imageUrl(c, "image") || IMAGES.hero;
   return (
     <section className="relative pb-16 pt-10 sm:pb-24 sm:pt-16">
       <Container className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">

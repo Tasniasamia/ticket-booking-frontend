@@ -3,16 +3,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
-import { T } from "@/components/shared/t";
 import { BLOGS } from "@/lib/mock-data";
+import { pickLanguage } from "@/lib/localized";
+import { getPageContent } from "@/features/settings/server";
+import { PageContent } from "@/features/settings/types";
+import { getLanguagesAction } from "@/features/language/actions";
+import { getLanguageCookie } from "@/lib/preferences";
 
 export const metadata: Metadata = { title: "Blog | TicketBooking" };
 
-export default function BlogPage() {
+export async function BlogContent({ content }: { content?: PageContent }) {
+const [langRes, saved] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+  ]);
+  const lang = pickLanguage(langRes.languages ?? [], saved);
   const [first, ...rest] = BLOGS;
   return (
     <>
-      <PageHero title={<T k="Stories and guides" />} subtitle={<T k="Tips for getting the most out of every night out." />} />
+      <PageHero content={content} lang={lang}/>
       <Section className="pt-10 sm:pt-12">
         <Link href={`/blog/${first.slug}`} className="glass group grid overflow-hidden rounded-4xl p-3 md:grid-cols-2">
           <div className="relative aspect-video overflow-hidden rounded-3xl md:aspect-auto md:min-h-80">
@@ -44,4 +53,15 @@ export default function BlogPage() {
       </Section>
     </>
   );
+}
+
+
+
+export default async function BlogPage() {
+  const content = await getPageContent("blog");
+
+  return (
+    <BlogContent content={content} />
+  )
+  
 }

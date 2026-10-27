@@ -4,14 +4,27 @@ import { ChevronDown } from "lucide-react";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
 import { T } from "@/components/shared/t";
-import { FAQS } from "@/lib/mock-data";
+import {FAQS } from "@/lib/mock-data";
+import { Suspense } from "react";
+import { getLanguageCookie } from "@/lib/preferences";
+import { getPageContent } from "@/features/settings/server";
+import { PageContent } from "@/features/settings/types";
+import { getLanguagesAction } from "@/features/language/actions";
+import { pickLanguage } from "@/lib/localized";
 
 export const metadata: Metadata = { title: "FAQ | TicketBooking" };
 
-export default function FaqPage() {
+export async function FaqContent({ content }: { content?: PageContent }) {
+const [langRes, saved] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+  ]);
+  const lang = pickLanguage(langRes.languages ?? [], saved);
+
   return (
     <>
-      <PageHero title={<T k="Frequently asked questions" />} subtitle={<T k="Quick answers about booking, payments and your account." />} />
+      <PageHero content={content} lang={lang}/>
+
       <Section className="pt-10 sm:pt-12">
         <div className="mx-auto max-w-3xl space-y-4">
           {FAQS.map((f) => (
@@ -30,4 +43,20 @@ export default function FaqPage() {
       </Section>
     </>
   );
+}
+
+
+
+export default async function FaqPage() {
+  const content = await getPageContent("faq");
+
+  return (
+      <Suspense
+          fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}
+        > 
+            <FaqContent content={content} />
+
+        </Suspense>
+  )
+  
 }
