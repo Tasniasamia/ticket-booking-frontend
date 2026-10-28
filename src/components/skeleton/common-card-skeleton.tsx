@@ -1,6 +1,6 @@
 import { Bone, EventCardSkeleton, PageTitleSkeleton, WRAP } from "./sections";
 
-export function EventsSkeleton() {
+export function CardPagesSkeleton() {
   return (
     <div role="status" aria-busy="true" aria-label="Loading">
       <PageTitleSkeleton />

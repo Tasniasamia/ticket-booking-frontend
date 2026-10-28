@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { EventsExplorer } from "@/components/dashboard/events/events-explorer";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
-import { EventsSkeleton } from "@/components/skeleton/events-skeleton";
 import { getEventCategoriesAction } from "@/features/event-category/actions";
 import { getPublicEventsAction } from "@/features/event/actions";
 import { getLanguagesAction } from "@/features/language/actions";
@@ -12,6 +11,7 @@ import type { PageContent } from "@/features/settings/types";
 import { parseTableParams } from "@/components/common/table/table-params";
 import { pickLanguage } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
+import { CardPagesSkeleton } from "@/components/skeleton/common-card-skeleton";
 
 export const metadata: Metadata = { title: "Events | TicketBooking" };
 
@@ -47,7 +47,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
   const content = await getPageContent("events"); // cached, Suspense এর বাইরে ঠিক আছে
   // searchParams runtime data, তাই await টা Suspense এর ভেতরে (cacheComponents এর নিয়ম)
   return (
-    <Suspense fallback={<EventsSkeleton />}>
+    <Suspense fallback={<CardPagesSkeleton />}>
       <EventsContent content={content} searchParams={searchParams} />
     </Suspense>
   );

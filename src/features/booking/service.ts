@@ -1,6 +1,9 @@
 import { api } from "@/lib/api-client";
+import type { PaginationMeta } from "@/components/common/table/table-params";
 
 type ApiSuccess<T> = { success: boolean; statusCode: number; message: string; data: T };
+export type ApiPaginated<T> = { docs: T[] } & PaginationMeta;
+type Params = Record<string, string | number>;
 
 export type CheckoutPayload = {
   event_id: number;
@@ -29,7 +32,18 @@ export type CheckoutResponse = {
 
 /**
  * POST /payments/checkout (login লাগে): একসাথে pending booking + pending payment বানায় আর gateway এর checkout_url দেয়।
- * দাম backend নিজে event থেকে হিসাব করে, client এর পাঠানো দাম বিশ্বাস করে না।
  */
 export const createCheckoutRequest = (data: CheckoutPayload) =>
   api.post<ApiSuccess<CheckoutResponse>>("/payments/checkout", data);
+
+/** Admin: সব booking, pagination + search + status filter */
+export const listAllBookingsRequest = (params: Params) =>
+  api.get<ApiSuccess<ApiPaginated<Record<string, unknown>>>>("/bookings", { params });
+
+/** User / Manager: নিজের (বা manager এর event এর) booking — backend array দেয় */
+export const listMyBookingsRequest = () =>
+  api.get<ApiSuccess<Record<string, unknown>[]>>("/bookings/me");
+
+/** Single booking by id */
+export const getBookingRequest = (id: number | string) =>
+  api.get<ApiSuccess<Record<string, unknown>>>(`/bookings/${id}`);

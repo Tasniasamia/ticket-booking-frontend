@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, User } from "lucide-react";
+import { LayoutDashboard, User, Ticket, Wallet } from "lucide-react";
 
 import Sidebar, { type MenuItem } from "@/components/dashboard/shared/sidebar";
 import { Footer } from "@/components/shared/footer";
@@ -12,7 +12,6 @@ import { Container } from "@/components/shared/section";
 import { ProfileSkeleton } from "@/components/skeleton/profileSkeleton";
 import { useUser } from "@/providers/user-provider";
 
-// component এর বাইরে: প্রতিবার render এ নতুন করে বানাতে হয় না
 const userMenu: MenuItem[] = [
   {
     key: 1,
@@ -20,10 +19,26 @@ const userMenu: MenuItem[] = [
     link: "/user",
     icon: <LayoutDashboard size={16} />,
     title: "Dashboard",
-    subtitle: "Dashboard Here",
+    subtitle: "Overview of your account activity.",
   },
   {
     key: 2,
+    label: "My Bookings",
+    link: "/user/bookings",
+    icon: <Ticket size={16} />,
+    title: "My bookings",
+    subtitle: "Tickets you have booked, with dates and status.",
+  },
+  {
+    key: 3,
+    label: "My Payments",
+    link: "/user/payments",
+    icon: <Wallet size={16} />,
+    title: "My payments",
+    subtitle: "Payment history with amounts and paid dates.",
+  },
+  {
+    key: 4,
     label: "Profile",
     link: "/user/profile",
     icon: <User size={16} />,
@@ -48,7 +63,6 @@ export default function DashboardLayout({
     }
   }, [status, router]);
 
-  // বর্তমান URL এর সাথে মেলে এমন menu item (লম্বা link আগে দেখো)
   const current =
     [...userMenu]
       .sort((a, b) => b.link.length - a.link.length)
@@ -66,7 +80,7 @@ export default function DashboardLayout({
           <ProfileSkeleton />
         ) : (
           <div className="grid items-start gap-6 lg:grid-cols-[18rem_1fr]">
-            <div >
+            <div>
               <Sidebar user={user} menu={userMenu} activeKey={current.key} />
             </div>
 

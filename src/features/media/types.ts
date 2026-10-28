@@ -25,7 +25,8 @@ export type MediaModelName =
   | "category"
   | "banner"
   | "payments"
-  | "event_categories";
+  | "event_categories"
+  |"blog";
 
 export type UploadMediaParams = {
   file: File;

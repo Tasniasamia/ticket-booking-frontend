@@ -203,6 +203,13 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
           },
         ],
       },
+      {
+        label: "Blog",
+        href: "/admin/blog",
+        icon: Newspaper,
+        title: "Blog",
+        subtitle: "Manage blog posts and settings.",
+      },
       // Bookings, Payments, Users, Managers — আগের মতোই
       {
         label: "Bookings",
@@ -237,7 +244,6 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
   {
     label: "Settings",
     items: [
-  
       {
         label: "Currency",
         href: "/admin/currency",
@@ -245,21 +251,21 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
         title: "Currency",
         subtitle: "Manage the currency settings for your platform.",
       },
-           {
+      {
         label: "Languages",
         href: "/admin/languages",
         icon: Languages,
         title: "Languages",
         subtitle: "Manage the languages supported by your platform.",
       },
-       {
+      {
         label: "Translations",
         href: "/admin/translations",
         icon: Languages,
         title: "Translations",
         subtitle: "Manage the translations for your platform.",
       },
-      
+
       {
         label: "Payments",
         href: "/admin/payment-methods",
@@ -267,14 +273,14 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
         title: "Payments",
         subtitle: "Payments, refunds and payouts to managers.",
       },
-       {
+      {
         label: "Page Settings",
         href: "/admin/page-settings",
         icon: Globe,
         title: "Page Settings",
         subtitle: "Manage the settings for your platform's pages.",
       },
-       {
+      {
         label: "Site Settings",
         href: "/admin/site-settings",
         icon: Globe,
@@ -289,9 +295,7 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
 /** children সহ সব item flatten করে */
 function flattenItems(items: AdminMenuItem[]): AdminMenuItem[] {
   return items.flatMap((item) =>
-    item.children?.length
-      ? [item, ...flattenItems(item.children)]
-      : [item],
+    item.children?.length ? [item, ...flattenItems(item.children)] : [item],
   );
 }
 

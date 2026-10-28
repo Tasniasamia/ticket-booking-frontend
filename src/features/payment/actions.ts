@@ -1,16 +1,28 @@
 "use server";
 
 import { getErrorMessage } from "@/features/auth/service";
-import { toPaymentSummary, type PaymentSummary } from "./types";
-import { verifySslcommerzRequest, verifyStripeSessionRequest } from "./service";
+import { toApiParams, type PaginationMeta, type TableParams } from "@/components/common/table/table-params";
+import {
+  verifyStripeSessionRequest,
+  verifySslcommerzRequest,
+  listAdminPaymentsRequest,
+  listManagerPaymentsRequest,
+  listUserPaymentsRequest,
+  getPaymentRequest,
+} from "./service";
+import {
+  toPaymentItem,
+  toPaymentSummary,
+  toMoneySummary,
+  type PaymentItem,
+  type PaymentResultSummary,
+  type PaymentSummary,
+} from "./types";
 
-export type VerifyResult = { success: boolean; message?: string; payment?: PaymentSummary };
+export type VerifyResult = { success: boolean; message?: string; payment?: PaymentResultSummary };
 
 /**
  * Result page গুলো (success / failed / cancel) এই একটা action ডাকে।
- * - session_id থাকলে Stripe
- * - tran_id থাকলে SSLCommerz (status ঠিক করে page এর path: success → SUCCESS, failed → FAILED, cancel → CANCELLED)
- * - কোনোটাই না থাকলে (Stripe cancel এ এমন হয়) backend ডাকা হয় না।
  */
 export async function verifyPaymentAction(q: {
   sessionId?: string;
@@ -27,6 +39,61 @@ export async function verifyPaymentAction(q: {
       return { success: true, payment: toPaymentSummary(res.data.data) };
     }
     return { success: false, message: "No payment reference found." };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+export type PaymentTableResult = {
+  success: boolean;
+  message?: string;
+  payments?: PaymentItem[];
+  meta?: PaginationMeta;
+  summary?: PaymentSummary;
+};
+
+async function mapList(
+  fetcher: (params: Record<string, string | number>, lang: string) => Promise<{ data: { data: { docs?: Record<string, unknown>[]; payment?: Record<string, unknown> } & PaginationMeta } }>,
+  params: TableParams,
+  lang: string,
+): Promise<PaymentTableResult> {
+  try {
+    const res = await fetcher(toApiParams(params), lang);
+    const data = res.data.data;
+    const { docs, payment, ...meta } = data;
+    return {
+      success: true,
+      payments: (docs ?? []).map(toPaymentItem),
+      meta,
+      summary: toMoneySummary(payment),
+    };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
+
+export async function getAdminPaymentsAction(params: TableParams, lang = "en"): Promise<PaymentTableResult> {
+  return mapList(listAdminPaymentsRequest, params, lang);
+}
+
+export async function getManagerPaymentsAction(params: TableParams, lang = "en"): Promise<PaymentTableResult> {
+  return mapList(listManagerPaymentsRequest, params, lang);
+}
+
+export async function getUserPaymentsAction(params: TableParams, lang = "en"): Promise<PaymentTableResult> {
+  return mapList(listUserPaymentsRequest, params, lang);
+}
+
+export type PaymentDetailResult = {
+  success: boolean;
+  message?: string;
+  payment?: PaymentItem;
+};
+
+export async function getPaymentAction(id: number | string): Promise<PaymentDetailResult> {
+  try {
+    const res = await getPaymentRequest(id);
+    return { success: true, payment: toPaymentItem(res.data.data) };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
   }

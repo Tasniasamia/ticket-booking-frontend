@@ -1,3 +1,5 @@
+export const instant = false
+
 import { Footer } from "@/components/shared/footer";
 import { Header } from "@/components/shared/header";
 
