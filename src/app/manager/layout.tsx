@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, User, CalendarDays, Ticket, Wallet } from "lucide-react";
+import { LayoutDashboard, User, CalendarDays, Ticket, Wallet, MessageCircle } from "lucide-react";
 
 import Sidebar, { type MenuItem } from "@/components/dashboard/shared/sidebar";
 import { Footer } from "@/components/shared/footer";
@@ -44,6 +44,14 @@ const managerMenu: MenuItem[] = [
     icon: <Wallet size={16} />,
     title: "Event payments",
     subtitle: "Payments for your events with paid dates and totals.",
+  },
+  {
+    key: 6,
+    label: "Messages",
+    link: "/manager/messages",
+    icon: <MessageCircle size={16} />,
+    title: "Messages",
+    subtitle: "Chat with ticket buyers and admins.",
   },
   {
     key: 5,

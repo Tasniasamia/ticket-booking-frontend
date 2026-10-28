@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, User, Ticket, Wallet } from "lucide-react";
+import { LayoutDashboard, User, Ticket, Wallet, MessageCircle } from "lucide-react";
 
 import Sidebar, { type MenuItem } from "@/components/dashboard/shared/sidebar";
 import { Footer } from "@/components/shared/footer";
@@ -36,6 +36,14 @@ const userMenu: MenuItem[] = [
     icon: <Wallet size={16} />,
     title: "My payments",
     subtitle: "Payment history with amounts and paid dates.",
+  },
+  {
+    key: 5,
+    label: "Messages",
+    link: "/user/messages",
+    icon: <MessageCircle size={16} />,
+    title: "Messages",
+    subtitle: "Chat with admin and event managers after you book.",
   },
   {
     key: 4,
