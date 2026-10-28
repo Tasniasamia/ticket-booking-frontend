@@ -59,6 +59,8 @@ async function mapList(
 ): Promise<PaymentTableResult> {
   try {
     const res = await fetcher(toApiParams(params), lang);
+        console.log("response of getPaymentRequest:", res.data);
+
     const data = res.data.data;
     const { docs, payment, ...meta } = data;
     return {
@@ -73,6 +75,7 @@ async function mapList(
 }
 
 export async function getAdminPaymentsAction(params: TableParams, lang = "en"): Promise<PaymentTableResult> {
+ 
   return mapList(listAdminPaymentsRequest, params, lang);
 }
 
