@@ -454,16 +454,16 @@
 //   );
 // }
 import {
+  BookPlusIcon,
   CalendarDays,
   FolderOpen,
   Globe,
   Languages,
   LayoutDashboard,
   MessageCircle,
-  Newspaper,
+  Settings,
   Ticket,
   UserCog,
-  UserRound,
   Users,
   Wallet,
   type LucideIcon,
@@ -571,7 +571,7 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
            {
         label: "Languages",
         href: "/admin/languages",
-        icon: Languages,
+        icon: Globe,
         title: "Languages",
         subtitle: "Manage the languages supported by your platform.",
       },
@@ -593,14 +593,14 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
        {
         label: "Page Settings",
         href: "/admin/page-settings",
-        icon: Globe,
+        icon:  BookPlusIcon,
         title: "Page Settings",
         subtitle: "Manage the settings for your platform's pages.",
       },
        {
         label: "Site Settings",
         href: "/admin/site-settings",
-        icon: Globe,
+        icon: Settings,
         title: "Site Settings",
         subtitle: "Manage the settings for your platform's site.",
       },
