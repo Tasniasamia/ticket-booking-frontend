@@ -1,102 +1,118 @@
 "use server";
 
 import { getErrorMessage } from "@/features/auth/service";
+import { getToken } from "@/lib/session";
 import {
+  deleteMessageRequest,
+  editMessageRequest,
   getMessagesRequest,
   listConversationsRequest,
   markReadRequest,
   sendMessageRequest,
   startConversationRequest,
+  type SendMessageBody,
 } from "./service";
 import { toConversation, toMessage, type ChatMessage, type Conversation } from "./types";
 
-export type ConversationsResult = {
-  success: boolean;
-  message?: string;
-  conversations?: Conversation[];
-};
-
-export async function getConversationsAction(): Promise<ConversationsResult> {
+export async function getConversationsAction() {
   try {
     const res = await listConversationsRequest();
     const list = Array.isArray(res.data.data) ? res.data.data : [];
-    return { success: true, conversations: list.map(toConversation) };
+    return { success: true as const, conversations: list.map(toConversation) };
   } catch (err) {
-    return { success: false, message: getErrorMessage(err) };
+    return { success: false as const, message: getErrorMessage(err) };
   }
 }
 
-export type MessagesResult = {
-  success: boolean;
-  message?: string;
-  messages?: ChatMessage[];
-  total?: number;
-};
-
-export async function getMessagesAction(
-  convId: number | string,
-  page = 1,
-  pageSize = 40,
-): Promise<MessagesResult> {
+export async function getMessagesAction(convId: number | string, page = 1, pageSize = 40) {
   try {
     const res = await getMessagesRequest(convId, page, pageSize);
     const data = res.data.data;
     const msgs = Array.isArray(data.messages) ? data.messages.map(toMessage) : [];
-    return { success: true, messages: msgs, total: Number(data.total ?? msgs.length) };
+    return { success: true as const, messages: msgs, total: Number(data.total ?? msgs.length) };
   } catch (err) {
-    return { success: false, message: getErrorMessage(err) };
+    return { success: false as const, message: getErrorMessage(err) };
   }
 }
-
-export type SendResult = {
-  success: boolean;
-  message?: string;
-  chatMessage?: ChatMessage;
-};
 
 export async function sendMessageAction(input: {
   receiverId: number;
-  content: string;
+  content?: string;
   eventId?: number;
-}): Promise<SendResult> {
-  const content = input.content.trim();
-  if (!content) return { success: false, message: "Message cannot be empty." };
+  attachmentUrl?: string;
+  attachmentType?: string;
+  attachmentName?: string;
+  attachmentMediaId?: number;
+}) {
+  const content = (input.content ?? "").trim();
+  if (!content && !input.attachmentUrl) {
+    return { success: false as const, message: "Message or file required." };
+  }
   try {
-    const res = await sendMessageRequest({
+    const body: SendMessageBody = {
       receiver_id: input.receiverId,
       content,
       event_id: input.eventId,
-    });
-    return { success: true, chatMessage: toMessage(res.data.data as Record<string, unknown>) };
+      attachment_url: input.attachmentUrl,
+      attachment_type: input.attachmentType,
+      attachment_name: input.attachmentName,
+      attachment_media_id: input.attachmentMediaId,
+    };
+    const res = await sendMessageRequest(body);
+    return {
+      success: true as const,
+      chatMessage: toMessage(res.data.data as Record<string, unknown>),
+    };
   } catch (err) {
-    return { success: false, message: getErrorMessage(err) };
+    return { success: false as const, message: getErrorMessage(err) };
   }
 }
 
-export type StartConvResult = {
-  success: boolean;
-  message?: string;
-  conversation?: Conversation;
-};
-
-export async function startConversationAction(receiverId: number, eventId?: number): Promise<StartConvResult> {
+export async function editMessageAction(id: number, content: string) {
   try {
-    const res = await startConversationRequest({
-      receiver_id: receiverId,
-      event_id: eventId,
-    });
-    return { success: true, conversation: toConversation(res.data.data as Record<string, unknown>) };
+    const res = await editMessageRequest(id, content.trim());
+    return {
+      success: true as const,
+      chatMessage: toMessage(res.data.data as Record<string, unknown>),
+    };
   } catch (err) {
-    return { success: false, message: getErrorMessage(err) };
+    return { success: false as const, message: getErrorMessage(err) };
+  }
+}
+
+export async function deleteMessageAction(id: number) {
+  try {
+    await deleteMessageRequest(id);
+    return { success: true as const };
+  } catch (err) {
+    return { success: false as const, message: getErrorMessage(err) };
+  }
+}
+
+export async function startConversationAction(receiverId: number, eventId?: number) {
+  try {
+    const res = await startConversationRequest({ receiver_id: receiverId, event_id: eventId });
+    return {
+      success: true as const,
+      conversation: toConversation(res.data.data as Record<string, unknown>),
+    };
+  } catch (err) {
+    return { success: false as const, message: getErrorMessage(err) };
   }
 }
 
 export async function markReadAction(convId: number | string, messageIds: number[]) {
   try {
-    if (!messageIds.length) return { success: true };
+    if (!messageIds.length) return { success: true as const };
     await markReadRequest(convId, messageIds);
-    return { success: true };
+    return { success: true as const };
   } catch (err) {
-    return { success: false, message: getErrorMessage(err) };
+    return { success: false as const, message: getErrorMessage(err) };
   }
+}
+
+export async function getMessagingWsTokenAction() {
+  const token = await getToken();
+  if (!token) return { success: false as const, message: "Not authenticated" };
+  return { success: true as const, token };
 }

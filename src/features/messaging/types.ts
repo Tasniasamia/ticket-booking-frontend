@@ -13,7 +13,13 @@ export type ChatMessage = {
   sender?: UserBrief | null;
   content: string;
   isRead: boolean;
+  isEdited?: boolean;
+  attachmentUrl?: string;
+  attachmentType?: string;
+  attachmentName?: string;
+  attachmentMediaId?: number;
   createdAt: string;
+  updatedAt?: string;
 };
 
 export type Conversation = {
@@ -49,7 +55,14 @@ export function toMessage(d: Raw): ChatMessage {
     sender: toUser(d.sender),
     content: String(d.content ?? ""),
     isRead: Boolean(d.is_read),
+    isEdited: Boolean(d.is_edited),
+    attachmentUrl: d.attachment_url ? String(d.attachment_url) : undefined,
+    attachmentType: d.attachment_type ? String(d.attachment_type) : undefined,
+    attachmentName: d.attachment_name ? String(d.attachment_name) : undefined,
+    attachmentMediaId:
+      d.attachment_media_id != null ? Number(d.attachment_media_id) : undefined,
     createdAt: String(d.created_at ?? ""),
+    updatedAt: d.updated_at ? String(d.updated_at) : undefined,
   };
 }
 

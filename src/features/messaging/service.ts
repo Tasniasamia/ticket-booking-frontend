@@ -12,8 +12,24 @@ export const getMessagesRequest = (convId: number | string, page = 1, pageSize =
     { params: { page, page_size: pageSize } },
   );
 
-export const sendMessageRequest = (data: { receiver_id: number; content: string; event_id?: number }) =>
+export type SendMessageBody = {
+  receiver_id: number;
+  content?: string;
+  event_id?: number;
+  attachment_url?: string;
+  attachment_type?: string;
+  attachment_name?: string;
+  attachment_media_id?: number;
+};
+
+export const sendMessageRequest = (data: SendMessageBody) =>
   api.post<ApiSuccess<Raw>>("/messaging/messages", data);
+
+export const editMessageRequest = (id: number, content: string) =>
+  api.put<ApiSuccess<Raw>>(`/messaging/messages/${id}`, { content });
+
+export const deleteMessageRequest = (id: number) =>
+  api.delete<ApiSuccess<unknown>>(`/messaging/messages/${id}`);
 
 export const startConversationRequest = (data: { receiver_id: number; event_id?: number }) =>
   api.post<ApiSuccess<Raw>>("/messaging/conversations", data);
