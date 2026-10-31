@@ -25,6 +25,7 @@ export default async function AdminBlogPage({
 
   return (
     <div>
+      
       <PageHeader
         title="Blog"
         subtitle="Create, approve and manage blog posts — same flow as events."

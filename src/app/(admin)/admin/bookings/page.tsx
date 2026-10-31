@@ -8,6 +8,7 @@ import { getAdminBookingsAction } from "@/features/booking/actions";
 import { getLanguagesAction } from "@/features/language/actions";
 import { pickLanguage } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
+import { AutoRefresh } from "@/components/shared/auto-refresh";
 
 export const metadata: Metadata = { title: "Bookings" };
 
@@ -23,6 +24,7 @@ export default async function AdminBookingsPage({
 
   return (
     <div>
+     <AutoRefresh/>
       <PageHeader
         title="Bookings"
         subtitle="All ticket bookings across the platform, with dates and status."

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Contact } from "@/components/home/contact";
 import { PageHero } from "@/components/shared/page-hero";
 import { T } from "@/components/shared/t";
 import { getPageContent } from "@/features/settings/server";
@@ -9,6 +8,7 @@ import { getLanguagesAction } from "@/features/language/actions";
 import { getLanguageCookie } from "@/lib/preferences";
 import { pickLanguage } from "@/lib/localized";
 import { ContactSkeleton } from "@/components/skeleton/contact-skeleton";
+import { Contact } from "@/components/home/contact";
 
 export const metadata: Metadata = { title: "Contact | TicketBooking" };
 

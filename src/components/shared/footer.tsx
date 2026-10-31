@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { FaFacebookF, FaGithub, FaInstagram, FaLinkedinIn, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
 import { Globe, Mail } from "lucide-react";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { subscribeAction } from "@/features/subscribe/actions";
 import { Container } from "./section";
 import { NavLink } from "./nav-link";
 import { useT } from "@/providers/preferences-provider";
@@ -28,6 +31,30 @@ const SOCIAL_ICONS: [RegExp, React.ComponentType<{ className?: string }>][] = [
 ];
 const socialIcon = (name: string) => SOCIAL_ICONS.find(([re]) => re.test(name.trim()))?.[1] ?? Globe;
 
+function SubscribeForm({ t }: { t: (k: string) => string }) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const res = await subscribeAction({ email });
+    setLoading(false);
+    if (res.success) {
+      toast.success(res.message ?? "Subscribed.");
+      setEmail("");
+      return;
+    }
+    toast.error(res.message ?? "Could not subscribe.");
+  };
+  return (
+    <form onSubmit={onSubmit} className="glass mt-6 flex items-center gap-2 rounded-full p-1 sm:p-1.5 sm:pl-4">
+      <Mail className="size-4 shrink-0 text-fg/50" />
+      <input type="email" required aria-label={t("Email address")} placeholder={t("Your email")} value={email} onChange={(e) => setEmail(e.target.value)} className="min-w-0 sm:flex-1 bg-transparent text-sm outline-none placeholder:text-fg/40" />
+      <button type="submit" disabled={loading} className="cursor-pointer btn-grad rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-60">{loading ? "..." : t("Subscribe")}</button>
+    </form>
+  );
+}
+
 export function Footer() {
   const t = useT();
   const { site_description, site_footer, social_media_link } = useSiteSettings();
@@ -40,11 +67,7 @@ export function Footer() {
             <SiteLogo />
           </Link>
           <p className="mt-4 leading-relaxed text-fg/60">{site_description || t("Concerts, festivals and club nights from verified organisers. Pick an event, pay securely, walk in with your booking code.")}</p>
-          <form className="glass  mt-6  flex items-center gap-2 rounded-full p-1 sm:p-1.5 sm:pl-4">
-            <Mail className="size-4 shrink-0 text-fg/50" />
-            <input type="email" required aria-label={t("Email address")} placeholder={t("Your email")} className="min-w-0 sm:flex-1 bg-transparent text-sm outline-none placeholder:text-fg/40" />
-            <button className="cursor-pointer btn-grad rounded-full px-4 py-2 text-sm font-semibold">{t("Subscribe")}</button>
-          </form>
+          <SubscribeForm t={t} />
         </div>
 
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">

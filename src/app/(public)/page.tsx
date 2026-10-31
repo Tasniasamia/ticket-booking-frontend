@@ -12,6 +12,7 @@ import { ManagersSlider } from "@/components/home/managers-slider";
 import { Services } from "@/components/home/services";
 import { Testimonials } from "@/components/home/testimonials";
 import { HomeSkeleton } from "@/components/skeleton/home-skeleton";
+import { AutoRefresh } from "@/components/shared/auto-refresh";
 async function HomeHero({
   content,
 }: {
@@ -28,6 +29,7 @@ async function HomeHero({
 
   return (
     <>
+      <AutoRefresh/>
       <Hero content={content} lang={lang} event={events[0]} />
       <About content={content} lang={lang} />
             <Services content={content} lang={lang}/>
