@@ -97,7 +97,7 @@ export function DataTable<T>({ columns, data, meta, rowKey, actions, filters = [
   const hasQuery = !!urlSearch || filters.some((f) => sp.get(f.key));
   if (data.length === 0 && !hasQuery && meta.totalDocs === 0) return <EmptyState {...emptyState} />;
 
-  const remove = async (id: string | number) => {
+  const remove = async (id: number | string) => {
     setDeletingId(id);
     const res = await actions!.delete!(id);
     setDeletingId(null);

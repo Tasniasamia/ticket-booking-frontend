@@ -42,7 +42,7 @@ export function UserTable({ users, meta }: { users: Profile[]; meta: PaginationM
           },
         },
         edit: { dialog: { title: (u) => `Edit ${u.name}`, content: (u, close) => <MemberEditForm user={u} onSuccess={close} />, customWidth: "sm:max-w-md" } },
-        delete: deleteUserAction,
+        delete:deleteUserAction
       }}
     />
   );

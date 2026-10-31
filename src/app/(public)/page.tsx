@@ -27,6 +27,8 @@ async function HomeHero({
   // trending একবারই আনি: প্রথমটা Hero তে, পুরো list slider এ
   const { events } = await getTrendingEventsAction(8);
 
+
+
   return (
     <>
       <AutoRefresh/>

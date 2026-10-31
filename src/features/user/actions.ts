@@ -99,19 +99,50 @@ export async function getManagersTableAction(params: TableParams): Promise<Users
   }
 }
 
-export async function getPublicManagersAction(limit = 50) {
+// export async function getPublicManagersAction(limit = 50) {
+//   try {
+//     const res = await listPublicManagersRequest({ page: 1, limit });
+//     const data = res.data.data;
+//     return {
+//       success: true as const,
+//       managers: (data.docs ?? []).map((d) => toProfile(d as Record<string, unknown>)),
+//       meta: data as PaginationMeta,
+//     };
+//   } catch (err) {
+//     return { success: false as const, message: getErrorMessage(err), managers: [] as Profile[] };
+//   }
+// }
+
+export type ManagerTableResult = {
+  success: boolean; message?: string; managers?: Profile[]; meta?: PaginationMeta;
+};
+export async function getPublicManagersAction(
+  limitOrParams: number | TableParams = 20,
+): Promise<ManagerTableResult> {
   try {
-    const res = await listPublicManagersRequest({ page: 1, limit });
+    const params =
+      typeof limitOrParams === "number"
+        ? { page: 1, limit: limitOrParams }
+        : toApiParams(limitOrParams);
+    const res = await listPublicManagersRequest(params);
     const data = res.data.data;
     return {
-      success: true as const,
+      success: true,
       managers: (data.docs ?? []).map((d) => toProfile(d as Record<string, unknown>)),
       meta: data as PaginationMeta,
     };
   } catch (err) {
-    return { success: false as const, message: getErrorMessage(err), managers: [] as Profile[] };
+    return { success: false, message: getErrorMessage(err), managers: [] };
   }
 }
+
+
+
+
+
+
+
+
 
 export async function getPublicManagerAction(id: string | number) {
   try {
@@ -132,7 +163,7 @@ export async function updateMemberAction(id: number, input: Record<string, unkno
   }
 }
 
-export async function deleteUserAction(id: number): Promise<ActionResult> {
+export async function deleteUserAction(id: number | string): Promise<ActionResult> {
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await deleteUserRequest(id);

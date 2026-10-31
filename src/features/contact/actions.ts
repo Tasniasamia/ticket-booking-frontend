@@ -14,7 +14,7 @@ export type ContactTableResult = {
 
 export async function submitContactAction(input: ContactInput): Promise<ActionResult> {
   const parsed = contactSchema.safeParse(input);
-  if (!parsed.success) return { success: false, message: "Please check the form.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  if (!parsed.success) return { success: false, message: "Please check the form." };
   try {
     const res = await createContactRequest(parsed.data);
     return { success: true, message: res.data.message ?? "Message sent." };
@@ -34,7 +34,7 @@ export async function getContactTableAction(params: TableParams): Promise<Contac
 
 export async function replyContactAction(id: number, input: { reply_message: string }): Promise<ActionResult> {
   const parsed = replySchema.safeParse(input);
-  if (!parsed.success) return { success: false, message: "Please check the form.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  if (!parsed.success) return { success: false, message: "Please check the form."};
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await replyContactRequest(id, parsed.data);

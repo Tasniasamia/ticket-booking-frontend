@@ -34,15 +34,7 @@ export async function getPublicTestimonialsAction(
   }
 }
 
-// export async function getPublicTestimonialsAction(limit = 20): Promise<TestimonialTableResult> {
-//   try {
-//     const res = await listPublicTestimonialsRequest({ page: 1, limit });
-//     const data = res.data.data;
-//     return { success: true, testimonials: (data.docs ?? []).map((d) => toTestimonial(d as Record<string, unknown>)), meta: data as PaginationMeta };
-//   } catch (err) {
-//     return { success: false, message: getErrorMessage(err), testimonials: [] };
-//   }
-// }
+
 
 export async function getTestimonialTableAction(params: TableParams): Promise<TestimonialTableResult> {
   if (!(await getToken())) return { success: false, message: "Please log in.", testimonials: [] };
@@ -75,7 +67,7 @@ export async function updateTestimonialAction(id: number, input: Partial<Testimo
   } catch (err) { return { success: false, message: getErrorMessage(err) }; }
 }
 
-export async function deleteTestimonialAction(id: number): Promise<ActionResult> {
+export async function deleteTestimonialAction(id: number | string): Promise<ActionResult> {
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await deleteTestimonialRequest(id);

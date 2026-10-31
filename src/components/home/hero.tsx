@@ -9,12 +9,16 @@ import { imageUrl, section, textOf } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import { HeroSearch } from "./hero-search";
 import { EventItem } from "@/features/event/types";
+import { Profile } from "@/features/user/type";
+import { getPublicManagersAction } from "@/features/user/actions";
 
 
 
 
-export function Hero({content,lang,event}: { content?: PageContent, lang:string, event?: EventItem }) {
+export async function Hero({content,lang,event}: { content?: PageContent, lang:string, event?: EventItem }) {
   const c = section(content, "hero");
+    const res = await getPublicManagersAction(12);
+    const managers = res.managers ?? [];
   return (
     <section className="relative pb-16 pt-10 sm:pb-24 sm:pt-16">
       <Container className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
@@ -37,9 +41,9 @@ export function Hero({content,lang,event}: { content?: PageContent, lang:string,
            {/*static start after rendering managers it will dynamically update*/}
           <div className="mt-8 flex items-center gap-4">
             <ul className="flex -space-x-3">
-              {MANAGERS.slice(0, 4).map((m) => (
+              {managers?.map((m:Profile) => (
                 <li key={m.id} className="relative size-10 overflow-hidden rounded-full ring-2 ring-bg">
-                  <Image src={m.image} alt="" fill sizes="40px" className="object-cover" />
+                  <Image src={m.profile_image?.trim() || "/default.jpg"} alt="Manager" fill sizes="40px" className="object-cover" />
                 </li>
               ))}
             </ul>

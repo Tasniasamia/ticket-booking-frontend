@@ -28,8 +28,8 @@ export function MemberEditForm({ user, onSuccess }: { user: Profile; onSuccess?:
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      <div><label className="mb-1 block text-xs text-fg/55">Name</label><input className={field} value={name} onChange={(e) => setName(e.target.value)} required /></div>
-      <div><label className="mb-1 block text-xs text-fg/55">Email</label><input className={field} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
+      <div><label className="mb-1 block text-xs text-fg/55">Name</label><input className={field} value={name} onChange={(e) => setName(e.target.value)} required disabled/></div>
+      <div><label className="mb-1 block text-xs text-fg/55">Email</label><input className={field} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled/></div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs text-fg/55">Role</label>

@@ -1,11 +1,11 @@
-import { ManagerCard } from "@/components/managers/manager-card";
+import { ManagerCard } from "@/components/common/card/manager-card";
 import { Carousel, CarouselItem } from "@/components/shared/carousel";
 import { Section, SectionHeading } from "@/components/shared/section";
 import { section, textOf } from "@/lib/localized";
 import type { PageContent } from "@/features/settings/types";
 import { getPublicManagersAction } from "@/features/user/actions";
 
-export async function ManagersSlider({ content, lang }: { content?: PageContent; lang: string }) {
+export async function ManagersSlider({ content, lang}: { content?: PageContent; lang: string; }) {
   const c = section(content, "managers");
   const res = await getPublicManagersAction(12);
   const managers = res.managers ?? [];
@@ -22,7 +22,7 @@ export async function ManagersSlider({ content, lang }: { content?: PageContent;
                 id: String(m.id),
                 name: m.name,
                 org: m.designation || m.country || "Event Manager",
-                image: m.profile_image || "",
+                image: m.profile_image?.trim() || "/default.jpg",
                 events: 0,
                 rating: 0,
               }}
