@@ -1,4 +1,5 @@
 import {
+  BellPlus,
   BookPlusIcon,
   CalendarDays,
   FolderOpen,
@@ -126,7 +127,7 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
       {
         label: "Subscribers",
         href: "/admin/subscribers",
-        icon: Mail,
+        icon: BellPlus,
         title: "Subscribers",
         subtitle: "Newsletter emails from the footer form.",
       },

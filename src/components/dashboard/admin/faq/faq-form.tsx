@@ -4,6 +4,10 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import type { FAQ } from "@/features/faq/types";
 import { createFAQAction, updateFAQAction } from "@/features/faq/actions";
+import {
+  createTranslationAction,
+  bulkSaveTranslationsAction,
+} from "@/features/translation/actions";
 
 const field = "w-full rounded-xl border border-border bg-panel px-3 py-2 text-sm outline-none focus:border-coral";
 
@@ -15,15 +19,54 @@ export function FAQForm({ faq, onSuccess }: { faq?: FAQ; onSuccess?: () => void 
   const [isActive, setIsActive] = useState(faq?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(faq?.sort_order ?? 0);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const payload = { question, answer, is_active: isActive, sort_order: sortOrder };
-    const res = faq ? await updateFAQAction(faq.id, payload) : await createFAQAction(payload);
-    setLoading(false);
-    if (res.success) { toast.success(res.message ?? "Saved."); onSuccess?.(); router.refresh(); return; }
-    toast.error(res.message ?? "Failed.");
+const onSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  const payload = {
+    question: question.trim(),
+    answer: answer.trim(),
+    is_active: isActive,
+    sort_order: sortOrder,
   };
+
+  // 1) আগে FAQ save
+  const res = faq
+    ? await updateFAQAction(faq.id, payload)
+    : await createFAQAction(payload);
+
+  if (!res.success) {
+    setLoading(false);
+    toast.error(res.message ?? "Failed.");
+    return;
+  }
+
+  // 2) Translation keys add (fail হলে FAQ তো save হয়ে গেছে — soft fail)
+  try {
+    // create — key আগে থাকলে error হতে পারে
+    // await createTranslationAction({
+    //   key: payload.question,
+    //   values: { en: payload.question },
+    // });
+    // await createTranslationAction({
+    //   key: payload.answer,
+    //   values: { en: payload.answer },
+    // });
+
+    // অথবা bulk (যদি action support করে):
+    await bulkSaveTranslationsAction([
+      { key: payload.question, values: { en: payload.question } },
+      { key: payload.answer, values: { en: payload.answer } },
+    ]);
+  } catch {
+    // optional: toast.warn("FAQ saved, but translation keys failed");
+  }
+
+  setLoading(false);
+  toast.success(res.message ?? "Saved.");
+  onSuccess?.();
+  router.refresh();
+};
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">

@@ -54,7 +54,7 @@ export async function getFAQTableAction(params: TableParams): Promise<FAQTableRe
 export async function createFAQAction(input: FAQInput): Promise<ActionResult> {
   const parsed = faqSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, message: "Please check the form.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
+    return { success: false, message: "Please check the form." };
   }
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
@@ -68,7 +68,7 @@ export async function createFAQAction(input: FAQInput): Promise<ActionResult> {
 export async function updateFAQAction(id: number, input: Partial<FAQInput>): Promise<ActionResult> {
   const parsed = faqSchema.partial().safeParse(input);
   if (!parsed.success) {
-    return { success: false, message: "Please check the form.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
+    return { success: false, message: "Please check the form." };
   }
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
@@ -79,7 +79,7 @@ export async function updateFAQAction(id: number, input: Partial<FAQInput>): Pro
   }
 }
 
-export async function deleteFAQAction(id: number): Promise<ActionResult> {
+export async function deleteFAQAction(id: number | string): Promise<ActionResult> {
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await deleteFAQRequest(id);
