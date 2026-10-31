@@ -13,6 +13,7 @@ import { Services } from "@/components/home/services";
 import { Testimonials } from "@/components/home/testimonials";
 import { HomeSkeleton } from "@/components/skeleton/home-skeleton";
 import { AutoRefresh } from "@/components/shared/auto-refresh";
+import { Faq } from "@/components/home/faq";
 async function HomeHero({
   content,
 }: {
@@ -38,6 +39,7 @@ async function HomeHero({
                 <EventsSlider content={content} lang={lang} events={events} />
       <ManagersSlider content={content} lang={lang}/>
       <Testimonials content={content} lang={lang}/>
+      <Faq/>
       <Contact content={content} lang={lang} />
 
     </>
