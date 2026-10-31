@@ -14,16 +14,35 @@ import {
 export type TestimonialTableResult = {
   success: boolean; message?: string; testimonials?: Testimonial[]; meta?: PaginationMeta;
 };
-
-export async function getPublicTestimonialsAction(limit = 20): Promise<TestimonialTableResult> {
+export async function getPublicTestimonialsAction(
+  limitOrParams: number | TableParams = 20,
+): Promise<TestimonialTableResult> {
   try {
-    const res = await listPublicTestimonialsRequest({ page: 1, limit });
+    const params =
+      typeof limitOrParams === "number"
+        ? { page: 1, limit: limitOrParams }
+        : toApiParams(limitOrParams);
+    const res = await listPublicTestimonialsRequest(params);
     const data = res.data.data;
-    return { success: true, testimonials: (data.docs ?? []).map((d) => toTestimonial(d as Record<string, unknown>)), meta: data as PaginationMeta };
+    return {
+      success: true,
+      testimonials: (data.docs ?? []).map((d) => toTestimonial(d as Record<string, unknown>)),
+      meta: data as PaginationMeta,
+    };
   } catch (err) {
     return { success: false, message: getErrorMessage(err), testimonials: [] };
   }
 }
+
+// export async function getPublicTestimonialsAction(limit = 20): Promise<TestimonialTableResult> {
+//   try {
+//     const res = await listPublicTestimonialsRequest({ page: 1, limit });
+//     const data = res.data.data;
+//     return { success: true, testimonials: (data.docs ?? []).map((d) => toTestimonial(d as Record<string, unknown>)), meta: data as PaginationMeta };
+//   } catch (err) {
+//     return { success: false, message: getErrorMessage(err), testimonials: [] };
+//   }
+// }
 
 export async function getTestimonialTableAction(params: TableParams): Promise<TestimonialTableResult> {
   if (!(await getToken())) return { success: false, message: "Please log in.", testimonials: [] };
@@ -38,7 +57,7 @@ export async function getTestimonialTableAction(params: TableParams): Promise<Te
 
 export async function createTestimonialAction(input: TestimonialInput): Promise<ActionResult> {
   const parsed = testimonialSchema.safeParse(input);
-  if (!parsed.success) return { success: false, message: "Please check the form.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  if (!parsed.success) return { success: false, message: "Please check the form."};
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await createTestimonialRequest(parsed.data);
@@ -48,7 +67,7 @@ export async function createTestimonialAction(input: TestimonialInput): Promise<
 
 export async function updateTestimonialAction(id: number, input: Partial<TestimonialInput>): Promise<ActionResult> {
   const parsed = testimonialSchema.partial().safeParse(input);
-  if (!parsed.success) return { success: false, message: "Please check the form.", fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  if (!parsed.success) return { success: false, message: "Please check the form." };
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await updateTestimonialRequest(id, parsed.data);

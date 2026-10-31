@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: "Events | TicketBooking" };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-const EVENTS_PER_PAGE = 9;
+const EVENTS_PER_PAGE = 3;
 
 async function EventsContent({ content, searchParams }: { content?: PageContent; searchParams: SearchParams }) {
   const [raw, langRes, saved] = await Promise.all([searchParams, getLanguagesAction(), getLanguageCookie()]);

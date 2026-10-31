@@ -64,7 +64,7 @@ export function AdminOverview() {
           <RevenueChart data={WEEKLY_REVENUE} />
         </Panel>
 
-        <Panel title="Upcoming events" subtitle="Next on the calendar" action={{ href: "/admin/events", label: "See all" }}>
+        <Panel title="Upcoming events" subtitle="Next on the calendar" action={{ href: "/admin/events", label: "View all" }}>
           <ul className="divide-y divide-fg/10">
             {EVENTS.slice(0, 4).map((e) => (
               <li key={e.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
@@ -86,7 +86,7 @@ export function AdminOverview() {
         </Panel>
       </div>
 
-      <Panel title="Recent bookings" subtitle="Latest tickets across all events" action={{ href: "/admin/bookings", label: "See all" }} flush>
+      <Panel title="Recent bookings" subtitle="Latest tickets across all events" action={{ href: "/admin/bookings", label: "View all" }} flush>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <thead>

@@ -15,7 +15,7 @@ export function Section({ id, className, children }: { id?: string; className?: 
 }
 
 export function SectionHeading({
-  title, subtitle, href, hrefLabel = <T k="See all" />, className,
+  title, subtitle, href, hrefLabel = <T k="View all" />, className,
 }: { title: React.ReactNode; subtitle?: React.ReactNode; href?: string; hrefLabel?: React.ReactNode; className?: string }) {
   return (
     <div className={cn("mb-10 flex flex-wrap items-end justify-between gap-4", className)}>

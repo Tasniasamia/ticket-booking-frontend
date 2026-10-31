@@ -42,7 +42,7 @@ export const DEFAULT_MESSAGES: Record<string, string> = {
   "Help centre": "Help centre",
   "© TicketBooking. All rights reserved.": "© TicketBooking. All rights reserved.",
   "Book now": "Book now",
-  "See all": "See all",
+  "View all": "View all",
   "Search events": "Search events",
   "Enjoy the music,": "Enjoy the music,",
   "own the night.": "own the night.",

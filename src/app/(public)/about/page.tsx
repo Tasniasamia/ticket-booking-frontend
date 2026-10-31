@@ -57,6 +57,7 @@ import { Services } from "@/components/home/services";
 import { Testimonials } from "@/components/home/testimonials";
 import { PageHero } from "@/components/shared/page-hero";
 import { AboutSkeleton } from "@/components/skeleton/about-skeleton";
+import { getTrendingEventsAction } from "@/features/event/actions";
 async function AboutContent({
   aboutContent,
   homeContent,
@@ -64,19 +65,22 @@ async function AboutContent({
   aboutContent: Awaited<ReturnType<typeof getPageContent>>;
   homeContent: Awaited<ReturnType<typeof getPageContent>>;
 }) {
+  
   const [langRes, saved] = await Promise.all([
     getLanguagesAction(),
     getLanguageCookie(),
   ]);
   const lang = pickLanguage(langRes.languages ?? [], saved);
 
+  // trending একবারই আনি: প্রথমটা Hero তে, পুরো list slider এ
+  const { events } = await getTrendingEventsAction(8);
 
   return (
     <>
       <PageHero content={aboutContent} lang={lang} />
       <About content={aboutContent} lang={lang} />
       <Services content={homeContent} lang={lang}/>
-      <EventsSlider content={homeContent} lang={lang} />
+      <EventsSlider content={homeContent} lang={lang} events={events} />
       <ManagersSlider content={homeContent} lang={lang}/>
       <Testimonials content={homeContent} lang={lang}/>
       <Contact content={homeContent} lang={lang} />

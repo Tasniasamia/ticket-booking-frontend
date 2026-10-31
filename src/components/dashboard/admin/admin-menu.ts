@@ -52,14 +52,14 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
         subtitle: "Review, approve and manage every event on the platform.",
         children: [
           {
-            label: "All Events",
+            label: "Events",
             href: "/admin/events",
             icon: CalendarDays,
             title: "Events",
             subtitle: "Review, approve and manage every event on the platform.",
           },
           {
-            label: "Event Categories",
+            label: "Category",
             href: "/admin/event-category",
             icon: FolderOpen,
             title: "Event Categories",
