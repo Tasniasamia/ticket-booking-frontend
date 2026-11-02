@@ -4,8 +4,10 @@ import { z } from "zod";
 import { getToken } from "@/lib/session";
 import { getErrorMessage } from "@/features/auth/service";
 import { toProfile, type Profile } from "./type";
-import { profileSchema, type ProfileInput } from "./schemas";
-import { getMeRequest, updateMeRequest } from "./service";
+// import { profileSchema, type ProfileInput } from "./schemas";
+// import { getMeRequest, updateMeRequest } from "./service";
+import { profileSchema, updatePasswordSchema, type ProfileInput, type UpdatePasswordInput } from "./schemas";
+import { getMeRequest, updateMeRequest, updatePasswordRequest } from "./service";
 
 export type ProfileResult = {
   success: boolean;
@@ -137,7 +139,29 @@ export async function getPublicManagersAction(
 }
 
 
+export async function updatePasswordAction(
+  input: UpdatePasswordInput,
+): Promise<ProfileResult> {
+  const parsed = updatePasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: "Please check the form.",
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+    };
+  }
+  if (!(await getToken())) return UNAUTHORIZED;
 
+  try {
+    const res = await updatePasswordRequest({
+      current_password: parsed.data.currentPassword,
+      new_password: parsed.data.newPassword,
+    });
+    return { success: true, message: res.data.message ?? "Password updated." };
+  } catch (err) {
+    return { success: false, message: getErrorMessage(err) };
+  }
+}
 
 
 

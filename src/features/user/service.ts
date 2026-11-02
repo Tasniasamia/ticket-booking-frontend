@@ -19,3 +19,6 @@ export const updateMemberRequest = (id: string | number, data: Record<string, un
   api.patch<ApiSuccess<Record<string, unknown>>>(`/auth/members/${id}`, data);
 export const deleteUserRequest = (id: string | number) =>
   api.delete<ApiSuccess<unknown>>(`/auth/${id}`);
+
+export const updatePasswordRequest = (data: { current_password: string; new_password: string }) =>
+  api.patch<ApiSuccess<unknown>>("/auth/update-password", data);

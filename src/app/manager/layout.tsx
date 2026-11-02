@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, User, CalendarDays, Ticket, Wallet, MessageCircle } from "lucide-react";
+import { LayoutDashboard, User, CalendarDays, Ticket, Wallet, MessageCircle, KeyRound } from "lucide-react";
 
 import Sidebar, { type MenuItem } from "@/components/dashboard/shared/sidebar";
 import { Footer } from "@/components/shared/footer";
@@ -62,6 +62,16 @@ const managerMenu: MenuItem[] = [
     subtitle:
       "Your account details. Keep them up to date so bookings and messages reach you.",
   },
+  
+    {
+    key: 6,
+    label: "Update Password",
+    link: "/manager/update-password",
+    icon: <KeyRound size={16} />,
+    title: "Update password",
+    subtitle: "Change the password you use to log in.",
+  },
+
 ];
 
 export default function DashboardLayout({

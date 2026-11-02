@@ -5,6 +5,7 @@ import {
   FolderOpen,
   Globe,
   HelpCircle,
+  KeyRound,
   Languages,
   LayoutDashboard,
   Mail,
@@ -12,6 +13,7 @@ import {
   MessageSquareQuote,
   Settings,
   Ticket,
+  User,
   UserCog,
   Users,
   Wallet,
@@ -180,14 +182,31 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
       },
     ],
   },
+  {
+    label: "Account Settings",
+    items: [
+      {
+        label: "Profile",
+        href: "/admin/profile",
+        icon: User,
+        title: "Profile",
+        subtitle: "Manage your profile information.",
+      },
+      {
+        label: "Update Password",
+        href: "/admin/update-password",
+        icon: KeyRound,
+        title: "Update password",
+        subtitle: "Change the password you use to log in.",
+      },
+    ],
+  },
 ];
 
 /** children সহ সব item flatten করে */
 function flattenItems(items: AdminMenuItem[]): AdminMenuItem[] {
   return items.flatMap((item) =>
-    item.children?.length
-      ? [item, ...flattenItems(item.children)]
-      : [item],
+    item.children?.length ? [item, ...flattenItems(item.children)] : [item],
   );
 }
 
