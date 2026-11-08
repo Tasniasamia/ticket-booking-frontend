@@ -209,7 +209,7 @@ export function CommentSection({
 
       {status === "authenticated" && user ? (
         <div className="mt-4 flex gap-3">
-          <Avatar name={user.name} image={user.profile_image} />
+          <Avatar name={user.name} image={user.profile_image ?? undefined} />
           <div className="flex-1">
             <textarea
               value={text}

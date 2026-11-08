@@ -5,7 +5,6 @@ import {
   MessageCircle, Send, Loader2, Check, CheckCheck, Clock, AlertCircle,
   Paperclip, Pencil, Trash2, X, FileText,
 } from "lucide-react";
-import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { uploadMediaAction } from "@/features/media/actions";
@@ -449,6 +448,7 @@ export function MessagesPanel({ allowStartById = false, className }: Props) {
   };
 
   const onDelete = async (id: number) => {
+    const Swal = (await import("sweetalert2")).default;
     const result = await Swal.fire({
       title: "Delete this message?",
       text: "This action cannot be undone.",

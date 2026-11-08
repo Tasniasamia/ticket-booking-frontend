@@ -71,6 +71,7 @@ import {
   deleteUserRequest, getPublicManagerRequest, listManagersAdminRequest,
   listPublicManagersRequest, listUsersRequest, updateMemberRequest,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type UsersTableResult = {
   success: boolean;
@@ -121,6 +122,10 @@ export type ManagerTableResult = {
 export async function getPublicManagersAction(
   limitOrParams: number | TableParams = 20,
 ): Promise<ManagerTableResult> {
+   "use cache";
+  
+    cacheTag("managers");
+    cacheLife("minutes");
   try {
     const params =
       typeof limitOrParams === "number"

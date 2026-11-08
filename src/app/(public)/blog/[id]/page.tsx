@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { Section } from "@/components/shared/section";
 import { CommentSection } from "@/components/comments/comment-section";
 import { LocalTime } from "@/components/dashboard/events/local-time";
@@ -11,35 +12,64 @@ import { toCommentTree } from "@/features/comment/types";
 import { getLanguagesAction } from "@/features/language/actions";
 import { pickLanguage, textOf } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
+import { Bone } from "@/components/skeleton/sections";
 
 type Props = { params: Promise<{ id: string }> };
 
 /** GET /blogs/:id */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const [langRes, saved] = await Promise.all([getLanguagesAction(), getLanguageCookie()]);
+  const [langRes, saved, res] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+    getPublicBlogAction(id),
+  ]);
   const lang = pickLanguage(langRes.languages ?? [], saved);
-  const res = await getPublicBlogAction(id);
   if (!res.blog) return { title: "Blog post" };
   return { title: `${textOf(res.blog.title, lang)} | Blog` };
+}
+
+function CommentsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Bone className="h-6 w-36" />
+      <Bone className="h-24 w-full rounded-2xl" />
+      <div className="space-y-3 pt-4">
+        <Bone className="h-16 w-full rounded-2xl" />
+        <Bone className="h-16 w-full rounded-2xl" />
+      </div>
+    </div>
+  );
+}
+
+async function BlogComments({
+  blogId,
+  rawComments,
+}: {
+  blogId: number;
+  rawComments?: unknown;
+}) {
+  let comments = toCommentTree(rawComments);
+  if (!comments.length) {
+    const cRes = await getCommentsAction(blogId);
+    if (cRes.comments) comments = cRes.comments;
+  }
+  return <CommentSection blogId={blogId} initialComments={comments} />;
 }
 
 export default async function PublicBlogDetailPage({ params }: Props) {
   const { id } = await params;
   if (!/^\d+$/.test(id)) notFound();
 
-  const [langRes, saved] = await Promise.all([getLanguagesAction(), getLanguageCookie()]);
+  const [langRes, saved, res] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+    getPublicBlogAction(id),
+  ]);
   const lang = pickLanguage(langRes.languages ?? [], saved);
 
-  const res = await getPublicBlogAction(id);
   if (!res.success || !res.blog) notFound();
   const blog = res.blog;
-
-  let comments = toCommentTree(res.comments);
-  if (!comments.length) {
-    const cRes = await getCommentsAction(blog.id);
-    if (cRes.comments) comments = cRes.comments;
-  }
 
   const title = textOf(blog.title, lang);
   const body = textOf(blog.long_description, lang);
@@ -81,7 +111,9 @@ export default async function PublicBlogDetailPage({ params }: Props) {
         )}
 
         <div className="mt-14 border-t border-fg/10 pt-10">
-          <CommentSection blogId={blog.id} initialComments={comments} />
+          <Suspense fallback={<CommentsSkeleton />}>
+            <BlogComments blogId={blog.id} rawComments={res.comments} />
+          </Suspense>
         </div>
       </article>
     </Section>

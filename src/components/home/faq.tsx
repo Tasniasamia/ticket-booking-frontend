@@ -1,19 +1,11 @@
 
 import { Section, SectionHeading } from "@/components/shared/section";
-
-import { getLanguagesAction } from "@/features/language/actions";
-import { getLanguageCookie } from "@/lib/preferences";
 import { getPublicFAQsAction } from "@/features/faq/actions";
 import { ChevronDown } from "lucide-react";
 import { T } from "../shared/t";
-// import Link from "next/link";
 
-export async function Faq() {
-  const [langRes, saved, faqRes] = await Promise.all([
-    getLanguagesAction(),
-    getLanguageCookie(),
-    getPublicFAQsAction(4),
-  ]);
+export async function Faq({ lang }: { lang?: string } = {}) {
+  const faqRes = await getPublicFAQsAction(4);
   const faqs = faqRes.faqs ?? [];
 
 

@@ -26,6 +26,9 @@ export function decodeJwt(token: string): JwtClaims | null {
 }
 
 export function isExpired(claims: Pick<JwtClaims, "exp">) {
-  
-  return claims.exp * 1000 <= Date.now();
+  const now =
+    typeof performance !== "undefined" && performance.timeOrigin
+      ? performance.timeOrigin + performance.now()
+      : Date.now();
+  return claims.exp * 1000 <= now;
 }

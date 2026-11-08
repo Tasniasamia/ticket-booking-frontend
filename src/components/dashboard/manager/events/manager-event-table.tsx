@@ -43,7 +43,7 @@ export function ManagerEventTable({ events, meta, lang, languages, categories, c
       cell: (e) =>
         e.thumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={e.thumbnail.url} alt="" className="size-10 rounded-lg border border-border object-cover" />
+          <img src={e.thumbnail.url} alt="" loading="lazy" decoding="async" className="size-10 rounded-lg border border-border object-cover" />
         ) : (
           "—"
         ),

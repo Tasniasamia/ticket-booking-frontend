@@ -10,7 +10,7 @@ import { TestimonialForm } from "./testimonial-form";
 
 const fmt = (iso: string) => (iso ? dayjs(iso).format("DD MMM YYYY") : "—");
 const COLUMNS: Column<Testimonial>[] = [
-  { key: "image", header: "Photo", cell: (t) => t.image_url ? <img src={t.image_url} alt={t.name} className="size-10 rounded-full object-cover" /> : "—" },
+  { key: "image", header: "Photo", cell: (t) => t.image_url ? <img src={t.image_url} alt={t.name} loading="lazy" decoding="async" className="size-10 rounded-full object-cover" /> : "—" },
   { key: "name", header: "Name", cell: (t) => t.name },
   { key: "role", header: "Role", cell: (t) => t.role || "—" },
   { key: "text", header: "Text", cell: (t) => (t.text.length > 60 ? t.text.slice(0, 60) + "…" : t.text) },

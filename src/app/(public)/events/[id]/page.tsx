@@ -15,6 +15,7 @@ import { getLanguagesAction } from "@/features/language/actions";
 import { getPaymentMethodsAction } from "@/features/payment-method/actions";
 import { pickLanguage, textOf } from "@/lib/localized";
 import { getLanguageCookie } from "@/lib/preferences";
+import type { EventItem } from "@/features/event/types";
 
 export const metadata: Metadata = { title: "Event | TicketBooking" };
 
@@ -35,11 +36,31 @@ function EventSkeleton() {
   );
 }
 
+function BookingPanelSkeleton() {
+  return <Skeleton className="h-96 rounded-4xl" />;
+}
+
+async function BookingPanelWrapper({
+  event,
+  availability,
+}: {
+  event: EventItem;
+  availability: BookingAvailability;
+}) {
+  const methodsRes = await getPaymentMethodsAction();
+  return (
+    <BookingPanel
+      event={event}
+      paymentMethods={methodsRes.methods}
+      availability={availability}
+    />
+  );
+}
+
 async function EventContent({ params }: Props) {
   const { id } = await params;
-  const [eventRes, methodsRes, langRes, saved] = await Promise.all([
+  const [eventRes, langRes, saved] = await Promise.all([
     getPublicEventAction(id),
-    getPaymentMethodsAction(),
     getLanguagesAction(),
     getLanguageCookie(),
   ]);
@@ -107,7 +128,9 @@ async function EventContent({ params }: Props) {
           )}
         </div>
 
-        <BookingPanel event={event} paymentMethods={methodsRes.methods} availability={availability} />
+        <Suspense fallback={<BookingPanelSkeleton />}>
+          <BookingPanelWrapper event={event} availability={availability} />
+        </Suspense>
       </div>
     </Section>
   );

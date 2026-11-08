@@ -150,6 +150,7 @@ import {
   updateEventStatusRequest,
   type EventPayload,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 /* ---------- List ---------- */
 
@@ -298,7 +299,12 @@ export async function getPublicEventAction(id: string): Promise<PublicEventResul
  * Backend এ এখন আলাদা trending endpoint নেই, তাই /events/upcoming (সবচেয়ে কাছের approved event) ব্যবহার হচ্ছে।
  */
 export async function getTrendingEventsAction(limit = 8): Promise<{ success: boolean; message?: string; events: EventItem[] }> {
+   "use cache";
+
+  cacheTag("trending-events");
+  cacheLife("minutes");
   try {
+  
     const res = await listUpcomingEventsRequest(limit);
     const docs = (res.data?.data?.docs ?? []) as Record<string, unknown>[];
     return { success: true, events: docs.map(toEvent) };

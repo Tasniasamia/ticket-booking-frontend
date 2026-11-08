@@ -14,6 +14,7 @@ import {
   listLanguagesRequest,
   updateLanguageRequest,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type LanguageResult = {
   success: boolean;
@@ -23,6 +24,10 @@ export type LanguageResult = {
 };
 
 export async function getLanguagesAction(): Promise<LanguageResult> {
+    "use cache";
+
+  cacheTag("languages");
+  cacheLife("minutes");
   try {
     const res = await getLanguagesRequest();
     const languages = res.data.data.docs

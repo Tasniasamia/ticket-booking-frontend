@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-// import { UserAvatar } from "@/components/shared/user-avatar";
 import { memberSince, type Profile } from "@/features/user/type";
 import { UserAvatar } from "@/components/shared/use-avatar";
 

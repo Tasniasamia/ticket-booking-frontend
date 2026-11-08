@@ -10,7 +10,7 @@ import { MemberEditForm } from "./member-edit-form";
 
 const fmt = (iso: string) => (iso ? dayjs(iso).format("DD MMM YYYY") : "—");
 const COLUMNS: Column<Profile>[] = [
-  { key: "image", header: "Photo", cell: (u) => u.profile_image ? <img src={u.profile_image} alt={u.name} className="size-10 rounded-full object-cover" /> : "—" },
+  { key: "image", header: "Photo", cell: (u) => u.profile_image ? <img src={u.profile_image} alt={u.name} loading="lazy" decoding="async" className="size-10 rounded-full object-cover" /> : "—" },
   { key: "name", header: "Name", cell: (u) => u.name || "—" },
   { key: "email", header: "Email", cell: (u) => u.email || "—" },
   { key: "role", header: "Role", cell: (u) => <StatusBadge label={u.role} tone={u.role === "admin" ? "warning" : u.role === "manager" ? "success" : "neutral"} /> },

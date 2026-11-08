@@ -17,6 +17,8 @@ const TestimonialCard = ({ t, i }:{ t: Testimonial; i: number }) => {
                       <img
                         src={t.image_url}
                         alt={t.name}
+                        loading="lazy"
+                        decoding="async"
                         className="size-10 rounded-full object-cover"
                       />
                     ) : (

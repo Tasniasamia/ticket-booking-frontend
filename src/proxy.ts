@@ -86,7 +86,17 @@
 
 
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_PAGES, OTP_FLOW_COOKIE, PAYMENT_COOKIE, PROTECTED_AREAS, SESSION_COOKIE, parseOtpFlow, roleHome, type OtpFlowReason } from "./lib/constants";
+import {
+  AUTH_PAGES,
+  OTP_FLOW_COOKIE,
+  PAYMENT_COOKIE,
+  PROTECTED_AREAS,
+  SESSION_COOKIE,
+  SESSION_FLAG_COOKIE,
+  parseOtpFlow,
+  roleHome,
+  type OtpFlowReason,
+} from "./lib/constants";
 import { decodeJwt, isExpired } from "./lib/jwt";
 
 // OTP এর page গুলো: কোন flow থেকে ঢোকা যাবে, আর flow না থাকলে কোথায় ফেরত যাবে।
@@ -112,7 +122,17 @@ export function proxy(req: NextRequest) {
   const stale = !!raw && !claims; // এই cookie মুছে দেব
 
   const finish = (res: NextResponse) => {
-    if (stale) res.cookies.delete(SESSION_COOKIE);
+    if (stale) {
+      res.cookies.delete(SESSION_COOKIE);
+      res.cookies.delete(SESSION_FLAG_COOKIE);
+    } else if (claims && !req.cookies.has(SESSION_FLAG_COOKIE)) {
+      res.cookies.set(SESSION_FLAG_COOKIE, "1", {
+        httpOnly: false,
+        sameSite: "lax",
+        path: "/",
+        expires: claims.exp ? new Date(claims.exp * 1000) : undefined,
+      });
+    }
     return res;
   };
   const go = (path: string) => finish(NextResponse.redirect(new URL(path, req.url)));

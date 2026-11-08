@@ -1,4 +1,5 @@
 export const SESSION_COOKIE = "token";
+export const SESSION_FLAG_COOKIE = "logged_in";
 export const PAYMENT_COOKIE = "pay_ok";
 export const OTP_LENGTH = 6;
 

@@ -80,7 +80,7 @@ export function DateChip({ iso }: { iso: string }) {
 
 export function EventThumb({ url }: { url?: string }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url || "/default.jpg"} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" />;
+  return <img src={url || "/default.jpg"} alt="" loading="lazy" decoding="async" className="h-14 w-14 shrink-0 rounded-lg object-cover" />;
 }
 
 export function SeatBar({ booked, total }: { booked: number; total: number }) {

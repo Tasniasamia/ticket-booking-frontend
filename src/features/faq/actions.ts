@@ -14,6 +14,7 @@ import {
   listPublicFAQsRequest,
   updateFAQRequest,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type FAQTableResult = {
   success: boolean;
@@ -23,6 +24,10 @@ export type FAQTableResult = {
 };
 
 export async function getPublicFAQsAction(limit = 50): Promise<FAQTableResult> {
+   "use cache";
+  
+    cacheTag("faq");
+    cacheLife("minutes");
   try {
     const res = await listPublicFAQsRequest({ page: 1, limit });
     const data = res.data.data;

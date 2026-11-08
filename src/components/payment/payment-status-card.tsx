@@ -7,7 +7,7 @@ import { Ban, CheckCheck, CircleCheck, CircleX, Clock3, Copy, RefreshCw, type Lu
 import { toast } from "react-toastify";
 import { LocalTime } from "@/components/dashboard/events/local-time";
 import { formatFallback } from "@/features/currency/utils";
-import type { PaymentSummary } from "@/features/payment/types";
+import type { PaymentResultSummary } from "@/features/payment/types";
 import { textOf } from "@/lib/localized";
 import { cn } from "@/lib/utils";
 import { usePreferences, useT } from "@/providers/preferences-provider";
@@ -90,7 +90,7 @@ function BookingCode({ code }: { code: string }) {
  * success / failed / cancel / pending সব result page এর একটাই card।
  * variant ঠিক করে server (PaymentOutcome), এখানে শুধু দেখানো।
  */
-export function PaymentStatusCard({ variant, payment, message, lang }: { variant: PaymentVariant; payment?: PaymentSummary; message?: string; lang: string }) {
+export function PaymentStatusCard({ variant, payment, message, lang }: { variant: PaymentVariant; payment?: PaymentResultSummary; message?: string; lang: string }) {
   const t = useT();
   const router = useRouter();
   const { language } = usePreferences();

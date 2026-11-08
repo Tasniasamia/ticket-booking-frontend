@@ -2,6 +2,8 @@
 import type { Metadata } from "next";
 import { AdminShell } from "@/components/dashboard/admin/admin-shell";
 
+export const instant = false;
+
 export const metadata: Metadata = {
   title: { default: "Admin | TicketBooking", template: "%s | Admin" },
 };

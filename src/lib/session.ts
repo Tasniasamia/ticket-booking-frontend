@@ -1,5 +1,13 @@
 import { cookies } from "next/headers";
-import { OTP_FLOW_COOKIE, OTP_FLOW_TTL_SEC, SESSION_COOKIE, parseOtpFlow, type OtpFlowReason } from "@/lib/constants";
+import { connection } from "next/server";
+import {
+  OTP_FLOW_COOKIE,
+  OTP_FLOW_TTL_SEC,
+  SESSION_COOKIE,
+  SESSION_FLAG_COOKIE,
+  parseOtpFlow,
+  type OtpFlowReason,
+} from "@/lib/constants";
 import { decodeJwt, isExpired } from "@/lib/jwt";
 
 const FALLBACK_TTL_MS = 24 * 60 * 60 * 1000; // backend এর defaultTokenDuration (24h)
@@ -11,17 +19,34 @@ const FALLBACK_TTL_MS = 24 * 60 * 60 * 1000; // backend এর defaultTokenDurat
  */
 export async function setSession(token: string) {
   const claims = decodeJwt(token);
-  (await cookies()).set(SESSION_COOKIE, token, {
+  const now =
+    typeof performance !== "undefined" && performance.timeOrigin
+      ? performance.timeOrigin + performance.now()
+      : Date.now();
+  const expires = claims?.exp ? new Date(claims.exp * 1000) : new Date(now + FALLBACK_TTL_MS);
+  const cookieStore = await cookies();
+
+  cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    expires: claims?.exp ? new Date(claims.exp * 1000) : new Date(Date.now() + FALLBACK_TTL_MS),
+    expires,
+  });
+
+  // Client-side auth check এর জন্য non-httpOnly flag (অপ্রয়োজনীয় /auth/me কল আটকাতে)
+  cookieStore.set(SESSION_FLAG_COOKIE, "1", {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires,
   });
 }
 
 /** মেয়াদ শেষ হলে undefined ফেরত দেয়, মানে logged out। */
 export async function getToken() {
+  await connection();
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return undefined;
   const claims = decodeJwt(token);
@@ -36,7 +61,9 @@ export async function getSessionUser() {
 }
 
 export async function clearSession() {
-  (await cookies()).delete(SESSION_COOKIE);
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE);
+  cookieStore.delete(SESSION_FLAG_COOKIE);
 }
 
 /** OTP page এ ঢোকার অনুমতি। signup, unverified login আর forgot-password এর পর বসে। */

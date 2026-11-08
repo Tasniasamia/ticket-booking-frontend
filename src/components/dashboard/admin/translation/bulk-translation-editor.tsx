@@ -422,7 +422,6 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ListPlus, Loader2, Plus, Search, Table2, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import {
   bulkSaveTranslationsAction,
@@ -592,6 +591,7 @@ export function BulkTranslationEditor({ languages }: { languages: Language[] }) 
     if (items.length > 0) {
       confirmingRef.current = true;
       try {
+        const Swal = (await import("sweetalert2")).default;
         const result = await Swal.fire({
           title: "Discard unsaved changes?",
           text: "You have unsaved changes. If you close now, they will be lost.",

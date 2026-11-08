@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { MapPin, MessageCircle } from "lucide-react";
 import { EventCard } from "@/components/dashboard/events/event-card";
 import { Section, SectionHeading } from "@/components/shared/section";
@@ -10,6 +11,7 @@ import { getPublicEventsAction } from "@/features/event/actions";
 import { getLanguagesAction } from "@/features/language/actions";
 import { getLanguageCookie } from "@/lib/preferences";
 import { pickLanguage } from "@/lib/localized";
+import { Bone, EventCardSkeleton } from "@/components/skeleton/sections";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -24,32 +26,85 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ManagerDetailsPage({ params }: Props) {
-  const { id } = await params;
+function ManagerProfileSkeleton() {
+  return (
+    <Section className="pt-10 sm:pt-14">
+      <div className="glass grid items-center gap-8 rounded-4xl p-6 sm:p-8 md:grid-cols-[16rem_1fr]">
+        <Bone className="aspect-square w-full max-w-64 rounded-3xl" />
+        <div className="space-y-4">
+          <Bone className="h-10 w-64" />
+          <Bone className="h-5 w-40" />
+          <Bone className="h-4 w-52" />
+          <Bone className="h-16 w-full max-w-lg" />
+          <Bone className="h-12 w-48 rounded-full" />
+        </div>
+      </div>
+    </Section>
+  );
+}
 
-  const [managerRes, langRes, saved] = await Promise.all([
-    getPublicManagerAction(id),
-    getLanguagesAction(),
-    getLanguageCookie(),
-  ]);
+function ManagerEventsSkeleton({ firstName }: { firstName: string }) {
+  return (
+    <div className="mt-16">
+      <SectionHeading title={`Events by ${firstName}`} />
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <EventCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  if (!managerRes.success || !managerRes.manager) notFound();
-
-  const m = managerRes.manager;
-  const lang = pickLanguage(langRes.languages ?? [], saved);
-
-  // Public events filtered by this manager (query filter: manager_id)
+async function ManagerEvents({
+  managerId,
+  firstName,
+  lang,
+}: {
+  managerId: string;
+  firstName: string;
+  lang: string;
+}) {
   const eventsRes = await getPublicEventsAction(
     {
       page: 1,
       limit: 24,
       search: "",
-      filters: { manager_id: String(m.id) },
+      filters: { manager_id: managerId },
     },
     lang,
   );
   const events = eventsRes.events ?? [];
 
+  return (
+    <div className="mt-16">
+      <SectionHeading title={`Events by ${firstName}`} />
+      {events.length ? (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {events.map((e) => (
+            <EventCard key={e.id} event={e} lang={lang} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-fg/60">No upcoming events right now.</p>
+      )}
+    </div>
+  );
+}
+
+async function ManagerDetailsContent({ params }: Props) {
+  const { id } = await params;
+
+  const [langRes, saved, managerRes] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+    getPublicManagerAction(id),
+  ]);
+  const lang = pickLanguage(langRes.languages ?? [], saved);
+
+  if (!managerRes.success || !managerRes.manager) notFound();
+
+  const m = managerRes.manager;
   const image = m.profile_image || PLACEHOLDER;
   const org = m.designation || m.country || "Event Manager";
   const firstName = m.name.split(" ")[0] || m.name;
@@ -89,18 +144,17 @@ export default async function ManagerDetailsPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="mt-16">
-        <SectionHeading title={`Events by ${firstName}`} />
-        {events.length ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((e) => (
-              <EventCard key={e.id} event={e} lang={lang} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-fg/60">No upcoming events right now.</p>
-        )}
-      </div>
+      <Suspense fallback={<ManagerEventsSkeleton firstName={firstName} />}>
+        <ManagerEvents managerId={id} firstName={firstName} lang={lang} />
+      </Suspense>
     </Section>
+  );
+}
+
+export default function ManagerDetailsPage({ params }: Props) {
+  return (
+    <Suspense fallback={<ManagerProfileSkeleton />}>
+      <ManagerDetailsContent params={params} />
+    </Suspense>
   );
 }

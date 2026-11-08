@@ -10,6 +10,7 @@ import {
   createTestimonialRequest, deleteTestimonialRequest,
   listAdminTestimonialsRequest, listPublicTestimonialsRequest, updateTestimonialRequest,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type TestimonialTableResult = {
   success: boolean; message?: string; testimonials?: Testimonial[]; meta?: PaginationMeta;
@@ -17,6 +18,10 @@ export type TestimonialTableResult = {
 export async function getPublicTestimonialsAction(
   limitOrParams: number | TableParams = 20,
 ): Promise<TestimonialTableResult> {
+   "use cache";
+  
+    cacheTag("testimonials");
+    cacheLife("minutes");
   try {
     const params =
       typeof limitOrParams === "number"

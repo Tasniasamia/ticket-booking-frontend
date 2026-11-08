@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getMeAction } from "@/features/user/actions";
 import { Profile } from "@/features/user/type";
+import { SESSION_FLAG_COOKIE } from "@/lib/constants";
 
 type Status = "loading" | "authenticated" | "unauthenticated";
 
@@ -38,6 +39,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let alive = true;
+
+    // ব্রাউজারে সেশন ফ্ল্যাগ না থাকলে ইউজার লগআউট অবস্থায় আছে — বাড়তি নেটওয়ার্ক কল বন্ধ
+    if (typeof document !== "undefined" && !document.cookie.includes(`${SESSION_FLAG_COOKIE}=1`)) {
+      setState({ user: null, status: "unauthenticated" });
+      return;
+    }
+
     fetchMe().then((user) => {
       if (alive) setState({ user, status: user ? "authenticated" : "unauthenticated" });
     });
