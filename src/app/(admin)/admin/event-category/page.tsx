@@ -1,66 +1,48 @@
-import { getEventCategoryTableAction } from "@/features/event-category/actions";
-import { getLanguagesAction } from "@/features/language/actions";
-import { getLanguageCookie } from "@/lib/preferences";
-import type { PaginationMeta, TableParams } from "@/components/common/table/table-params";
+export const instant=false
+import type { Metadata } from "next";
+import { AlertTriangle } from "lucide-react";
+import { parseTableParams } from "@/components/common/table/table-params";
 import { AddEventCategoryButton } from "@/components/dashboard/admin/event-category/add-event-category-button";
 import { EventCategoryTable } from "@/components/dashboard/admin/event-category/event-category-table";
+import { EmptyState } from "@/components/dashboard/shared/empty-state";
+import { PageHeader } from "@/components/dashboard/shared/page-header";
+import { getEventCategoryTableAction } from "@/features/event-category/actions";
+import { getLanguagesAction } from "@/features/language/actions";
+import { pickLanguage } from "@/lib/localized";
+import { getLanguageCookie } from "@/lib/preferences";
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
-const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-
-const EMPTY_META: PaginationMeta = {
-  totalDocs: 0,
-  page: 1,
-  totalPages: 1,
-} as PaginationMeta;
+export const metadata: Metadata = { title: "Event categories" };
 
 export default async function EventCategoriesPage({
   searchParams,
 }: {
-  searchParams: Promise<SearchParams>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const sp = await searchParams;
+  // বাকি admin page এর মতোই: URL query → TableParams
+  const params = parseTableParams(await searchParams, [], 10);
 
-  // URL এর query থেকে table params বানাই
-  const params = {
-    page: Number(first(sp.page)) || 1,
-    limit: Number(first(sp.limit)) || 10,
-    search: first(sp.search) ?? "",
-    sort_by: first(sp.sort_by),
-    sort_dir: first(sp.sort_dir),
-  } as unknown as TableParams;
-
-  // Active language গুলো (form এ field বানাতে লাগে)
-  const langRes = await getLanguagesAction();
+  // language list (form এর field বানাতে লাগে) আর cookie এর language একসাথে আনি
+  const [langRes, saved] = await Promise.all([getLanguagesAction(), getLanguageCookie()]);
   const languages = langRes.languages ?? [];
-
-  // Table এ কোন language এ দেখাবে: cookie র language, না থাকলে default
-  const saved = await getLanguageCookie();
-  const lang =
-    languages.find((l) => l.code.toLowerCase() === saved?.toLowerCase())?.code ??
-    languages.find((l) => l.isDefault)?.code ??
-    "en";
+  const lang = pickLanguage(languages, saved);
 
   const res = await getEventCategoryTableAction(params, lang);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-bold md:text-3xl">Event categories</h1>
-        <AddEventCategoryButton languages={languages} />
-      </div>
-
-      {res.success ? (
+    <div>
+      <PageHeader
+        title="Event categories"
+        subtitle="Group events into categories, in every language."
+        actions={<AddEventCategoryButton languages={languages} />}
+      />
+      {res.success && res.meta ? (
         <EventCategoryTable
           eventCategories={res.eventCategories ?? []}
-          meta={res.meta ?? EMPTY_META}
+          meta={res.meta}
           languages={languages}
         />
       ) : (
-        <p className="text-sm text-red-500">
-          {res.message ?? "Could not load event categories."}
-        </p>
+        <EmptyState icon={AlertTriangle} title="Could not load event categories" description={res.message} />
       )}
     </div>
   );

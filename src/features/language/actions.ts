@@ -24,8 +24,7 @@ export type LanguageResult = {
 };
 
 export async function getLanguagesAction(): Promise<LanguageResult> {
-    "use cache";
-
+  "use cache";
   cacheTag("languages");
   cacheLife("minutes");
   try {
@@ -57,6 +56,10 @@ export type LanguageTableResult = {
 };
 
 export async function getLanguageTableAction(params: TableParams): Promise<LanguageTableResult> {
+      "use cache";
+
+  cacheTag("languages");
+  cacheLife("minutes");
   try {
     const res = await listLanguagesRequest(toApiParams(params));
     const { docs, ...meta } = res.data.data;

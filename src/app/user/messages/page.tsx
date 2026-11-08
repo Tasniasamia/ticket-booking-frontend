@@ -1,3 +1,4 @@
+export const instant=false;
 import type { Metadata } from "next";
 import { MessagesPanel } from "@/components/messaging/messages-panel";
 

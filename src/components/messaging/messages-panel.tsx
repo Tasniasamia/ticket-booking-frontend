@@ -21,6 +21,7 @@ import {
 import type { ChatMessage, Conversation } from "@/features/messaging/types";
 import { useUser } from "@/providers/user-provider";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "../dashboard/shared/use_confirm";
 
 type Props = { allowStartById?: boolean; className?: string };
 type SendStatus = "sending" | "sent" | "failed";
@@ -447,19 +448,16 @@ export function MessagesPanel({ allowStartById = false, className }: Props) {
     });
   };
 
+  const [confirm, confirmDialog] = useConfirm();
+
+
   const onDelete = async (id: number) => {
-    const Swal = (await import("sweetalert2")).default;
-    const result = await Swal.fire({
-      title: "Delete this message?",
-      text: "This action cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#e11d48",
-      reverseButtons: true,
-    });
-    if (!result.isConfirmed) return;
+   const ok = await confirm({
+    title: "Delete this message?",
+    text: "This action cannot be undone.",
+    confirmText: "Yes, delete",
+  });
+  if (!ok) return;
 
     start(async () => {
       const res = await deleteMessageAction(id);
@@ -672,6 +670,7 @@ export function MessagesPanel({ allowStartById = false, className }: Props) {
       {error && (
         <p className="col-span-full border-t border-rose-500/30 bg-rose-500/10 px-4 py-2 text-xs text-rose-300">{error}</p>
       )}
+        {confirmDialog}
     </div>
   );
 }

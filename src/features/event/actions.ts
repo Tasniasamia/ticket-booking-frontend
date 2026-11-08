@@ -163,6 +163,9 @@ export type EventTableResult = {
 
 /** Admin: সব event (status filter আর search সহ) */
 export async function getAdminEventsAction(params: TableParams, lang: string): Promise<EventTableResult> {
+  // "use cache";
+  // cacheTag("events");
+  // cacheLife("minutes");
   try {
     const res = await listAdminEventsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -174,6 +177,9 @@ export async function getAdminEventsAction(params: TableParams, lang: string): P
 
 /** Manager: নিজের event */
 export async function getMyEventsAction(params: TableParams, lang: string): Promise<EventTableResult> {
+  // "use cache";
+  // cacheTag("events");
+  // cacheLife("minutes");
   try {
     const res = await listMyEventsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -255,6 +261,9 @@ export async function updateEventStatusAction(eventId: number, status: EventStat
 }
 
 export async function getUpcomingEventsAction(limit = 10) {
+  // "use cache";
+  // cacheTag("events");
+  // cacheLife("minutes");
   try {
     const res = await listUpcomingEventsRequest(limit);
     return { success: true, events: res.data };
@@ -269,6 +278,9 @@ export type PublicEventsResult = { success: boolean; message?: string; events?: 
 
 /** /events page: search + category_id filter + pagination, সব backend এই হয়। */
 export async function getPublicEventsAction(params: TableParams, lang: string): Promise<PublicEventsResult> {
+  // "use cache";
+  // cacheTag("events");
+  // cacheLife("minutes");
   try {
     const res = await listPublicEventsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -282,6 +294,9 @@ export type PublicEventResult = { success: boolean; message?: string; notFound?:
 
 /** /events/[id] page */
 export async function getPublicEventAction(id: string): Promise<PublicEventResult> {
+  // "use cache";
+  // cacheTag("events");
+  // cacheLife("minutes");
   try {
     const res = await getPublicEventRequest(id);
     return { success: true, event: toEvent(res.data.data) };
@@ -299,8 +314,7 @@ export async function getPublicEventAction(id: string): Promise<PublicEventResul
  * Backend এ এখন আলাদা trending endpoint নেই, তাই /events/upcoming (সবচেয়ে কাছের approved event) ব্যবহার হচ্ছে।
  */
 export async function getTrendingEventsAction(limit = 8): Promise<{ success: boolean; message?: string; events: EventItem[] }> {
-   "use cache";
-
+  "use cache";
   cacheTag("trending-events");
   cacheLife("minutes");
   try {

@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { AdminShell } from "@/components/dashboard/admin/admin-shell";
 
@@ -10,5 +9,5 @@ export const metadata: Metadata = {
 
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return <div suppressHydrationWarning><AdminShell>{children}</AdminShell></div> ;
+  return <AdminShell>{children}</AdminShell>;
 }

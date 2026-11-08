@@ -41,7 +41,7 @@ async function PaymentMethodsContent({
   };
 
   const res = await getPaymentMethodTableAction(params);
-  if (!res.success)
+  if (!res.success) {
     return (
       <EmptyState
         icon={Wallet}
@@ -49,6 +49,7 @@ async function PaymentMethodsContent({
         description={res.message ?? "Could not load payment methods."}
       />
     );
+  }
   return (
     <PaymentMethodTable
       paymentMethods={res.paymentMethods ?? []}

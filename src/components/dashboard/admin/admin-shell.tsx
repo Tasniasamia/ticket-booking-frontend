@@ -9,7 +9,7 @@ import { findActiveItem } from "./admin-menu";
 import { AdminSidebar } from "./admin-sidebar";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const { user, status } = useUser();
+  const { status } = useUser();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -73,24 +73,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
         <main id="admin-main" className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <div className="mx-auto w-full max-w-7xl min-w-0">
-            {user ? children : <MainSkeleton />}
+            {children}
           </div>
         </main>
       </div>
-    </div>
-  );
-}
-
-function MainSkeleton() {
-  return (
-    <div aria-busy="true" aria-label="Loading" className="space-y-6">
-      <div className="h-10 w-64 animate-pulse rounded-xl bg-fg/10" />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-36 animate-pulse rounded-2xl bg-fg/10" />
-        ))}
-      </div>
-      <div className="h-72 animate-pulse rounded-2xl bg-fg/10" />
     </div>
   );
 }

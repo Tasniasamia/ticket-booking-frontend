@@ -1,5 +1,5 @@
-export const instant = false;
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AlertTriangle } from "lucide-react";
 import { parseTableParams } from "@/components/common/table/table-params";
 import { UserTable } from "@/components/dashboard/admin/users/user-table";
@@ -9,17 +9,40 @@ import { getManagersTableAction } from "@/features/user/actions";
 
 export const metadata: Metadata = { title: "Managers" };
 
-export default async function AdminManagersPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+async function ManagersContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const params = parseTableParams(await searchParams, ["status"], 10);
   const res = await getManagersTableAction(params);
+
+  if (res.success && res.users && res.meta) {
+    return <UserTable users={res.users} meta={res.meta} />;
+  }
+  return (
+    <EmptyState
+      icon={AlertTriangle}
+      title="Could not load managers"
+      description={res.message}
+    />
+  );
+}
+
+export default function AdminManagersPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <div>
-      <PageHeader title="Managers" subtitle="Event managers, their verification and status." />
-      {res.success && res.users && res.meta ? (
-        <UserTable users={res.users} meta={res.meta} />
-      ) : (
-        <EmptyState icon={AlertTriangle} title="Could not load managers" description={res.message} />
-      )}
+      <PageHeader
+        title="Managers"
+        subtitle="Event managers, their verification and status."
+      />
+      <Suspense fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}>
+        <ManagersContent searchParams={searchParams} />
+      </Suspense>
     </div>
   );
 }

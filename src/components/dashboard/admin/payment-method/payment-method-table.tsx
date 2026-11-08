@@ -23,7 +23,7 @@ const COLUMNS: Column<PaymentMethod>[] = [
     cell: (m) =>
       m.logo_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={m.logo_url} alt={m.name} className="size-10 rounded-lg border border-border bg-white object-contain p-1" />
+        <img src={m.logo_url} alt={m.name} loading="lazy" decoding="async" className="size-10 rounded-lg border border-border bg-white object-contain p-1" />
       ) : (
         "—"
       ),
@@ -53,7 +53,7 @@ export function PaymentMethodTable({ paymentMethods, meta }: { paymentMethods: P
               <div className="space-y-3 text-sm ">
                 {m.logo_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.logo_url} alt={m.name} className="size-20 rounded-xl border border-border bg-white object-contain p-2" />
+                  <img src={m.logo_url} alt={m.name} loading="lazy" decoding="async" className="size-20 rounded-xl border border-border bg-white object-contain p-2" />
                 )}
                 <p>Gateway: {m.code}</p>
                 <p>Status: {m.enable ? "Enabled" : "Disabled"}</p>

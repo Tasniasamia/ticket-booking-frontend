@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { connection } from "next/server";
 import {
   OTP_FLOW_COOKIE,
   OTP_FLOW_TTL_SEC,
@@ -46,7 +45,7 @@ export async function setSession(token: string) {
 
 /** মেয়াদ শেষ হলে undefined ফেরত দেয়, মানে logged out। */
 export async function getToken() {
-  await connection();
+;
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return undefined;
   const claims = decodeJwt(token);

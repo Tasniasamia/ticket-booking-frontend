@@ -106,6 +106,13 @@ export const ADMIN_MENU: AdminMenuGroup[] = [
         subtitle: "Event managers, their verification and their events.",
       },
       {
+        label: "Blog",
+        href: "/admin/blog",
+        icon: BookPlusIcon,
+        title: "Blog",
+        subtitle: "ubtitCreate, approve and manage blog pos eents.",
+      },
+      {
         label: "FAQs",
         href: "/admin/faq",
         icon: HelpCircle,

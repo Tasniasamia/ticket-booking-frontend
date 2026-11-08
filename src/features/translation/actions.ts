@@ -163,6 +163,7 @@ import {
   listTranslationsRequest,
   updateTranslationRequest,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type TranslationGroupResult = {
   success: boolean;
@@ -187,6 +188,10 @@ export type TranslationTableResult = {
 };
 
 export async function getTranslationTableAction(params: TableParams): Promise<TranslationTableResult> {
+    "use cache";
+    
+      cacheTag("translations");
+      cacheLife("minutes");
   try {
     const res = await listTranslationsRequest(toApiParams(params));
     const { docs, ...meta } = res.data.data;
@@ -242,6 +247,10 @@ export async function updateTranslationAction(
 
 /** DEFAULT_MESSAGES থেকে backend-এ নেই এমন key গুলো `en` মান সহ যোগ করে */
 export async function syncDefaultTranslationsAction(): Promise<ActionResult & { added?: number }> {
+    "use cache";
+  
+    cacheTag("translations");
+    cacheLife("minutes");
   try {
     const existing = (await getTranslationGroupRequest()).data.data ?? {};
     const items = Object.entries(DEFAULT_MESSAGES)
@@ -299,6 +308,10 @@ export async function getAllTranslationsAction(): Promise<{
   message?: string;
   translations?: Translation[];
 }> {
+    "use cache";
+  
+    cacheTag("translations");
+    cacheLife("minutes");
   try {
     const res = await getTranslationGroupRequest();
     const group = res.data.data ?? {};

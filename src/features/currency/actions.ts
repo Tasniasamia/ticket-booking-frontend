@@ -8,6 +8,7 @@ import type { ActionResult } from "@/components/common/table/data-table";
 import { z } from "zod";
 import { currencySchema, type CurrencyInput } from "./schemas";
 import { convertRequest, createCurrencyRequest, deleteCurrencyRequest, updateCurrencyRequest, getCurrenciesRequest, listCurrenciesRequest } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type CurrencyResult = {
   success: boolean;
@@ -18,6 +19,9 @@ export type CurrencyResult = {
 };
 
 export async function getCurrenciesAction(): Promise<CurrencyResult> {
+  "use cache";
+  cacheTag("currencies");
+  cacheLife("minutes");
   try {
     const res = await getCurrenciesRequest();
     const currencies = res.data.data.docs
@@ -66,6 +70,9 @@ export type CurrencyTableResult = {
 
 /** Admin table এর জন্য: disabled সহ সব currency, backend এর pagination/search/filter/sort সহ। */
 export async function getCurrencyTableAction(params: TableParams): Promise<CurrencyTableResult> {
+    "use cache";
+  cacheTag("currencies");
+  cacheLife("minutes");
   try {
     const res = await listCurrenciesRequest(toApiParams(params));
     const { docs, ...meta } = res.data.data;

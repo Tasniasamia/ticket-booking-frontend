@@ -14,7 +14,7 @@ export function AdminDashboardView({ data }: { data: AdminDashboard }) {
   const up = (change ?? 0) >= 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       {/* Revenue: একটা বড় card */}
       <section className="rounded-2xl border border-fg/15 bg-panel/50 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">

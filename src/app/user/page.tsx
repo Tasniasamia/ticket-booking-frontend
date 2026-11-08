@@ -1,3 +1,4 @@
+export const instant=false;
 import { getUserDashboardAction } from "@/features/dashboard/actions";
 import { UserDashboardView } from "@/components/dashboard/user/user-dashboard-view";
 import { Empty } from "@/components/dashboard/dashboard-widgets";

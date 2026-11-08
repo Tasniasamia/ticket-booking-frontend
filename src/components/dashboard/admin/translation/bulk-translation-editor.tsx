@@ -431,6 +431,7 @@ import {
 import type { Translation } from "@/features/translation/types";
 import type { Language } from "@/features/language/types";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "../../shared/use_confirm";
 
 type NewRow = { id: number; key: string; values: Record<string, string> };
 
@@ -585,29 +586,20 @@ export function BulkTranslationEditor({ languages }: { languages: Language[] }) 
     setMissingLang("");
     setShown(PAGE_SIZE);
   };
+  const [confirm, confirmDialog] = useConfirm();
 
   const requestClose = async () => {
     if (confirmingRef.current) return;
     if (items.length > 0) {
       confirmingRef.current = true;
       try {
-        const Swal = (await import("sweetalert2")).default;
-        const result = await Swal.fire({
-          title: "Discard unsaved changes?",
-          text: "You have unsaved changes. If you close now, they will be lost.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Yes, discard",
-          cancelButtonText: "Keep editing",
-          confirmButtonColor: "#e11d48",
-          reverseButtons: true,
-          // Radix Dialog খোলা থাকলে body তে pointer-events: none বসে, তাই Swal এ click কাজ করে না। এটা সেটা ঠিক করে।
-          didOpen: () => {
-            const container = Swal.getContainer();
-            if (container) container.style.pointerEvents = "auto";
-          },
-        });
-        if (!result.isConfirmed) return;
+   const ok = await confirm({
+  title: "Discard unsaved changes?",
+  text: "You have unsaved changes. If you close now, they will be lost.",
+  confirmText: "Yes, discard",
+  cancelText: "Keep editing",
+});
+if (!ok) return;
       } finally {
         confirmingRef.current = false;
       }
@@ -859,6 +851,7 @@ export function BulkTranslationEditor({ languages }: { languages: Language[] }) 
           </div>
         </DialogContent>
       </Dialog>
+        {confirmDialog}
     </>
   );
 }

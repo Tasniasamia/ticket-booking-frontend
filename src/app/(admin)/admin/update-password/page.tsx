@@ -1,14 +1,26 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { AlertTriangle } from "lucide-react";
+import { parseTableParams } from "@/components/common/table/table-params";
+import { UserTable } from "@/components/dashboard/admin/users/user-table";
+import { EmptyState } from "@/components/dashboard/shared/empty-state";
+import { PageHeader } from "@/components/dashboard/shared/page-header";
+import { getUsersTableAction } from "@/features/user/actions";
 import { UpdatePasswordForm } from "@/components/profile/update-password";
 
-export const metadata: Metadata = { title: "Update password" };
+export const metadata: Metadata = { title: "Users" };
 
-export default function AdminUpdatePasswordPage() {
+
+
+export default function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
-    <>
-      <div className="rounded-3xl border border-fg/10 bg-panel/60 p-6 sm:p-8">
-        <UpdatePasswordForm />
-      </div>
-    </>
+    <div>
+
+      <UpdatePasswordForm />
+    </div>
   );
 }

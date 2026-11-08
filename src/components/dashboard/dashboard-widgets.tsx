@@ -3,6 +3,7 @@ import {
   Wallet, Ticket, CalendarDays, UserPlus, TrendingUp, TrendingDown, Armchair, CircleDollarSign,
 } from "lucide-react";
 import dayjs from "dayjs";
+import { LocalTime } from "@/components/dashboard/events/local-time";
 import type { RevenuePoint } from "@/features/dashboard/types";
 
 const card = "rounded-2xl border border-fg/15 bg-panel/50 p-5";
@@ -66,13 +67,13 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 export function DateChip({ iso }: { iso: string }) {
-  const d = dayjs(iso);
-  if (!d.isValid()) return null;
+  if (!dayjs(iso).isValid()) return null;
+  // LocalTime browser এর timezone এ দেখায়, তাই server/browser mismatch এর warning শুধু ওই ছোট অংশে সীমিত থাকে
   return (
-    <div suppressHydrationWarning className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-fg/10 text-center leading-tight">
+    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-fg/10 text-center leading-tight">
       <div>
-        <div className="text-base font-bold">{d.format("DD")}</div>
-        <div className="text-[11px] text-fg/60">{d.format("MMM")}</div>
+        <div className="text-base font-bold"><LocalTime iso={iso} format="DD" /></div>
+        <div className="text-[11px] text-fg/60"><LocalTime iso={iso} format="MMM" /></div>
       </div>
     </div>
   );

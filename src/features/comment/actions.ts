@@ -11,6 +11,7 @@ import {
   deleteCommentRequest,
 } from "./service";
 import { toComment, toCommentTree, type CommentItem } from "./types";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type CommentsResult = {
   success: boolean;
@@ -19,6 +20,9 @@ export type CommentsResult = {
 };
 
 export async function getCommentsAction(blogId: number | string): Promise<CommentsResult> {
+    "use cache";
+    cacheTag("comments");
+    cacheLife("minutes");
   try {
     const res = await listCommentsByBlogRequest(blogId);
     return { success: true, comments: toCommentTree(res.data.data) };

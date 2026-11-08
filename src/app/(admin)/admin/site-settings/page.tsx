@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/dashboard/shared/page-header";
@@ -7,6 +8,7 @@ import { getSiteSettingsAdminAction } from "@/features/settings/actions";
 export const metadata: Metadata = { title: "Site settings" };
 
 async function SiteSettingsContent() {
+  await connection();
   const res = await getSiteSettingsAdminAction();
   if (!res.success || !res.settings) return <p className="text-sm text-red-500">{res.message ?? "Could not load site settings."}</p>;
   return <SiteSettingsForm settings={res.settings} />;

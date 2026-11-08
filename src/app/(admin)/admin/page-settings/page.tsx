@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/dashboard/shared/page-header";
@@ -8,6 +9,8 @@ import { getAllPageContentsAction } from "@/features/settings/actions";
 export const metadata: Metadata = { title: "Page settings" };
 
 async function PageSettingsContent() {
+  // backend call (publicApi) এ token/cookie লাগে না, তাই এটা না দিলে build এ prerender করতে গিয়ে Date.now() error হয়
+  await connection();
   const [pagesRes, langRes] = await Promise.all([getAllPageContentsAction(), getLanguagesAction()]);
   const languages = (langRes.languages ?? []).map((l) => ({ code: l.code, name: l.name }));
   return (

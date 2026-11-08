@@ -19,6 +19,7 @@ import {
   updateEventCategoryRequest,
 } from "./service";
 import { eventCategorySchema, type EventCategoryFormValues } from "./schemas";
+import { cacheLife, cacheTag } from "next/cache";
 
 // ফাঁকা language বাদ দিই, backend এ শুধু যেগুলো লেখা হয়েছে সেগুলো যাবে।
 const clean = (r: Record<string, string>) =>
@@ -33,6 +34,9 @@ export type EventCategoryResult = {
 };
 
 export async function getEventCategoriesAction(lang: string): Promise<EventCategoryResult> {
+    // "use cache";
+    // cacheTag("event-categories");
+    // cacheLife("minutes");
   try {
     const res = await getEventCategoriesRequest(lang);
     const eventCategories = res.data.data.docs.map(toEventCategoryListItem);
@@ -56,6 +60,9 @@ export async function getEventCategoryTableAction(
   params: TableParams,
   lang: string,
 ): Promise<EventCategoryTableResult> {
+    "use cache";
+    cacheTag("event-categories");
+    cacheLife("minutes");
   try {
     const res = await listEventCategoriesRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -76,6 +83,9 @@ export type EventCategoryDetailResult = {
 export async function getEventCategoryByIdAction(
   id: string | number,
 ): Promise<EventCategoryDetailResult> {
+    // "use cache";
+    // cacheTag("event-categories");
+    // cacheLife("minutes");
   try {
     const res = await getEventCategoryByIdRequest(id);
     return { success: true, eventCategory: toEventCategory(res.data.data) };

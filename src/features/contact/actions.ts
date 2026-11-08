@@ -7,6 +7,7 @@ import type { ActionResult } from "@/components/common/table/data-table";
 import { contactSchema, replySchema, type ContactInput } from "./schemas";
 import { toContact, type Contact } from "./types";
 import { createContactRequest, listAdminContactsRequest, replyContactRequest } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type ContactTableResult = {
   success: boolean; message?: string; contacts?: Contact[]; meta?: PaginationMeta;
@@ -22,6 +23,9 @@ export async function submitContactAction(input: ContactInput): Promise<ActionRe
 }
 
 export async function getContactTableAction(params: TableParams): Promise<ContactTableResult> {
+  // "use cache";
+  // cacheTag("contacts");
+  // cacheLife("minutes");
   if (!(await getToken())) return { success: false, message: "Please log in.", contacts: [] };
   try {
     const res = await listAdminContactsRequest(toApiParams(params));

@@ -6,6 +6,7 @@ import { toApiParams, type PaginationMeta, type TableParams } from "@/components
 import { bookingSchema, type BookingInput } from "./schemas";
 import { createCheckoutRequest, listAllBookingsRequest, listMyBookingsRequest, getBookingRequest } from "./service";
 import { toBooking, type BookingItem } from "./types";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type CheckoutResult = {
   success: boolean;
@@ -39,6 +40,9 @@ export type BookingTableResult = {
 
 /** Admin: paginated list */
 export async function getAdminBookingsAction(params: TableParams): Promise<BookingTableResult> {
+      // "use cache";
+      // cacheTag("bookings");
+      // cacheLife("minutes");
   try {
     const res = await listAllBookingsRequest(toApiParams(params));
     const { docs, ...meta } = res.data.data;
@@ -53,6 +57,9 @@ export async function getAdminBookingsAction(params: TableParams): Promise<Booki
  * We wrap it as a single-page meta so DataTable still works.
  */
 export async function getMyBookingsAction(): Promise<BookingTableResult> {
+      // "use cache";
+      // cacheTag("bookings");
+      // cacheLife("minutes");
   try {
     const res = await listMyBookingsRequest();
     const list = Array.isArray(res.data.data) ? res.data.data : [];
@@ -78,6 +85,9 @@ export type BookingDetailResult = {
 };
 
 export async function getBookingAction(id: number | string): Promise<BookingDetailResult> {
+      // "use cache";
+      // cacheTag("bookings");
+      // cacheLife("minutes");
   try {
     const res = await getBookingRequest(id);
     return { success: true, booking: toBooking(res.data.data as Record<string, unknown>) };

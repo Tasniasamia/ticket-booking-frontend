@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import { Suspense } from "react";
+import { connection } from "next/server";
 import { CommentSection } from "@/components/comments/comment-section";
 import { BlogStatusSelect } from "@/components/dashboard/admin/blog/blog-status-select";
 import { LocalTime } from "@/components/dashboard/events/local-time";
@@ -19,15 +21,20 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const res = await getAdminBlogAction(id);
-  const [langRes, saved] = await Promise.all([getLanguagesAction(), getLanguageCookie()]);
+  const [langRes, saved] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+  ]);
   const lang = pickLanguage(langRes.languages ?? [], saved);
-  return { title: res.blog ? `Blog #${id}: ${textOf(res.blog.title, lang)}` : "Blog detail" };
+  return {
+    title: res.blog
+      ? `Blog #${id}: ${textOf(res.blog.title, lang)}`
+      : "Blog detail",
+  };
 }
 
-export default async function AdminBlogDetailPage({ params }: Props) {
-  const { id } = await params;
-  if (!/^\d+$/.test(id)) notFound();
-
+/** Slow part — suspends inside <Suspense> */
+async function BlogDetailBody({ id }: { id: string }) {
   const [langRes, saved, res, cRes] = await Promise.all([
     getLanguagesAction(),
     getLanguageCookie(),
@@ -37,39 +44,15 @@ export default async function AdminBlogDetailPage({ params }: Props) {
   const lang = pickLanguage(langRes.languages ?? [], saved);
 
   if (!res.success || !res.blog) notFound();
+
   const blog = res.blog;
   const comments = cRes.comments ?? [];
-
   const title = textOf(blog.title, lang);
   const short = textOf(blog.short_description, lang);
   const body = textOf(blog.long_description, lang);
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title={title !== "—" ? title : `Blog #${blog.id}`}
-        subtitle={`ID ${blog.id}${blog.slug ? ` · /${blog.slug}` : ""}`}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/admin/blog"
-              className="inline-flex items-center gap-1.5 rounded-full border border-fg/20 px-4 py-2 text-sm font-medium hover:bg-fg/10"
-            >
-              <ArrowLeft className="size-4" /> Back to list
-            </Link>
-            {blog.status === "approved" && (
-              <Link
-                href={`/blog/${blog.id}`}
-                target="_blank"
-                className="inline-flex items-center gap-1.5 rounded-full border border-fg/20 px-4 py-2 text-sm font-medium hover:bg-fg/10"
-              >
-                <ExternalLink className="size-4" /> Public view
-              </Link>
-            )}
-          </div>
-        }
-      />
-
+    <>
       <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-fg/15 bg-panel/40 px-5 py-4 text-sm">
         <div className="flex items-center gap-2">
           <span className="text-fg/50">Status</span>
@@ -79,7 +62,9 @@ export default async function AdminBlogDetailPage({ params }: Props) {
         <span>
           <span className="text-fg/50">Author </span>
           {blog.author?.name ?? "—"}
-          {blog.author?.email ? <span className="text-fg/45"> ({blog.author.email})</span> : null}
+          {blog.author?.email ? (
+            <span className="text-fg/45"> ({blog.author.email})</span>
+          ) : null}
         </span>
         <span className="text-fg/30">|</span>
         <span>
@@ -96,56 +81,124 @@ export default async function AdminBlogDetailPage({ params }: Props) {
         <div className="space-y-6">
           {blog.thumbnail?.url && (
             <div className="relative aspect-video overflow-hidden rounded-2xl border border-fg/10">
-              <Image src={blog.thumbnail.url} alt="" fill className="object-cover" sizes="(min-width:1024px) 60vw, 95vw" />
+              <Image
+                src={blog.thumbnail.url}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(min-width:1024px) 60vw, 95vw"
+              />
             </div>
           )}
-          {short && short !== "—" && <p className="text-base font-medium text-fg/75">{short}</p>}
+          {short && short !== "—" && (
+            <p className="text-base font-medium text-fg/75">{short}</p>
+          )}
           {body && body !== "—" && (
-            <div className="whitespace-pre-wrap leading-relaxed text-fg/80">{body}</div>
+            <div className="whitespace-pre-wrap leading-relaxed text-fg/80">
+              {body}
+            </div>
           )}
           {blog.images.length > 0 && (
             <div>
               <h3 className="mb-3 text-sm font-semibold text-fg/60">Gallery</h3>
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {blog.images.map((img) => (
-                  <li key={img.id} className="relative aspect-square overflow-hidden rounded-xl border border-fg/10">
-                    <Image src={img.url} alt="" fill className="object-cover" sizes="200px" />
+                  <li
+                    key={img.id}
+                    className="relative aspect-square overflow-hidden rounded-xl border border-fg/10"
+                  >
+                    <Image
+                      src={img.url}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="200px"
+                    />
                   </li>
                 ))}
               </ul>
             </div>
           )}
-          {/* <div className="rounded-2xl border border-fg/10 bg-panel/30 p-4">
-            <h3 className="mb-2 text-sm font-semibold text-fg/60">All languages</h3>
-            <dl className="space-y-2 text-sm">
-              {Object.entries(blog.title).map(([code, text]) => (
-                <div key={code} className="grid grid-cols-[3rem_1fr] gap-2">
-                  <dt className="uppercase text-fg/45">{code}</dt>
-                  <dd>{text || "—"}</dd>
-                </div>
-              ))}
-            </dl>
-          </div> */}
         </div>
-
-        {/* <aside>
-          <div className="rounded-2xl border border-fg/15 bg-panel/40 p-4 text-sm">
-            <h3 className="font-semibold">Quick info</h3>
-            <ul className="mt-3 space-y-2 text-fg/70">
-              <li>ID: {blog.id}</li>
-              <li>Slug: {blog.slug || "—"}</li>
-              <li>Author ID: {blog.author_id}</li>
-              <li>
-                Updated: <LocalTime iso={blog.updated_at} format="DD MMM YYYY" />
-              </li>
-            </ul>
-          </div>
-        </aside> */}
       </div>
 
       <div className="rounded-2xl border border-fg/15 bg-panel/40 p-6">
-        <CommentSection blogId={blog.id} initialComments={comments} allowAdminDelete />
+        <CommentSection
+          blogId={blog.id}
+          initialComments={comments}
+          allowAdminDelete
+        />
       </div>
+    </>
+  );
+}
+
+/** Lightweight header — can stream first */
+async function BlogDetailHeader({ id }: { id: string }) {
+  const [langRes, saved, res] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+    getAdminBlogAction(id),
+  ]);
+  const lang = pickLanguage(langRes.languages ?? [], saved);
+
+  if (!res.success || !res.blog) notFound();
+
+  const blog = res.blog;
+  const title = textOf(blog.title, lang);
+
+  return (
+    <PageHeader
+      title={title !== "—" ? title : `Blog #${blog.id}`}
+      subtitle={`ID ${blog.id}${blog.slug ? ` · /${blog.slug}` : ""}`}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/blog"
+            className="inline-flex items-center gap-1.5 rounded-full border border-fg/20 px-4 py-2 text-sm font-medium hover:bg-fg/10"
+          >
+            <ArrowLeft className="size-4" /> Back to list
+          </Link>
+          {blog.status === "approved" && (
+            <Link
+              href={`/blog/${blog.id}`}
+              target="_blank"
+              className="inline-flex items-center gap-1.5 rounded-full border border-fg/20 px-4 py-2 text-sm font-medium hover:bg-fg/10"
+            >
+              <ExternalLink className="size-4" /> Public view
+            </Link>
+          )}
+        </div>
+      }
+    />
+  );
+}
+
+export default async function AdminBlogDetailPage({ params }: Props) {
+  await connection();
+
+  const { id } = await params;
+  if (!/^\d+$/.test(id)) notFound();
+
+  return (
+    <div className="space-y-8">
+      {/* Header আলাদা Suspense — দ্রুত আসবে */}
+      <Suspense
+        fallback={
+          <div className="h-16 animate-pulse rounded-2xl bg-fg/10" />
+        }
+      >
+        <BlogDetailHeader id={id} />
+      </Suspense>
+
+      {/* Body + comments — এখানে skeleton */}
+      <Suspense
+        fallback={
+          <div className="h-96 animate-pulse rounded-3xl bg-fg/10" />
+        }
+      >
+        <BlogDetailBody id={id} />
+      </Suspense>
     </div>
   );
 }

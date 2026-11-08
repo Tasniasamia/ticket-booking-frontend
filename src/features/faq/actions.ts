@@ -25,7 +25,6 @@ export type FAQTableResult = {
 
 export async function getPublicFAQsAction(limit = 50): Promise<FAQTableResult> {
    "use cache";
-  
     cacheTag("faq");
     cacheLife("minutes");
   try {
@@ -42,6 +41,7 @@ export async function getPublicFAQsAction(limit = 50): Promise<FAQTableResult> {
 }
 
 export async function getFAQTableAction(params: TableParams): Promise<FAQTableResult> {
+  
   if (!(await getToken())) return { success: false, message: "Please log in.", faqs: [] };
   try {
     const res = await listAdminFAQsRequest(toApiParams(params));

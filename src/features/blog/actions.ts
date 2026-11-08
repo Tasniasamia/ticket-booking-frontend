@@ -19,6 +19,7 @@ import {
   updateBlogStatusRequest,
   type BlogPayload,
 } from "./service";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type BlogTableResult = {
   success: boolean;
@@ -28,6 +29,9 @@ export type BlogTableResult = {
 };
 
 export async function getAdminBlogsAction(params: TableParams, lang: string): Promise<BlogTableResult> {
+    // "use cache";
+    // cacheTag("blogs");
+    // cacheLife("minutes");
   try {
     const res = await listAdminBlogsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -38,6 +42,9 @@ export async function getAdminBlogsAction(params: TableParams, lang: string): Pr
 }
 
 export async function getPublicBlogsAction(params: TableParams, lang: string): Promise<BlogTableResult> {
+    // "use cache";
+    // cacheTag("blogs");
+    // cacheLife("minutes");
   try {
     const res = await listPublicBlogsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -48,6 +55,9 @@ export async function getPublicBlogsAction(params: TableParams, lang: string): P
 }
 
 export async function getMyBlogsAction(params: TableParams, lang: string): Promise<BlogTableResult> {
+    // "use cache";
+    // cacheTag("blogs");
+    // cacheLife("minutes");
   try {
     const res = await listMyBlogsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -65,6 +75,9 @@ export type BlogDetailResult = {
 };
 
 export async function getPublicBlogAction(id: string | number): Promise<BlogDetailResult> {
+    // "use cache";
+    // cacheTag("blogs");
+    // cacheLife("minutes");
   try {
     const res = await getBlogRequest(id);
     const d = res.data.data;
@@ -75,6 +88,9 @@ export async function getPublicBlogAction(id: string | number): Promise<BlogDeta
 }
 
 export async function getAdminBlogAction(id: string | number): Promise<BlogDetailResult> {
+    // "use cache";
+    // cacheTag("blogs");
+    // cacheLife("minutes");
   try {
     const res = await getAdminBlogRequest(id);
     return { success: true, blog: toBlog(res.data.data) };

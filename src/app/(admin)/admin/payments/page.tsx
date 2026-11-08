@@ -1,5 +1,5 @@
-export const instant = false
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AlertTriangle } from "lucide-react";
 import { parseTableParams } from "@/components/common/table/table-params";
 import { PaymentTable } from "@/components/dashboard/payments/payment-table";
@@ -13,36 +13,56 @@ import { getLanguageCookie } from "@/lib/preferences";
 
 export const metadata: Metadata = { title: "Payments" };
 
-export default async function AdminPaymentsPage({
+async function PaymentsContent({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = parseTableParams(await searchParams, ["status"]);
-  const [langRes, saved] = await Promise.all([getLanguagesAction(), getLanguageCookie()]);
+  const [langRes, saved] = await Promise.all([
+    getLanguagesAction(),
+    getLanguageCookie(),
+  ]);
   const lang = pickLanguage(langRes.languages ?? [], saved);
   const res = await getAdminPaymentsAction(params, lang);
 
+  if (res.success && res.payments && res.meta) {
+    return (
+      <>
+        {res.summary && <PaymentSummaryCards summary={res.summary} />}
+        <PaymentTable
+          payments={res.payments}
+          meta={res.meta}
+          lang={lang}
+          showUser
+          showEvent
+        />
+      </>
+    );
+  }
+  return (
+    <EmptyState
+      icon={AlertTriangle}
+      title="Could not load payments"
+      description={res.message}
+    />
+  );
+}
+
+export default function AdminPaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <div>
       <PageHeader
         title="Payments"
         subtitle="All payments with paid dates, methods and status."
       />
-      {res.success && res.payments && res.meta ? (
-        <>
-          {res.summary && <PaymentSummaryCards summary={res.summary} />}
-          <PaymentTable
-            payments={res.payments}
-            meta={res.meta}
-            lang={lang}
-            showUser
-            showEvent
-          />
-        </>
-      ) : (
-        <EmptyState icon={AlertTriangle} title="Could not load payments" description={res.message} />
-      )}
+      <Suspense fallback={<div className="h-96 animate-pulse rounded-3xl bg-fg/10" />}>
+        <PaymentsContent searchParams={searchParams} />
+      </Suspense>
     </div>
   );
 }

@@ -6,8 +6,6 @@ import { LayoutDashboard, LogOut, Menu, Ticket, User, X } from "lucide-react";
 import { CurrencySwitcher, LanguageSwitcher } from "./header-switchers";
 import { Dropdown } from "./dropdown";
 import { logoutAction } from "@/features/auth/actions";
-// import type { Profile } from "@/features/user/profile";
-// import { useUser } from "./user-provider";
 import { ThemeToggle } from "./theme-toggle";
 import { NavLink } from "./nav-link";
 import { Container } from "./section";
