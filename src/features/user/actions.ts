@@ -46,9 +46,14 @@ export async function updateProfileAction(
   }
   if (!(await getToken())) return UNAUTHORIZED;
 
-  const body = { ...parsed.data };
-  if (body.profile_image === null) body.profile_image = "";
-  if (body.profile_image_id === null) body.profile_image_id = 0;
+  // Backend এ profile_image (url) আর profile_image_id আলাদা যায়।
+  // profile_image এখানে আগেই upload হয়ে { id, url } হয়ে এসেছে (file বাদ)। null মানে ছবি সরানো হয়েছে।
+  const { profile_image, ...rest } = parsed.data;
+  const body: Record<string, unknown> = { ...rest };
+  if (profile_image !== undefined) {
+    body.profile_image = profile_image?.url ?? "";
+    body.profile_image_id = profile_image?.id ?? 0;
+  }
 
   try {
     console.log("parsed data of update actions ", parsed.data);

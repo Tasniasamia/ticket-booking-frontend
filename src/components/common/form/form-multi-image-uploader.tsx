@@ -22,7 +22,13 @@ export function FormMultiImageUploader({ name, label, ...rest }: Props) {
     field: { value, onChange },
   } = useController({ name, control });
 
-  const error = get(errors, name)?.message as string | undefined;
+  // array এর ভিতরের item এর error ({ images: [ { message } ] }) ও যেন দেখা যায়
+  const fieldError = get(errors, name) as unknown;
+  const error = (
+    Array.isArray(fieldError)
+      ? (fieldError.find(Boolean) as { message?: string } | undefined)?.message
+      : (fieldError as { message?: string } | undefined)?.message
+  ) as string | undefined;
 
   return (
     <FormField label={label} htmlFor={name}>

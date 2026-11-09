@@ -17,6 +17,7 @@ import {
   getEventCategoryByIdRequest,
   listEventCategoriesRequest,
   updateEventCategoryRequest,
+  type EventCategoryPayload,
 } from "./service";
 import { eventCategorySchema, type EventCategoryFormValues } from "./schemas";
 import { cacheLife, cacheTag, updateTag } from "next/cache";
@@ -119,20 +120,22 @@ const invalid = (error: z.ZodError): EventCategoryFormResult => ({
   fieldErrors: z.flattenError(error).fieldErrors,
 });
 
+// image এখানে আগেই upload হয়ে { id, url } হয়ে এসেছে (file বাদ)। না থাকলে ফাঁকা।
+const toPayload = (v: EventCategoryFormValues): EventCategoryPayload => ({
+  name: clean(v.name),
+  description: clean(v.description),
+  event_category_image_url: v.image?.url ?? "",
+  event_category_image_id: v.image?.id ?? 0,
+});
+
 export async function createEventCategoryAction(
   input: EventCategoryFormValues,
 ): Promise<EventCategoryFormResult> {
   const parsed = eventCategorySchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
-  const { name, description, event_category_image_url, event_category_image_id } = parsed.data;
   try {
-    await createEventCategoryRequest({
-      name: clean(name),
-      description: clean(description),
-      event_category_image_url,
-      event_category_image_id, });
-      updateTag("event-categories")
-
+    await createEventCategoryRequest(toPayload(parsed.data));
+    updateTag("event-categories");
     return { success: true, message: "Event category created." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -145,16 +148,9 @@ export async function updateEventCategoryAction(
 ): Promise<EventCategoryFormResult> {
   const parsed = eventCategorySchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
-  const { name, description, event_category_image_url, event_category_image_id } = parsed.data;
   try {
-    await updateEventCategoryRequest(id, {
-      name: clean(name),
-      description: clean(description),
-      event_category_image_url,
-      event_category_image_id,
-    });
-    updateTag("event-categories")
-
+    await updateEventCategoryRequest(id, toPayload(parsed.data));
+    updateTag("event-categories");
     return { success: true, message: "Event category updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

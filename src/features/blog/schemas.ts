@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { imageItemSchema } from "@/features/media/schemas";
 
 const translations = z.record(z.string(), z.string());
 
@@ -10,9 +11,12 @@ export const blogSchema = z.object({
   short_description: translations,
   long_description: translations,
   slug: z.string().optional(),
-  thumbnail_id: z.number().int().positive("Thumbnail image is required"),
-  thumbnail_url: z.string().min(1, "Thumbnail image is required"),
-  images: z.array(z.object({ id: z.number(), url: z.string() })),
+  // thumbnail: select করলে File সহ বসে, submit এ upload হয়ে { id, url } হয়।
+  // : boolean লিখেছি, নইলে TS output type থেকে null বাদ দিয়ে useForm এর type এর সাথে মেলে না
+  thumbnail: imageItemSchema
+    .nullable()
+    .refine((v): boolean => v !== null, { message: "Thumbnail image is required" }),
+  images: z.array(imageItemSchema),
 });
 
 export type BlogFormValues = z.infer<typeof blogSchema>;

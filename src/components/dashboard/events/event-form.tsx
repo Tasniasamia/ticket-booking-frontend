@@ -1,13 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import dayjs from "dayjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-import { FormProvider, useForm, type FieldPath } from "react-hook-form";
+import { FormProvider, useForm, type FieldErrors, type FieldPath } from "react-hook-form";
 import { FormInput, FormSelect, FormTextarea, SubmitButton } from "@/components/common/form";
 import { FormImageUploader } from "@/components/common/form/form-image-uploader";
 import { FormMultiImageUploader } from "@/components/common/form/form-multi-image-uploader";
 import { createEventAction, updateEventAction } from "@/features/event/actions";
+import {
+  createUploadSession,
+  deleteRemovedMedia,
+  isPendingImage,
+  revokePendingImage,
+} from "@/features/media/deferred";
 import { eventSchema, type EventFormValues } from "@/features/event/schemas";
 import type { EventItem } from "@/features/event/types";
 import type { Language } from "@/features/language/types";
@@ -48,11 +55,26 @@ export function EventForm({ languages, categories, currencies, event, onSuccess 
       price: event?.price ?? 0,
       currency: event?.currency ?? defaultCurrency,
       category_id: event?.category_id ? String(event.category_id) : "",
-      thumbnail_id: event?.thumbnail?.id ?? 0,
-      thumbnail_url: event?.thumbnail?.url ?? "",
+      thumbnail: event?.thumbnail ?? null,
       images: event?.images ?? [],
     },
   });
+
+  // Edit এ form খোলার সময় server এ যে ছবিগুলো ছিল। Save সফল হলে যেগুলো আর নেই সেগুলো মুছব।
+  const originalMediaIds = [event?.thumbnail?.id, ...(event?.images ?? []).map((i) => i.id)].filter(
+    (id): id is number => typeof id === "number" && id > 0,
+  );
+
+  // Form বন্ধ হলে upload না হওয়া ছবির blob preview মুক্ত করো
+  useEffect(
+    () => () => {
+      const { thumbnail, images } = form.getValues();
+      [thumbnail, ...images].forEach((img) => {
+        if (isPendingImage(img)) revokePendingImage(img);
+      });
+    },
+    [form],
+  );
 
   const currencyOptions = currencies.map((c) => ({ value: c.code, label: `${c.code} (${c.symbol})` }));
   // event এর currency এখন disabled হলেও select এ যেন থাকে
@@ -60,31 +82,61 @@ export function EventForm({ languages, categories, currencies, event, onSuccess 
     currencyOptions.push({ value: event.currency, label: event.currency });
   }
 
-  const onSubmit = async (values: EventFormValues) => {
-    try {
-      // datetime-local এর value browser এর timezone এ, এখানেই ISO (UTC) বানিয়ে নিই
-      const payload: EventFormValues = { ...values, starts_at: dayjs(values.starts_at).toISOString() };
+  // Validation fail হলে আগে কিছুই দেখা যেত না, এখন কোন field এ সমস্যা সেটা বলে দেয়
+  const onInvalid = (errors: FieldErrors<EventFormValues>) => {
+    console.error("Event form validation errors:", errors);
+    const first = Object.entries(errors)[0];
+    const msg = (first?.[1] as { message?: string } | undefined)?.message;
+    toast.error(msg ? `${first[0]}: ${msg}` : "Please check the highlighted fields.");
+  };
 
+  const onSubmit = async (values: EventFormValues) => {
+    const { thumbnail } = values;
+    if (!thumbnail) return; // schema আগেই আটকায়, এটা শুধু type এর জন্য
+
+    // এই submit এ যা upload হবে সব এখানে ধরা থাকে, save fail করলে সব মুছে ফেলব
+    const session = createUploadSession({ modelName: "event", modelId: event?.id });
+    let saved = false;
+
+    try {
+      // ১) যে ছবিগুলো এখনো upload হয়নি সেগুলো cloud এ upload (server এর ছবি আবার upload হয় না)
+      const [thumb, ...gallery] = await session.resolveMany([thumbnail, ...values.images]);
+
+      // datetime-local এর value browser এর timezone এ, এখানেই ISO (UTC) বানিয়ে নিই
+      const payload: EventFormValues = {
+        ...values,
+        starts_at: dayjs(values.starts_at).toISOString(),
+        thumbnail: thumb,
+        images: gallery,
+      };
+
+      // ২) তারপর database এ save
       const res = event ? await updateEventAction(event.id, payload) : await createEventAction(payload);
 
       if (res.success) {
+        saved = true;
+        // ৩) Edit এ যে পুরনো ছবি আর ব্যবহার হচ্ছে না সেগুলো এখন server থেকে মুছো
+        if (event) await deleteRemovedMedia(originalMediaIds, [thumb.id, ...gallery.map((g) => g.id)]);
         toast.success(res.message ?? "Saved.");
         onSuccess?.();
         return;
       }
 
+      await session.rollback();
       toast.error(res.message ?? "Could not save.");
       Object.entries(res.fieldErrors ?? {}).forEach(([k, v]) => {
         if (v?.[0]) form.setError(k as FieldPath<EventFormValues>, { message: v[0] });
       });
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      // Save সফল হয়ে গেলে ছবি মুছব না (ওগুলো এখন event এ ব্যবহার হচ্ছে)
+      if (!saved) await session.rollback();
+      toast.error(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     }
   };
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-5">
         {!isEdit && (
           <p className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
             New events stay <b>pending</b> until an admin approves them.
@@ -128,33 +180,19 @@ export function EventForm({ languages, categories, currencies, event, onSuccess 
           <FormSelect name="currency" label="Currency" options={currencyOptions} />
         </div>
 
+        {/* deferred: ছবি select করলে শুধু preview, upload হবে "Submit/Save" এ */}
         <FormImageUploader
-          name="thumbnail_url"
+          name="thumbnail"
           label="Thumbnail image"
-    
-          modelName="event"
-          modelId={event?.id}
-          mediaId={form.watch("thumbnail_id") || null}
-          defaultPreviewUrl={form.watch("thumbnail_url") || null}
+          deferred
           aspect="16/9"
           size="lg"
-          onUploadSuccess={(media) => {
-            form.setValue("thumbnail_id", media.id, { shouldDirty: true, shouldValidate: true });
-            form.setValue("thumbnail_url", media.public_url, { shouldDirty: true, shouldValidate: true });
-            form.clearErrors(["thumbnail_id", "thumbnail_url"]);
-          }}
-          onUploadError={(message: string) => toast.error(message || "Failed to upload image.")}
-          onRemove={() => {
-            form.setValue("thumbnail_id", 0, { shouldDirty: true, shouldValidate: true });
-            form.setValue("thumbnail_url", "", { shouldDirty: true, shouldValidate: true });
-          }}
         />
 
         <FormMultiImageUploader
           name="images"
           label="Gallery images"
-          modelName="event"
-          modelId={event?.id}
+          deferred
           maxFiles={8}
           columns={4}
           aspect="1/1"

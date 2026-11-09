@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { imageItemSchema } from "@/features/media/schemas";
 
 // Form (client) আর PATCH /api/me (server) দুই জায়গায় একই schema।
 export const profileSchema = z.object({
@@ -17,8 +18,8 @@ export const profileSchema = z.object({
     ),
   country: z.string().trim().max(80, "Country is too long"),
   designation: z.string().trim().max(80, "Designation is too long"),
-  profile_image_id: z.number().nullable(),
-  profile_image: z.string().url().nullable(),
+  // select করলে File সহ বসে, Save এ upload হয়ে { id, url } হয়। ছবি না থাকলে null।
+  profile_image: imageItemSchema.nullable(),
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;

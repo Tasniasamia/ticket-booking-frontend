@@ -46,7 +46,8 @@ const invalid = (error: z.ZodError): PaymentMethodFormResult => ({
 });
 
 function toPayload(v: PaymentMethodInput) {
-  return { name: v.name, code: v.code, logo_url: v.logo_url, logo_id: v.logo_id, enable: v.enable, credentials: rowsToCredentials(v.credentials) };
+  // schema তে logo null হলে আগেই আটকে যায়। logo এখানে আগেই upload হয়ে { id, url } হয়ে এসেছে।
+  return { name: v.name, code: v.code, logo_url: v.logo!.url, logo_id: v.logo!.id, enable: v.enable, credentials: rowsToCredentials(v.credentials) };
 }
 
 export async function createPaymentMethodAction(input: PaymentMethodInput): Promise<PaymentMethodFormResult> {

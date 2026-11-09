@@ -13,6 +13,7 @@ import type { Profile } from "@/features/user/type";
 import { FormImageUploader } from "../common/form/form-image-uploader";
 import { ProfileSkeleton } from "../skeleton/profileSkeleton";
 import { StatusBadge } from "../common/badge/status-badge";
+import { deleteRemovedMedia, revokePendingImages, savedIds, toImageItem, withUploadSession } from "@/features/media/deferred";
 
 
 export function ProfileView() {
@@ -147,9 +148,6 @@ function EditForm({
 }) {
   const { setUser } = useUser();
   const isManager = profile.role === "manager";
-  const [profileImageURL, setProfileImageURL] = useState<string | null>(
-    profile.profile_image,
-  );
 
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -160,24 +158,33 @@ function EditForm({
       country: profile.country ?? "",
       designation: profile.designation ?? "",
       address: profile.address ?? "",
-      profile_image_id: profile.profile_image_id ?? null,
-      profile_image: profile.profile_image ?? null,
+      profile_image: toImageItem(profile.profile_image, profile.profile_image_id),
     },
   });
 
-  const onSubmit = async (values: ProfileInput) => {
-    console.log("submitted values:", values);
+  // Edit খোলার সময় server এ যে ছবি ছিল। Save সফল হলে আর ব্যবহার না হলে মুছব।
+  const originalMediaIds = savedIds([toImageItem(profile.profile_image, profile.profile_image_id)]);
 
+  // Form বন্ধ হলে (Cancel/Save) upload না হওয়া ছবির blob preview মুক্ত করো
+  useEffect(() => () => revokePendingImages([form.getValues("profile_image")]), [form]);
+
+  const onSubmit = async (values: ProfileInput) => {
     // designation শুধু manager এর, অন্যদের পাঠিও না
     const payload: Partial<ProfileInput> = { ...values };
     if (!isManager) delete payload.designation;
 
     try {
-      const res = await updateProfileAction(payload);
-      console.log("after sending profile upadate request ", res);
-      console.log("res of update profile", res);
+      // ১) ছবি upload (select করলে শুধু preview ছিল) ২) profile save। Save fail করলে upload হওয়া ছবি মুছে যায়।
+      let finalIds: number[] = [];
+      const res = await withUploadSession({ modelName: "user", modelId: profile.id }, async (session) => {
+        const [image] = values.profile_image ? await session.resolveMany([values.profile_image]) : [null];
+        finalIds = savedIds([image]);
+        return updateProfileAction({ ...payload, profile_image: image });
+      });
 
       if (res.success && res.user) {
+        // ৩) পুরনো ছবি বদলালে/সরালে এখন server থেকে মুছো
+        await deleteRemovedMedia(originalMediaIds, finalIds);
         setUser(res.user);
         toast.success(res.message ?? "Profile updated.");
         onDone();
@@ -191,8 +198,8 @@ function EditForm({
           form.setError(key as keyof ProfileInput, { message: errors[0] });
         }
       });
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     }
   };
 
@@ -234,36 +241,13 @@ function EditForm({
           </div>
 
           <div className="sm:col-span-2">
+            {/* deferred: ছবি select করলে শুধু preview, upload হবে "Save changes" এ */}
             <FormImageUploader
-              name="profile_image" //backend
-              label="Profile Image"//frontend
-              modelName="user"  //backend
-              modelId={profile.id} //backend
-              mediaId={form.watch("profile_image_id")}//backend
-              defaultPreviewUrl={profileImageURL || null} //backend
+              name="profile_image"
+              label="Profile Image"
+              deferred
               aspect="1/1"
               size="md"
-              onUploadSuccess={(media) => {  //main work after upload into media
-                form.setValue("profile_image_id", media.id, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-                form.setValue("profile_image", media.public_url, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-                setProfileImageURL(media.public_url);
-                form.clearErrors(["profile_image", "profile_image_id"]);
-              }}
-              onUploadError={(message: string) => {  //get error upload time
-                toast.error(message || "Failed to upload profile image.");
-              }}
-              onRemove={() => {  //main work after remove image
-                form.setValue("profile_image_id", null, { shouldDirty: true });
-                form.setValue("profile_image", null, { shouldDirty: true });
-                setProfileImageURL(null);
-                form.clearErrors(["profile_image", "profile_image_id"]);
-              }}
             />
           </div>
         </div>

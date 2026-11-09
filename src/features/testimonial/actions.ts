@@ -51,12 +51,20 @@ export async function getTestimonialTableAction(params: TableParams): Promise<Te
   }
 }
 
+// Backend এ image_url + image_id আলাদা যায়। image key না থাকলে (partial update) ছবি ছুঁই না।
+// image এখানে আগেই upload হয়ে { id, url } হয়ে এসেছে (file বাদ)।
+function toPayload(v: Partial<TestimonialInput>): Record<string, unknown> {
+  const { image, ...rest } = v;
+  if (image === undefined) return rest;
+  return { ...rest, image_url: image?.url ?? "", image_id: image?.id ?? 0 };
+}
+
 export async function createTestimonialAction(input: TestimonialInput): Promise<ActionResult> {
   const parsed = testimonialSchema.safeParse(input);
   if (!parsed.success) return { success: false, message: "Please check the form."};
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
-    const res = await createTestimonialRequest(parsed.data);
+    const res = await createTestimonialRequest(toPayload(parsed.data));
     updateTag("testimonials");
     return { success: true, message: res.data.message ?? "Testimonial created." };
   } catch (err) { return { success: false, message: getErrorMessage(err) }; }
@@ -67,7 +75,7 @@ export async function updateTestimonialAction(id: number, input: Partial<Testimo
   if (!parsed.success) return { success: false, message: "Please check the form." };
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
-    const res = await updateTestimonialRequest(id, parsed.data);
+    const res = await updateTestimonialRequest(id, toPayload(parsed.data));
     updateTag("testimonials");
     return { success: true, message: res.data.message ?? "Testimonial updated." };
   } catch (err) { return { success: false, message: getErrorMessage(err) }; }

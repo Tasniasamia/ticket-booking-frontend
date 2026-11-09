@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { FormProvider, useForm, type FieldPath } from "react-hook-form";
@@ -9,6 +10,13 @@ import { createEventCategoryAction, updateEventCategoryAction } from "@/features
 import { eventCategorySchema, type EventCategoryFormValues } from "@/features/event-category/schemas";
 import type { EventCategory } from "@/features/event-category/types";
 import type { Language } from "@/features/language/types";
+import {
+  deleteRemovedMedia,
+  revokePendingImages,
+  savedIds,
+  toImageItem,
+  withUploadSession,
+} from "@/features/media/deferred";
 
 type Props = {
   /** Active language গুলো, default সবার আগে */
@@ -35,18 +43,35 @@ export function EventCategoryForm({ languages, eventCategory, onSuccess }: Props
     defaultValues: {
       name: withSlots(languages, eventCategory?.name),
       description: withSlots(languages, eventCategory?.description),
-      event_category_image_url: eventCategory?.event_category_image_url ?? "",
-      event_category_image_id: eventCategory?.event_category_image_id ?? 0,
+      image: toImageItem(eventCategory?.event_category_image_url, eventCategory?.event_category_image_id),
     },
   });
 
+  // Edit এ form খোলার সময় server এ যে ছবি ছিল। Save সফল হলে আর ব্যবহার না হলে মুছব।
+  const originalMediaIds = savedIds([toImageItem(eventCategory?.event_category_image_url, eventCategory?.event_category_image_id)]);
+
+  // Form বন্ধ হলে upload না হওয়া ছবির blob preview মুক্ত করো
+  useEffect(() => () => revokePendingImages([form.getValues("image")]), [form]);
+
   const onSubmit = async (values: EventCategoryFormValues) => {
     try {
-      const res = eventCategory
-        ? await updateEventCategoryAction(eventCategory.id, values)
-        : await createEventCategoryAction(values);
+      // ১) ছবি upload (select করলে শুধু preview ছিল) ২) database এ save। Save fail করলে upload হওয়া ছবি মুছে যায়।
+      let finalId = 0;
+      const res = await withUploadSession(
+        { modelName: "event_categories", modelId: eventCategory?.id },
+        async (session) => {
+          const [image] = values.image ? await session.resolveMany([values.image]) : [null];
+          finalId = image?.id ?? 0;
+          const payload: EventCategoryFormValues = { ...values, image };
+          return eventCategory
+            ? updateEventCategoryAction(eventCategory.id, payload)
+            : createEventCategoryAction(payload);
+        },
+      );
 
       if (res.success) {
+        // ৩) Edit এ পুরনো ছবি বদলালে/সরালে এখন server থেকে মুছো
+        if (eventCategory) await deleteRemovedMedia(originalMediaIds, finalId > 0 ? [finalId] : []);
         toast.success(res.message ?? "Saved.");
         onSuccess?.();
         return;
@@ -56,8 +81,8 @@ export function EventCategoryForm({ languages, eventCategory, onSuccess }: Props
       Object.entries(res.fieldErrors ?? {}).forEach(([k, v]) => {
         if (v?.[0]) form.setError(k as FieldPath<EventCategoryFormValues>, { message: v[0] });
       });
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     }
   };
 
@@ -76,27 +101,8 @@ export function EventCategoryForm({ languages, eventCategory, onSuccess }: Props
           ))}
         </div>
 
-        <FormImageUploader
-          name="event_category_image_url"
-          label="Category Image"
-          modelName="event_categories" // backend এর model নাম অনুযায়ী মিলিয়ে নাও
-          modelId={eventCategory?.id}
-          mediaId={form.watch("event_category_image_id") || null}
-          defaultPreviewUrl={form.watch("event_category_image_url") || null}
-          aspect="1/1"
-          size="md"
-          onUploadSuccess={(media) => {
-            form.setValue("event_category_image_id", media.id, { shouldDirty: true, shouldValidate: true });
-            form.setValue("event_category_image_url", media.public_url, { shouldDirty: true, shouldValidate: true });
-            form.clearErrors(["event_category_image_url", "event_category_image_id"]);
-          }}
-          onUploadError={(message: string) => toast.error(message || "Failed to upload image.")}
-          onRemove={() => {
-            form.setValue("event_category_image_id", 0, { shouldDirty: true });
-            form.setValue("event_category_image_url", "", { shouldDirty: true });
-            form.clearErrors(["event_category_image_url", "event_category_image_id"]);
-          }}
-        />
+        {/* deferred: ছবি select করলে শুধু preview, upload হবে "Save" এ */}
+        <FormImageUploader name="image" label="Category Image" deferred aspect="1/1" size="md" />
 
         <SubmitButton loadingText="Saving...">{isEdit ? "Save changes" : "Create event category"}</SubmitButton>
       </form>

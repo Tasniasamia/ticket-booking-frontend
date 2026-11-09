@@ -6,7 +6,8 @@ import {
   ImageUploader,
   type ImageUploaderProps,
   type ImageUploaderValue,
-} from "./image-uploader"; // ← এখানে change
+  type DeferredImageValue,
+} from "./image-uploader";
 import type { MediaModelName } from "@/features/media/types";
 
 type FormImageUploaderProps = Omit<
@@ -18,6 +19,12 @@ type FormImageUploaderProps = Omit<
   modelName?: MediaModelName;
 };
 
+/**
+ * react-hook-form এর সাথে বাঁধা।
+ * - deferred=false (default): আগের মতো select করলেই upload হয়
+ * - deferred=true: field এর value তে ImageItem ({ id, url, file? }) থাকে,
+ *   upload হয় form submit এর সময়
+ */
 export function FormImageUploader({
   name,
   label,
@@ -37,10 +44,9 @@ export function FormImageUploader({
   return (
     <FormField label={label} htmlFor={name} error={error}>
       <ImageUploader
-      
         id={name}
         name={name}
-        value={(value as ImageUploaderValue) ?? null}
+        value={(value as ImageUploaderValue | DeferredImageValue) ?? null}
         onChange={onChange}
         onBlur={onBlur}
         modelName={modelName}

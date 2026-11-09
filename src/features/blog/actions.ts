@@ -121,8 +121,9 @@ const toPayload = (v: BlogFormValues): BlogPayload => {
     title,
     short_description: clean(v.short_description),
     long_description: clean(v.long_description),
-    thumbnail_image: { id: v.thumbnail_id, url: v.thumbnail_url },
-    images: v.images,
+    // schema তে thumbnail null হলে আগেই আটকে যায়। file বাদ দিয়ে শুধু { id, url } যায়।
+    thumbnail_image: { id: v.thumbnail!.id, url: v.thumbnail!.url },
+    images: v.images.map(({ id, url }) => ({ id, url })),
     slug,
   };
 };

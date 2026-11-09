@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, type FieldPath } from "react-hook-form";
 import { FormInput, FormTextarea, SubmitButton } from "@/components/common/form";
 import { FormImageUploader } from "@/components/common/form/form-image-uploader";
 import { FormMultiImageUploader } from "@/components/common/form/form-multi-image-uploader";
@@ -10,6 +11,7 @@ import { createBlogAction, updateBlogAction } from "@/features/blog/actions";
 import { blogSchema, type BlogFormValues } from "@/features/blog/schemas";
 import type { BlogItem } from "@/features/blog/types";
 import type { Language } from "@/features/language/types";
+import { deleteRemovedMedia, revokePendingImages, savedIds, withUploadSession } from "@/features/media/deferred";
 
 type Props = {
   languages: Language[];
@@ -33,30 +35,57 @@ export function BlogForm({ languages, blog, onSuccess }: Props) {
       short_description: withSlots(languages, blog?.short_description),
       long_description: withSlots(languages, blog?.long_description),
       slug: blog?.slug ?? "",
-      thumbnail_id: blog?.thumbnail?.id ?? 0,
-      thumbnail_url: blog?.thumbnail?.url ?? "",
+      thumbnail: blog?.thumbnail ?? null,
       images: blog?.images ?? [],
     },
   });
 
+  // Edit এ form খোলার সময় server এ যে ছবিগুলো ছিল। Save সফল হলে যেগুলো আর নেই সেগুলো মুছব।
+  const originalMediaIds = savedIds([blog?.thumbnail, ...(blog?.images ?? [])]);
+
+  // Form বন্ধ হলে upload না হওয়া ছবির blob preview মুক্ত করো
+  useEffect(
+    () => () => {
+      const { thumbnail, images } = form.getValues();
+      revokePendingImages([thumbnail, ...images]);
+    },
+    [form],
+  );
+
   const onSubmit = form.handleSubmit(async (values) => {
-    const res = isEdit ? await updateBlogAction(blog!.id, values) : await createBlogAction(values);
-    if (res.success) {
-      toast.success(res.message);
-      onSuccess?.();
-    } else {
-      toast.error(res.message ?? "Failed");
-      if (res.fieldErrors) {
-        for (const [k, msgs] of Object.entries(res.fieldErrors)) {
-          if (msgs?.[0]) form.setError(k as keyof BlogFormValues, { message: msgs[0] });
-        }
+    const { thumbnail } = values;
+    if (!thumbnail) return; // schema আগেই আটকায়, এটা শুধু type এর জন্য
+
+    try {
+      // ১) ছবি upload (select করলে শুধু preview ছিল) ২) database এ save। Save fail করলে upload হওয়া ছবি মুছে যায়।
+      let finalIds: number[] = [];
+      const res = await withUploadSession({ modelName: "blog", modelId: blog?.id }, async (session) => {
+        const [thumb, ...gallery] = await session.resolveMany([thumbnail, ...values.images]);
+        finalIds = savedIds([thumb, ...gallery]);
+        const payload: BlogFormValues = { ...values, thumbnail: thumb, images: gallery };
+        return blog ? updateBlogAction(blog.id, payload) : createBlogAction(payload);
+      });
+
+      if (res.success) {
+        // ৩) Edit এ যে পুরনো ছবি আর ব্যবহার হচ্ছে না সেগুলো এখন server থেকে মুছো
+        if (blog) await deleteRemovedMedia(originalMediaIds, finalIds);
+        toast.success(res.message);
+        onSuccess?.();
+        return;
       }
+
+      toast.error(res.message ?? "Failed");
+      Object.entries(res.fieldErrors ?? {}).forEach(([k, v]) => {
+        if (v?.[0]) form.setError(k as FieldPath<BlogFormValues>, { message: v[0] });
+      });
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     }
   });
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={onSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} noValidate className="space-y-5">
         <div className="grid gap-4 sm:grid-cols-2">
           {languages.map((l) => (
             <FormInput key={`t-${l.code}`} name={`title.${l.code}`} label={`Title (${l.name})`} />
@@ -87,32 +116,13 @@ export function BlogForm({ languages, blog, onSuccess }: Props) {
 
         <FormInput name="slug" label="Slug (optional)" placeholder="auto from title if empty" />
 
-        <FormImageUploader
-          name="thumbnail_url"
-          label="Thumbnail image"
-          modelName="blog"
-          modelId={blog?.id}
-          mediaId={form.watch("thumbnail_id") || null}
-          defaultPreviewUrl={form.watch("thumbnail_url") || null}
-          aspect="16/9"
-          size="lg"
-          onUploadSuccess={(media) => {
-            form.setValue("thumbnail_id", media.id, { shouldDirty: true, shouldValidate: true });
-            form.setValue("thumbnail_url", media.public_url, { shouldDirty: true, shouldValidate: true });
-            form.clearErrors(["thumbnail_id", "thumbnail_url"]);
-          }}
-          onUploadError={(message: string) => toast.error(message || "Failed to upload image.")}
-          onRemove={() => {
-            form.setValue("thumbnail_id", 0, { shouldDirty: true, shouldValidate: true });
-            form.setValue("thumbnail_url", "", { shouldDirty: true, shouldValidate: true });
-          }}
-        />
+        {/* deferred: ছবি select করলে শুধু preview, upload হবে "Save" এ */}
+        <FormImageUploader name="thumbnail" label="Thumbnail image" deferred aspect="16/9" size="lg" />
 
         <FormMultiImageUploader
           name="images"
           label="Gallery images"
-          modelName="blog"
-          modelId={blog?.id}
+          deferred
           maxFiles={8}
           columns={4}
           aspect="1/1"

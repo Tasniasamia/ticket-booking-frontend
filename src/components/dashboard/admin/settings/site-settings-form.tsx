@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,9 +8,11 @@ import { toast } from "react-toastify";
 import { FormInput, FormTextarea, SubmitButton } from "@/components/common/form";
 import { FormImageUploader } from "@/components/common/form/form-image-uploader";
 import { findMediaIdByUrlAction, saveSiteSettingsAction } from "@/features/settings/actions";
-import { siteSettingsSchema, type SiteSettingsInput } from "@/features/settings/schemas";
+import { siteSettingsFormSchema, type SiteSettingsFormValues } from "@/features/settings/schemas";
 import type { SiteSettings } from "@/features/settings/types";
 import { FormFieldList } from "@/components/common/form/form-field-list";
+import { deleteMediaAction } from "@/features/media/actions";
+import { isPendingImage, revokePendingImages, toImageItem, withUploadSession, type ImageItem } from "@/features/media/deferred";
 
 const card = "space-y-4 rounded-3xl border border-fg/15 bg-panel/40 p-5 sm:p-6";
 // Logo ও "banner" model নামে upload হয় (backend এর media allowed list এ আছে)
@@ -18,16 +20,16 @@ const LOGO_MODEL = "banner";
 
 export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
-  const [logoId, setLogoId] = useState<number | null>(null);
 
-  const form = useForm<SiteSettingsInput>({
-    resolver: zodResolver(siteSettingsSchema),
+  const form = useForm<SiteSettingsFormValues>({
+    resolver: zodResolver(siteSettingsFormSchema),
     mode: "onChange",
     defaultValues: {
       site_name: settings.site_name,
       site_email: settings.site_email,
       site_phone: settings.site_phone,
-      site_logo: settings.site_logo,
+      // Settings এ শুধু logo URL থাকে (id নেই), তাই id 0। পুরনো logo মোছার সময় URL থেকে id খুঁজি।
+      site_logo: toImageItem(settings.site_logo, 0),
       site_address: settings.site_address,
       site_description: settings.site_description,
       site_footer: settings.site_footer,
@@ -37,30 +39,42 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
     },
   });
 
-  // Settings এ শুধু logo URL থাকে, তাই "remove" এর জন্য URL থেকে media id খুঁজে নিই
-  useEffect(() => {
-    if (!settings.site_logo) return;
-    let alive = true;
-    findMediaIdByUrlAction(settings.site_logo, LOGO_MODEL).then((id) => alive && setLogoId(id));
-    return () => {
-      alive = false;
-    };
-  }, [settings.site_logo]);
+  // Form বন্ধ হলে upload না হওয়া logo এর blob preview মুক্ত করো
+  useEffect(() => () => revokePendingImages([form.getValues("site_logo")]), [form]);
 
-  const onSubmit = async (values: SiteSettingsInput) => {
+  const onSubmit = async (values: SiteSettingsFormValues) => {
+    const { site_logo: logo } = values;
+    // Save এর সময় আগের logo বদলালে (নতুন ছবি) বা সরালে (null) পুরনোটা server থেকে মুছতে হবে
+    const logoChanged = !!settings.site_logo && (logo === null || isPendingImage(logo));
+
     try {
-      const res = await saveSiteSettingsAction(values);
+      // ১) logo upload (select করলে শুধু preview ছিল) ২) settings save। Save fail করলে upload হওয়া logo মুছে যায়।
+      let savedLogo: ImageItem | null = null;
+      const res = await withUploadSession({ modelName: LOGO_MODEL }, async (session) => {
+        const [uploaded] = logo ? await session.resolveMany([logo]) : [null];
+        savedLogo = uploaded ?? null;
+        return saveSiteSettingsAction({ ...values, site_logo: uploaded?.url ?? "" });
+      });
+
       if (res.success) {
+        // ৩) পুরনো logo এর media id URL দিয়ে খুঁজে মুছো (best effort, save এর result বদলায় না)
+        if (logoChanged) {
+          const oldId = await findMediaIdByUrlAction(settings.site_logo, LOGO_MODEL);
+          if (oldId) await deleteMediaAction(oldId);
+        }
+        // Form এই page এ থেকে যায়, তাই pending file সরিয়ে server এর logo বসাই (নইলে পরের Save এ আবার upload হত)
+        revokePendingImages([logo]);
+        form.reset({ ...values, site_logo: savedLogo });
         toast.success(res.message ?? "Saved.");
         router.refresh();
         return;
       }
       toast.error(res.message ?? "Could not save.");
       Object.entries(res.fieldErrors ?? {}).forEach(([k, v]) => {
-        if (v?.[0]) form.setError(k as FieldPath<SiteSettingsInput>, { message: v[0] });
+        if (v?.[0]) form.setError(k as FieldPath<SiteSettingsFormValues>, { message: v[0] });
       });
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     }
   };
 
@@ -78,25 +92,8 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
           <FormTextarea name="site_description" label="Description (shown in the footer)" rows={3} />
           <FormInput name="site_footer" label="Footer text" placeholder="© TicketBooking. All rights reserved." />
 
-          <FormImageUploader
-            name="site_logo"
-            label="Logo"
-            modelName={LOGO_MODEL}
-            mediaId={logoId}
-            defaultPreviewUrl={form.watch("site_logo") || null}
-            aspect="1/1"
-            size="sm"
-            onUploadSuccess={(media) => {
-              form.setValue("site_logo", media.public_url, { shouldDirty: true, shouldValidate: true });
-              setLogoId(media.id);
-            }}
-            onUploadError={(message: string) => toast.error(message || "Failed to upload image.")}
-            onRemove={() => {
-              form.setValue("site_logo", "", { shouldDirty: true });
-              setLogoId(null);
-              toast.info("Logo removed. Press Save to apply.");
-            }}
-          />
+          {/* deferred: logo select করলে শুধু preview, upload হবে "Save settings" এ */}
+          <FormImageUploader name="site_logo" label="Logo" deferred aspect="1/1" size="sm" />
         </section>
 
         <section className={card}>

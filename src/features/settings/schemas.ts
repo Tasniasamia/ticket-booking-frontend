@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { imageItemSchema } from "@/features/media/schemas";
 
 const url = (msg: string) => z.string().trim().refine((v) => v === "" || /^https?:\/\//i.test(v), { message: msg });
 
@@ -21,6 +22,14 @@ export const siteSettingsSchema = z.object({
 });
 
 export type SiteSettingsInput = z.infer<typeof siteSettingsSchema>;
+
+// Form এ logo একটা ছবি item ({ id, url, file? }), তাই upload submit এর সময় হতে পারে।
+// Server action এ আগের মতোই site_logo string (url) যায়।
+export const siteSettingsFormSchema = siteSettingsSchema.extend({
+  site_logo: imageItemSchema.nullable(),
+});
+
+export type SiteSettingsFormValues = z.infer<typeof siteSettingsFormSchema>;
 
 // Page content এর shape config থেকে আসে (page-config.ts), তাই এখানে ঢিলা কিন্তু নিরাপদ schema:
 // section → field → (string | number | object | array)। শুধু অস্বাভাবিক বড় data আটকাই।
