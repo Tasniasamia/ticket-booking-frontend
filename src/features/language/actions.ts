@@ -14,7 +14,7 @@ import {
   listLanguagesRequest,
   updateLanguageRequest,
 } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type LanguageResult = {
   success: boolean;
@@ -56,8 +56,7 @@ export type LanguageTableResult = {
 };
 
 export async function getLanguageTableAction(params: TableParams): Promise<LanguageTableResult> {
-      "use cache";
-
+ "use cache";
   cacheTag("languages");
   cacheLife("minutes");
   try {
@@ -72,6 +71,7 @@ export async function getLanguageTableAction(params: TableParams): Promise<Langu
 export async function deleteLanguageAction(id: string | number): Promise<ActionResult> {
   try {
     await deleteLanguageRequest(id);
+    updateTag("languages");
     return { success: true, message: "Language deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -99,6 +99,7 @@ export async function createLanguageAction(input: LanguageInput): Promise<Langua
       is_default: isDefault,
       flag,
     });
+    updateTag("languages")
     return { success: true, message: "Language added." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -120,6 +121,7 @@ export async function updateLanguageAction(
       is_default: isDefault,
       flag,
     });
+    updateTag("languages")
     return { success: true, message: "Language updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

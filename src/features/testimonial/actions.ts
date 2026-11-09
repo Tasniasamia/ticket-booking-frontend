@@ -10,7 +10,7 @@ import {
   createTestimonialRequest, deleteTestimonialRequest,
   listAdminTestimonialsRequest, listPublicTestimonialsRequest, updateTestimonialRequest,
 } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type TestimonialTableResult = {
   success: boolean; message?: string; testimonials?: Testimonial[]; meta?: PaginationMeta;
@@ -19,7 +19,6 @@ export async function getPublicTestimonialsAction(
   limitOrParams: number | TableParams = 20,
 ): Promise<TestimonialTableResult> {
    "use cache";
-  
     cacheTag("testimonials");
     cacheLife("minutes");
   try {
@@ -58,6 +57,7 @@ export async function createTestimonialAction(input: TestimonialInput): Promise<
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await createTestimonialRequest(parsed.data);
+    updateTag("testimonials");
     return { success: true, message: res.data.message ?? "Testimonial created." };
   } catch (err) { return { success: false, message: getErrorMessage(err) }; }
 }
@@ -68,6 +68,7 @@ export async function updateTestimonialAction(id: number, input: Partial<Testimo
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await updateTestimonialRequest(id, parsed.data);
+    updateTag("testimonials");
     return { success: true, message: res.data.message ?? "Testimonial updated." };
   } catch (err) { return { success: false, message: getErrorMessage(err) }; }
 }
@@ -76,6 +77,7 @@ export async function deleteTestimonialAction(id: number | string): Promise<Acti
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await deleteTestimonialRequest(id);
+    updateTag("testimonials");
     return { success: true, message: res.data.message ?? "Testimonial deleted." };
   } catch (err) { return { success: false, message: getErrorMessage(err) }; }
 }

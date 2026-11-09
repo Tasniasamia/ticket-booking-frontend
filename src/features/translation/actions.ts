@@ -163,7 +163,7 @@ import {
   listTranslationsRequest,
   updateTranslationRequest,
 } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type TranslationGroupResult = {
   success: boolean;
@@ -189,9 +189,8 @@ export type TranslationTableResult = {
 
 export async function getTranslationTableAction(params: TableParams): Promise<TranslationTableResult> {
     "use cache";
-    
-      cacheTag("translations");
-      cacheLife("minutes");
+     cacheTag("translations");
+    cacheLife("minutes");
   try {
     const res = await listTranslationsRequest(toApiParams(params));
     const { docs, ...meta } = res.data.data;
@@ -204,6 +203,7 @@ export async function getTranslationTableAction(params: TableParams): Promise<Tr
 export async function deleteTranslationAction(key: string | number): Promise<ActionResult> {
   try {
     await deleteTranslationRequest(String(key));
+    updateTag("translations");
     return { success: true, message: "Translation deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -225,6 +225,7 @@ export async function createTranslationAction(input: TranslationInput): Promise<
   if (!parsed.success) return invalid(parsed.error);
   try {
     await createTranslationRequest(parsed.data);
+    updateTag("translations");
     return { success: true, message: "Translation key added." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -239,6 +240,7 @@ export async function updateTranslationAction(
   if (!parsed.success) return invalid(parsed.error);
   try {
     await updateTranslationRequest(key, parsed.data.values);
+    updateTag("translations");
     return { success: true, message: "Translation saved." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -248,7 +250,6 @@ export async function updateTranslationAction(
 /** DEFAULT_MESSAGES থেকে backend-এ নেই এমন key গুলো `en` মান সহ যোগ করে */
 export async function syncDefaultTranslationsAction(): Promise<ActionResult & { added?: number }> {
     "use cache";
-  
     cacheTag("translations");
     cacheLife("minutes");
   try {
@@ -292,6 +293,7 @@ export async function bulkSaveTranslationsAction(
   if (!parsed.success) return { success: false, message: parsed.error.issues[0]?.message ?? "Invalid data." };
   try {
     await bulkUpdateTranslationsRequest(parsed.data);
+    updateTag("translations");
     const n = parsed.data.length;
     return { success: true, saved: n, message: `Saved ${n} text${n === 1 ? "" : "s"}.` };
   } catch (err) {
@@ -309,7 +311,6 @@ export async function getAllTranslationsAction(): Promise<{
   translations?: Translation[];
 }> {
     "use cache";
-  
     cacheTag("translations");
     cacheLife("minutes");
   try {

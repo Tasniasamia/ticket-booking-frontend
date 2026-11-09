@@ -11,7 +11,7 @@ import {
   deleteCommentRequest,
 } from "./service";
 import { toComment, toCommentTree, type CommentItem } from "./types";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type CommentsResult = {
   success: boolean;
@@ -20,9 +20,9 @@ export type CommentsResult = {
 };
 
 export async function getCommentsAction(blogId: number | string): Promise<CommentsResult> {
-    "use cache";
-    cacheTag("comments");
-    cacheLife("minutes");
+  "use cache";
+  cacheTag("comments");
+  cacheLife("minutes");
   try {
     const res = await listCommentsByBlogRequest(blogId);
     return { success: true, comments: toCommentTree(res.data.data) };
@@ -51,6 +51,7 @@ export async function createCommentAction(input: CommentInput): Promise<CommentF
       content: parsed.data.content.trim(),
       parent_id: parsed.data.parent_id ?? null,
     });
+    updateTag("comments");
     return { success: true, message: "Comment posted.", comment: toComment(res.data.data) };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -65,6 +66,7 @@ export async function updateCommentAction(
   if (!trimmed) return { success: false, message: "Comment cannot be empty." };
   try {
     const res = await updateCommentRequest(id, { content: trimmed });
+    updateTag("comments");
     return { success: true, message: "Comment updated.", comment: toComment(res.data.data) };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -74,6 +76,7 @@ export async function updateCommentAction(
 export async function deleteCommentAction(id: number | string): Promise<ActionResult> {
   try {
     await deleteCommentRequest(id);
+    updateTag("comments");
     return { success: true, message: "Comment deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

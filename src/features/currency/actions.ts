@@ -8,7 +8,7 @@ import type { ActionResult } from "@/components/common/table/data-table";
 import { z } from "zod";
 import { currencySchema, type CurrencyInput } from "./schemas";
 import { convertRequest, createCurrencyRequest, deleteCurrencyRequest, updateCurrencyRequest, getCurrenciesRequest, listCurrenciesRequest } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type CurrencyResult = {
   success: boolean;
@@ -70,7 +70,7 @@ export type CurrencyTableResult = {
 
 /** Admin table এর জন্য: disabled সহ সব currency, backend এর pagination/search/filter/sort সহ। */
 export async function getCurrencyTableAction(params: TableParams): Promise<CurrencyTableResult> {
-    "use cache";
+  "use cache";
   cacheTag("currencies");
   cacheLife("minutes");
   try {
@@ -86,6 +86,7 @@ export async function getCurrencyTableAction(params: TableParams): Promise<Curre
 export async function deleteCurrencyAction(id: string | number): Promise<ActionResult> {
   try {
     await deleteCurrencyRequest(id);
+    updateTag("currencies")
     return { success: true, message: "Currency deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -106,6 +107,7 @@ export async function createCurrencyAction(input: CurrencyInput): Promise<Curren
   const { code, name, symbol, rateToBDT, status, isDefault } = parsed.data;
   try {
     await createCurrencyRequest({ code: code.toUpperCase(), name, symbol, rate_to_bdt: rateToBDT, status, is_default: isDefault });
+    updateTag("currencies")
     return { success: true, message: "Currency created." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -118,6 +120,7 @@ export async function updateCurrencyAction(id: string | number, input: CurrencyI
   const { name, symbol, rateToBDT, status } = parsed.data;
   try {
     await updateCurrencyRequest(id, { name, symbol, rate_to_bdt: rateToBDT, status });
+    updateTag("currencies")
     return { success: true, message: "Currency updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

@@ -23,9 +23,7 @@ export async function submitContactAction(input: ContactInput): Promise<ActionRe
 }
 
 export async function getContactTableAction(params: TableParams): Promise<ContactTableResult> {
-  // "use cache";
-  // cacheTag("contacts");
-  // cacheLife("minutes");
+
   if (!(await getToken())) return { success: false, message: "Please log in.", contacts: [] };
   try {
     const res = await listAdminContactsRequest(toApiParams(params));

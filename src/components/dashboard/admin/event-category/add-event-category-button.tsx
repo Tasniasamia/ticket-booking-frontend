@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Modal } from "@/components/common/table/modal";
 import type { Language } from "@/features/language/types";
 import { EventCategoryForm } from "./event-category-form";
 
 export function AddEventCategoryButton({ languages }: { languages: Language[] }) {
-  const router = useRouter();
+  // const router = useRouter();
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ export function AddEventCategoryButton({ languages }: { languages: Language[] })
           languages={languages}
           onSuccess={() => {
             setOpen(false);
-            router.refresh();
+            // router.refresh();
           }}
         />
       </Modal>

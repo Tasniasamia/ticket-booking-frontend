@@ -19,7 +19,7 @@ import {
   updateEventCategoryRequest,
 } from "./service";
 import { eventCategorySchema, type EventCategoryFormValues } from "./schemas";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 // ফাঁকা language বাদ দিই, backend এ শুধু যেগুলো লেখা হয়েছে সেগুলো যাবে।
 const clean = (r: Record<string, string>) =>
@@ -34,9 +34,9 @@ export type EventCategoryResult = {
 };
 
 export async function getEventCategoriesAction(lang: string): Promise<EventCategoryResult> {
-    // "use cache";
-    // cacheTag("event-categories");
-    // cacheLife("minutes");
+    "use cache";
+    cacheTag("event-categories");
+    cacheLife("minutes");
   try {
     const res = await getEventCategoriesRequest(lang);
     const eventCategories = res.data.data.docs.map(toEventCategoryListItem);
@@ -83,9 +83,9 @@ export type EventCategoryDetailResult = {
 export async function getEventCategoryByIdAction(
   id: string | number,
 ): Promise<EventCategoryDetailResult> {
-    // "use cache";
-    // cacheTag("event-categories");
-    // cacheLife("minutes");
+    "use cache";
+    cacheTag("event-categories");
+    cacheLife("minutes");
   try {
     const res = await getEventCategoryByIdRequest(id);
     return { success: true, eventCategory: toEventCategory(res.data.data) };
@@ -100,6 +100,7 @@ export async function getEventCategoryByIdAction(
 export async function deleteEventCategoryAction(id: string | number): Promise<ActionResult> {
   try {
     await deleteEventCategoryRequest(id);
+    updateTag("event-categories")
     return { success: true, message: "Event category deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -129,8 +130,9 @@ export async function createEventCategoryAction(
       name: clean(name),
       description: clean(description),
       event_category_image_url,
-      event_category_image_id,
-    });
+      event_category_image_id, });
+      updateTag("event-categories")
+
     return { success: true, message: "Event category created." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -151,6 +153,8 @@ export async function updateEventCategoryAction(
       event_category_image_url,
       event_category_image_id,
     });
+    updateTag("event-categories")
+
     return { success: true, message: "Event category updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

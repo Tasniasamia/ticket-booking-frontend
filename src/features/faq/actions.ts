@@ -14,7 +14,7 @@ import {
   listPublicFAQsRequest,
   updateFAQRequest,
 } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type FAQTableResult = {
   success: boolean;
@@ -64,6 +64,7 @@ export async function createFAQAction(input: FAQInput): Promise<ActionResult> {
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await createFAQRequest(parsed.data);
+    updateTag("faq")
     return { success: true, message: res.data.message ?? "FAQ created." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -78,6 +79,7 @@ export async function updateFAQAction(id: number, input: Partial<FAQInput>): Pro
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await updateFAQRequest(id, parsed.data);
+    updateTag("faq")
     return { success: true, message: res.data.message ?? "FAQ updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -88,6 +90,7 @@ export async function deleteFAQAction(id: number | string): Promise<ActionResult
   if (!(await getToken())) return { success: false, message: "Please log in." };
   try {
     const res = await deleteFAQRequest(id);
+    updateTag("faq")
     return { success: true, message: res.data.message ?? "FAQ deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

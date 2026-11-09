@@ -19,7 +19,7 @@ import {
   updateBlogStatusRequest,
   type BlogPayload,
 } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 export type BlogTableResult = {
   success: boolean;
@@ -29,9 +29,7 @@ export type BlogTableResult = {
 };
 
 export async function getAdminBlogsAction(params: TableParams, lang: string): Promise<BlogTableResult> {
-    // "use cache";
-    // cacheTag("blogs");
-    // cacheLife("minutes");
+   
   try {
     const res = await listAdminBlogsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -42,9 +40,7 @@ export async function getAdminBlogsAction(params: TableParams, lang: string): Pr
 }
 
 export async function getPublicBlogsAction(params: TableParams, lang: string): Promise<BlogTableResult> {
-    // "use cache";
-    // cacheTag("blogs");
-    // cacheLife("minutes");
+
   try {
     const res = await listPublicBlogsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -55,9 +51,7 @@ export async function getPublicBlogsAction(params: TableParams, lang: string): P
 }
 
 export async function getMyBlogsAction(params: TableParams, lang: string): Promise<BlogTableResult> {
-    // "use cache";
-    // cacheTag("blogs");
-    // cacheLife("minutes");
+
   try {
     const res = await listMyBlogsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -75,9 +69,9 @@ export type BlogDetailResult = {
 };
 
 export async function getPublicBlogAction(id: string | number): Promise<BlogDetailResult> {
-    // "use cache";
-    // cacheTag("blogs");
-    // cacheLife("minutes");
+    "use cache";
+    cacheTag("blogs");
+    cacheLife("minutes");
   try {
     const res = await getBlogRequest(id);
     const d = res.data.data;
@@ -88,9 +82,7 @@ export async function getPublicBlogAction(id: string | number): Promise<BlogDeta
 }
 
 export async function getAdminBlogAction(id: string | number): Promise<BlogDetailResult> {
-    // "use cache";
-    // cacheTag("blogs");
-    // cacheLife("minutes");
+
   try {
     const res = await getAdminBlogRequest(id);
     return { success: true, blog: toBlog(res.data.data) };
@@ -140,6 +132,7 @@ export async function createBlogAction(input: BlogFormValues): Promise<BlogFormR
   if (!parsed.success) return invalid(parsed.error);
   try {
     await createBlogRequest(toPayload(parsed.data));
+    updateTag("blogs");
     return { success: true, message: "Blog submitted. It will show publicly once approved." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -151,6 +144,7 @@ export async function updateBlogAction(id: number, input: BlogFormValues): Promi
   if (!parsed.success) return invalid(parsed.error);
   try {
     await updateBlogRequest(id, toPayload(parsed.data));
+    updateTag("blogs");
     return { success: true, message: "Blog updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -160,6 +154,7 @@ export async function updateBlogAction(id: number, input: BlogFormValues): Promi
 export async function deleteBlogAction(id: string | number): Promise<ActionResult> {
   try {
     await deleteBlogRequest(id);
+    updateTag("blogs")
     return { success: true, message: "Blog deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -169,6 +164,7 @@ export async function deleteBlogAction(id: string | number): Promise<ActionResul
 export async function updateBlogStatusAction(blogId: number, status: BlogStatus): Promise<ActionResult> {
   try {
     await updateBlogStatusRequest(blogId, status);
+    updateTag("blogs");
     return { success: true, message: `Blog ${status}.` };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };

@@ -150,7 +150,7 @@ import {
   updateEventStatusRequest,
   type EventPayload,
 } from "./service";
-import { cacheLife, cacheTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 
 /* ---------- List ---------- */
 
@@ -222,6 +222,7 @@ export async function createEventAction(input: EventFormValues): Promise<EventFo
   const payload: EventPayload = { ...toPayload(parsed.data), total_tickets: parsed.data.total_tickets };
   try {
     await createEventRequest(payload);
+    updateTag("events")
     return { success: true, message: "Event submitted. It will show publicly once an admin approves it." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -233,6 +234,7 @@ export async function updateEventAction(id: number, input: EventFormValues): Pro
   if (!parsed.success) return invalid(parsed.error);
   try {
     await updateEventRequest(id, toPayload(parsed.data));
+    updateTag("events")
     return { success: true, message: "Event updated." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -244,6 +246,7 @@ export async function updateEventAction(id: number, input: EventFormValues): Pro
 export async function deleteEventAction(id: string | number): Promise<ActionResult> {
   try {
     await deleteEventRequest(id);
+    updateTag("events")
     return { success: true, message: "Event deleted." };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -254,6 +257,7 @@ export async function deleteEventAction(id: string | number): Promise<ActionResu
 export async function updateEventStatusAction(eventId: number, status: EventStatus): Promise<ActionResult> {
   try {
     await updateEventStatusRequest(eventId, status);
+    updateTag("events")
     return { success: true, message: `Event ${status}.` };
   } catch (err) {
     return { success: false, message: getErrorMessage(err) };
@@ -261,9 +265,9 @@ export async function updateEventStatusAction(eventId: number, status: EventStat
 }
 
 export async function getUpcomingEventsAction(limit = 10) {
-  // "use cache";
-  // cacheTag("events");
-  // cacheLife("minutes");
+  "use cache";
+  cacheTag("events");
+  cacheLife("minutes");
   try {
     const res = await listUpcomingEventsRequest(limit);
     return { success: true, events: res.data };
@@ -278,9 +282,9 @@ export type PublicEventsResult = { success: boolean; message?: string; events?: 
 
 /** /events page: search + category_id filter + pagination, সব backend এই হয়। */
 export async function getPublicEventsAction(params: TableParams, lang: string): Promise<PublicEventsResult> {
-  // "use cache";
-  // cacheTag("events");
-  // cacheLife("minutes");
+  "use cache";
+  cacheTag("events");
+  cacheLife("minutes");
   try {
     const res = await listPublicEventsRequest(toApiParams(params), lang);
     const { docs, ...meta } = res.data.data;
@@ -294,9 +298,9 @@ export type PublicEventResult = { success: boolean; message?: string; notFound?:
 
 /** /events/[id] page */
 export async function getPublicEventAction(id: string): Promise<PublicEventResult> {
-  // "use cache";
-  // cacheTag("events");
-  // cacheLife("minutes");
+  "use cache";
+  cacheTag("events");
+  cacheLife("minutes");
   try {
     const res = await getPublicEventRequest(id);
     return { success: true, event: toEvent(res.data.data) };
@@ -315,7 +319,7 @@ export async function getPublicEventAction(id: string): Promise<PublicEventResul
  */
 export async function getTrendingEventsAction(limit = 8): Promise<{ success: boolean; message?: string; events: EventItem[] }> {
   "use cache";
-  cacheTag("trending-events");
+  cacheTag("events");
   cacheLife("minutes");
   try {
   
